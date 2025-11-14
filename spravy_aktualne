@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>Najnovšie správy</title>
+<style>
+  :root {
+    --text: #222;
+    --muted: #666;
+    --accent: #125945;
+    --border: #c8dcd5;
+    --card-bg: #fff;
+    --thumb-bg: #dbe5e0; /* svetlé pozadie za kartami */
+    --radius: 12px;
+    --gap: 1rem;
+    --shadow: rgba(0,0,0,0.1);
+    --loading-bg: #d4f7dc;
+    --error-bg: #f8d6d6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --text: #eee;
+      --muted: #aaa;
+      --accent: #3ad07b;
+      --border: #444;
+      --card-bg: #2a2d2a;
+      --thumb-bg: #2d2f2c; /* tmavé pozadie za kartami */
+      --shadow: rgba(0,0,0,0.6);
+      --loading-bg: #2a3f31;
+      --error-bg: #442222;
+    }
+  }
+
+  html, body {
+    margin: 0; 
+    padding: 0;
+    background: var(--thumb-bg); /* pozadie za kartami */
+    color: var(--text);
+    font-family: "Segoe UI", sans-serif;
+    overflow-x: hidden;
+    min-height: 100vh;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  ::-webkit-scrollbar { width:0; height:0; }
+
+  #rss-feed {
+    max-width: 1000px;
+    margin: 1rem auto;       /* medzera hore a po bokoch */
+    padding: 0 1rem;         /* vnútorná medzera z bokov */
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); /* úprava pre úzke mobily */
+    gap: var(--gap);
+    background: transparent;
+  }
+
+  .item-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 10px var(--shadow);
+    transition: transform 0.2s, box-shadow 0.2s;
+    opacity: 0;
+    animation: fadeIn 0.3s forwards;
+    overflow: hidden;
+  }
+  .item-card:hover { transform: translateY(-4px); box-shadow:0 8px 20px var(--shadow); }
+
+  .item-thumb {
+    width: 100%;
+    height: auto;
+    max-height: 180px;
+    object-fit: cover;
+    border-top-left-radius: var(--radius);
+    border-top-right-radius: var(--radius);
+    background: var(--thumb-bg);
+  }
+  video.item-thumb {
+    max-height: 200px;
+    border-top-left-radius: var(--radius);
+    border-top-right-radius: var(--radius);
+  }
+
+  .item-content { padding:1rem; display:flex; flex-direction: column; flex:1; }
+  .item-content h2 { margin:0 0 0.5rem; font-size:1.25rem; color:var(--accent); }
+  .item-content h2 a { text-decoration:none; color:inherit; }
+  .badges { display:flex; gap:0.5rem; margin-bottom:0.75rem; flex-wrap:wrap; }
+  .badge { font-size:0.75rem; padding:2px 6px; background:var(--accent); color:#fff; border-radius:6px; }
+  .badge.source { background:var(--muted); }
+  .item-content p { flex:1; margin:0 0 1rem; font-size:0.95rem; color:var(--text); line-height:1.5; }
+  .read-more-btn { 
+    width: 100%; 
+    max-width: 200px; 
+    margin: 0.45rem auto; 
+    padding:0.45rem 0.35rem; 
+    font-size:0.85rem; 
+    background:var(--accent); 
+    color:#fff; 
+    border-radius:500px; 
+    text-align:center; 
+    font-weight:600; 
+    text-decoration:none; 
+    transition: background 0.2s, transform 0.2s; 
+    box-shadow:0 1px 3px var(--shadow);
+  }
+  .read-more-btn:hover { background:#0f4636; transform:translateY(-2px); }
+
+  .message-box {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: var(--text);
+    border-radius: var(--radius);
+    padding: 1rem;
+    margin: var(--gap) 0;
+    font-size: 1rem;
+    box-shadow: 0 2px 6px var(--shadow);
+  }
+  .loading-msg { background: var(--loading-bg); display:flex; justify-content:center; align-items:center; gap:5px; height:50px; }
+  .error-msg { background: var(--error-bg); }
+
+  .dot {
+    width:10px; height:10px;
+    background: var(--accent);
+    border-radius:50%;
+    animation: blink 1.4s infinite both;
+  }
+  .dot:nth-child(1){ animation-delay: 0s; }
+  .dot:nth-child(2){ animation-delay: 0.2s; }
+  .dot:nth-child(3){ animation-delay: 0.4s; }
+
+  @keyframes blink {
+    0%, 80%, 100% { opacity: 0; transform: scale(0.8); }
+    40% { opacity: 1; transform: scale(1); }
+  }
+
+  @keyframes fadeIn { to { opacity:1; } }
+</style>
+</head>
+<body>
+<div id="rss-feed">
+  <div class="message-box loading-msg">
+    <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+  </div>
+</div>
+
+<script>
+(async function(){
+  const FEEDS = [
+    "https://spravy.pravda.sk/rss/xml","https://domov.sme.sk/rss","https://hnonline.sk/feed",
+    "https://touchit.sk/feed","https://www.teraz.sk/rss/vsetky-spravy.rss","https://www.startitup.sk/feed/",
+    "https://www.ta3.com/rss/5/spravy","https://www.info.sk/rss/","https://www.novinky.cz/rss",
+    "https://www.imeteo.sk/rss/news","https://spravy.pravda.sk/regiony/rss/xml/","https://sita.sk/feed/",
+    "https://www.ceskenoviny.cz/sluzby/rss/zpravy.php","https://refresher.sk/rss","https://www.bratislavak.sk/rss",
+    "https://sportweb.pravda.sk/rss/xml/","https://www.aktuality.sk/rss/","https://zive.aktuality.sk/rss/najnovsie/",
+    "https://www.zive.cz/rss","https://www.reflex.cz/rss","https://www.mojandroid.sk/feed/atom/",
+    "https://androidportal.sk/feed/","https://spravy.stvr.sk/feed/","https://www.blesk.cz/rss",
+    "https://www.newsbyte.sk/feed/","https://ereport.sk/feed","https://standard.sk/feed","https://www.postoj.sk/rss"
+  ];
+
+  const PAGE_SIZE = 10;
+  const BATCH_SIZE = 5;
+  let allItems=[], allItemsRaw=[], index=0;
+
+  async function fetchXMLFeed(url){
+    try{
+      const res = await fetch("https://corsproxy.io/?" + encodeURIComponent(url));
+      const text = await res.text();
+      const xml = new DOMParser().parseFromString(text,"text/xml");
+      const channel = xml.querySelector("channel");
+      const source = channel?.querySelector("title")?.textContent || url;
+
+      const items = [...xml.querySelectorAll("item")].map(item=>{
+        let pub = new Date(
+          item.querySelector("pubDate")?.textContent ||
+          item.querySelector("updated")?.textContent ||
+          item.querySelector("dc\\:date")?.textContent ||
+          item.querySelector("date")?.textContent ||
+          ""
+        );
+        if (isNaN(pub)) pub = new Date();
+
+        let thumb="", video="";
+        const enclosure = item.querySelector("enclosure");
+        if(enclosure){
+          const type = enclosure.getAttribute("type")||"";
+          const url = enclosure.getAttribute("url")||"";
+          if(type.startsWith("image")) thumb = url;
+          else if(type.startsWith("video")) video = url;
+        }
+
+        if(!thumb){
+          const media = item.querySelector("media\\:content, content");
+          if(media && media.getAttribute("url")) thumb = media.getAttribute("url");
+          else{
+            const descHTML = item.querySelector("description")?.textContent||"";
+            const match = descHTML.match(/<img[^>]+src="([^">]+)"/);
+            if(match) thumb = match[1];
+          }
+        }
+
+        // --- vylepšený úryvok ---
+        let rawDesc = item.querySelector("description")?.textContent || "";
+        rawDesc = rawDesc.replace(/<[^>]*>/g, "").trim();
+
+        const descLimit = 240; // raz toľko ako pôvodne
+        let shortDesc = rawDesc.slice(0, descLimit);
+        if (rawDesc.length > descLimit) {
+          shortDesc = shortDesc.slice(0, shortDesc.lastIndexOf(" "));
+        }
+
+        return {
+          title: item.querySelector("title")?.textContent||"",
+          link: item.querySelector("link")?.textContent||"",
+          desc: shortDesc,
+          pubDate: pub,
+          source,
+          thumb,
+          video
+        };
+      }).filter(Boolean);
+      return items;
+    } catch(e){
+      console.warn("Nepodarilo sa načítať feed:", url);
+      return [{title:"Nepodarilo sa načítať feed", link:"#", desc:"", pubDate:new Date(), source:url, thumb:"", video:""}];
+    }
+  }
+
+  const container = document.getElementById("rss-feed");
+
+  const videoObserver = new IntersectionObserver((entries,observer)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        const video = entry.target;
+        video.src = video.dataset.src;
+        video.load();
+        observer.unobserve(video);
+      }
+    });
+  },{ rootMargin:"200px" });
+
+  function createLoader(){
+    const loader = document.createElement("div");
+    loader.className = "message-box loading-msg";
+    loader.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+    return loader;
+  }
+
+  function renderNext(){
+    const prevLoader = container.querySelector(".loading-msg");
+    if(prevLoader) prevLoader.remove();
+
+    const loader = createLoader();
+    container.appendChild(loader);
+
+    setTimeout(()=>{
+      const slice = allItems.slice(index, index+PAGE_SIZE);
+      slice.forEach(i=>{
+        const card = document.createElement("div");
+        card.className = "item-card";
+
+        const isToday = i.pubDate.toDateString()===new Date().toDateString();
+        const badgeDate = `${i.pubDate.toLocaleDateString("sk-SK")} ${i.pubDate.toLocaleTimeString("sk-SK",{hour:"2-digit",minute:"2-digit"})}`;
+
+        card.innerHTML = `
+          ${i.video 
+            ? `<video class="item-thumb lazy-video" data-src="${i.video}" controls preload="metadata"></video>` 
+            : (i.thumb ? `<img class="item-thumb" src="${i.thumb}" alt="${i.title}" loading="lazy">` : ``)
+          }
+          <div class="item-content">
+            <h2><a href="${i.link}" target="_blank" rel="noopener noreferrer">${i.title}</a></h2>
+            <div class="badges">
+              <span class="badge" style="${isToday?'background:#278a50':''}">${isToday?'🟢 ':''}${badgeDate}</span>
+              <span class="badge source">${i.source}</span>
+            </div>
+            <p>${i.desc}…</p>
+            <a class="read-more-btn" href="${i.link}" target="_blank" rel="noopener noreferrer">Čítať viac</a>
+          </div>
+        `;
+        container.appendChild(card);
+
+        const video = card.querySelector("video.lazy-video");
+        if(video) videoObserver.observe(video);
+      });
+
+      loader.remove();
+
+      index += slice.length;
+      if(index < allItems.length){
+        window.addEventListener("scroll", onScroll, {passive:true});
+      } else {
+        const end = document.createElement("div");
+        end.className = "message-box error-msg";
+        end.textContent = "❌Chyba";
+        container.appendChild(end);
+      }
+    }, 300);
+  }
+
+  function onScroll(){
+    if(window.innerHeight + window.scrollY + 100 >= document.body.scrollHeight){
+      window.removeEventListener("scroll", onScroll);
+      renderNext();
+    }
+  }
+
+  // načítavanie feedov po dávkach
+  for (let i = 0; i < FEEDS.length; i += BATCH_SIZE) {
+    const batch = FEEDS.slice(i, i + BATCH_SIZE);
+    const results = await Promise.all(batch.map(fetchXMLFeed));
+    allItemsRaw = allItemsRaw.concat(...results);
+
+    allItems = allItemsRaw.sort((a,b)=>b.pubDate - a.pubDate);
+
+    if (i === 0) renderNext();
+  }
+})();
+</script>
+</body>
+</html>
