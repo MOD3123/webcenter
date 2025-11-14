@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weby</title>
+<style>
+  /* Reset a základ */
+  * { box-sizing: border-box; margin:0; padding:0; }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background:#f5f5f5;
+    color:#222;
+    padding:20px;
+    margin:auto;
+    max-width:100%;
+  }
+
+  h1 { text-align:center; margin-bottom:30px; font-size:2rem; color:#0077cc; }
+  h2 {
+    margin-top:40px; margin-bottom:15px; font-size:1.4rem;
+    color:#0077cc; border-bottom:2px solid #0077cc; padding-bottom:5px;
+  }
+
+  /* Vyhľadávanie */
+  .search-form {
+    display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px;
+  }
+  .search-form input[type="text"] {
+    flex:1 1 250px; padding:12px 15px; font-size:16px;
+    border-radius:10px; border:1px solid #ccc; transition:0.2s;
+  }
+  .search-form input[type="text"]:focus {
+    border-color:#0077cc; outline:none;
+  }
+  .search-form button {
+    padding:12px 25px; font-size:16px; border:none;
+    border-radius:10px; background:#0077cc; color:white;
+    cursor:pointer; transition:0.2s;
+  }
+  .search-form button:hover { background:#005fa3; }
+
+  /* Sekcie a karty */
+  .section {
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap:15px;
+    margin-top:15px;
+  }
+
+  .card {
+    padding:15px;
+    background:white;
+    border-radius:12px;
+    box-shadow:0 3px 8px rgba(0,0,0,0.1);
+    text-align:center;
+    transition:0.2s;
+    cursor:pointer;
+    text-decoration:none;
+    color:#222;
+    font-weight:500;
+    word-wrap:break-word;
+  }
+  .card:hover {
+    box-shadow:0 5px 15px rgba(0,0,0,0.2);
+    transform:translateY(-3px);
+    background:#e6f0fa;
+  }
+  .card span {
+    display:block;
+    font-size:1.3rem;
+    margin-bottom:8px;
+  }
+
+  /* Menšie zariadenia */
+  @media (max-width: 768px) {
+    body { padding:15px; }
+    h1 { font-size:1.7rem; }
+    h2 { font-size:1.2rem; margin-top:30px; }
+    .section { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+    .card { padding:12px; font-size:0.9rem; }
+  }
+
+  @media (max-width: 480px) {
+    .section { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
+    .card span { font-size:1.1rem; }
+    h1 { font-size:1.5rem; }
+  }
+
+  /* Dark mode */
+  @media (prefers-color-scheme: dark) {
+    body { background:#121212; color:#e0e0e0; }
+    h1 { color:#66b2ff; }
+    h2 { color:#66b2ff; border-bottom:2px solid #66b2ff; }
+    .card {
+      background:#1e1e1e;
+      color:#e0e0e0;
+      box-shadow:0 3px 8px rgba(0,0,0,0.5);
+    }
+    .card:hover {
+      background:#2a2a2a;
+      box-shadow:0 5px 15px rgba(0,0,0,0.7);
+    }
+    .search-form input[type="text"] {
+      background:#1e1e1e;
+      color:#e0e0e0;
+      border:1px solid #444;
+    }
+    .search-form input[type="text"]:focus { border-color:#66b2ff; }
+    .search-form button { background:#1e88e5; color:white; }
+    .search-form button:hover { background:#1565c0; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Hľadať</h1>
+
+<!-- Vyhľadávanie -->
+<h2>🔍 Hľadať na webe</h2>
+<form class="search-form" action="https://www.google.com/search" method="get" target="_blank">
+  <input type="text" name="q" placeholder="Zadaj hľadaný výraz...">
+  <button type="submit">Hľadať</button>
+</form>
+
+<!-- SPRÁVY -->
+<h2>📰 Správy</h2>
+<div class="section">
+  <a class="card" href="https://www.sme.sk" target="_blank"><span>📰</span>SME</a>
+  <a class="card" href="https://www.dennikn.sk" target="_blank"><span>📰</span>Denník N</a>
+  <a class="card" href="https://www.hnonline.sk" target="_blank"><span>📰</span>Hospodárske noviny</a>
+  <a class="card" href="https://www.pravda.sk" target="_blank"><span>📰</span>Pravda</a>
+  <a class="card" href="https://www.aktuality.sk" target="_blank"><span>📰</span>Aktuality</a>
+  <a class="card" href="https://www.topky.sk" target="_blank"><span>📰</span>Topky</a>
+  <a class="card" href="https://www.cas.sk" target="_blank"><span>📰</span>Čas</a>
+  <a class="card" href="https://spravy.rtvs.sk" target="_blank"><span>📰</span>RTVS</a>
+  <a class="card" href="https://www.ta3.com" target="_blank"><span>📰</span>TA3</a>
+  <a class="card" href="https://www.idnes.cz" target="_blank"><span>📰</span>iDNES</a>
+  <a class="card" href="https://www.novinky.cz" target="_blank"><span>📰</span>Novinky.cz</a>
+  <a class="card" href="https://www.denik.cz" target="_blank"><span>📰</span>Deník.cz</a>
+  <a class="card" href="https://www.aktualne.cz" target="_blank"><span>📰</span>Aktuálně.cz</a>
+  <a class="card" href="https://www.seznamzpravy.cz" target="_blank"><span>📰</span>Seznam Zprávy</a>
+  <a class="card" href="https://www.lidovky.cz" target="_blank"><span>📰</span>Lidovky</a>
+  <a class="card" href="https://echo24.cz" target="_blank"><span>📰</span>Echo24</a>
+</div>
+
+<!-- E-SHOPY -->
+<h2>🛒 E-shopy</h2>
+<div class="section">
+  <a class="card" href="https://www.alza.sk" target="_blank"><span>🛒</span>Alza</a>
+  <a class="card" href="https://www.mall.sk" target="_blank"><span>🛒</span>Mall</a>
+  <a class="card" href="https://www.hej.sk" target="_blank"><span>🛒</span>Hej.sk</a>
+  <a class="card" href="https://www.datart.sk" target="_blank"><span>🛒</span>Datart</a>
+  <a class="card" href="https://www.nay.sk" target="_blank"><span>🛒</span>Nay</a>
+  <a class="card" href="https://www.heureka.sk" target="_blank"><span>🛒</span>Heureka</a>
+  <a class="card" href="https://www.zoot.sk" target="_blank"><span>🛒</span>Zoot</a>
+  <a class="card" href="https://www.notino.sk" target="_blank"><span>🛒</span>Notino</a>
+</div>
+
+<!-- TV & MÉDIÁ -->
+<h2>📺 TV & Médiá</h2>
+<div class="section">
+  <a class="card" href="https://www.rtvs.sk" target="_blank"><span>📺</span>RTVS</a>
+  <a class="card" href="https://www.markiza.sk" target="_blank"><span>📺</span>Markíza</a>
+  <a class="card" href="https://www.joj.sk" target="_blank"><span>📺</span>JOJ</a>
+  <a class="card" href="https://www.ta3.com" target="_blank"><span>📺</span>TA3</a>
+  <a class="card" href="https://www.ceskatelevize.cz" target="_blank"><span>📺</span>ČT</a>
+  <a class="card" href="https://www.iprima.cz" target="_blank"><span>📺</span>Prima</a>
+  <a class="card" href="https://nova.cz" target="_blank"><span>📺</span>TV Nova</a>
+</div>
+
+<!-- ŠPORT -->
+<h2>⚽ Šport</h2>
+<div class="section">
+  <a class="card" href="https://sport.sme.sk" target="_blank"><span>⚽</span>Šport SME</a>
+  <a class="card" href="https://sport.aktuality.sk" target="_blank"><span>⚽</span>Šport Aktuality</a>
+  <a class="card" href="https://www.sport.sk" target="_blank"><span>⚽</span>Šport.sk</a>
+  <a class="card" href="https://isport.blesk.cz" target="_blank"><span>⚽</span>iSport.cz</a>
+  <a class="card" href="https://www.flashscore.sk" target="_blank"><span>⚽</span>Flashscore</a>
+  <a class="card" href="https://www.hokej.sk" target="_blank"><span>⚽</span>Hokej.sk</a>
+  <a class="card" href="https://www.futbalnet.sk" target="_blank"><span>⚽</span>Futbalnet</a>
+</div>
+
+<!-- ZÁBAVA & SLUŽBY -->
+<h2>🎬 Zábava & služby</h2>
+<div class="section">
+  <a class="card" href="https://www.csfd.sk" target="_blank"><span>🎬</span>ČSFD</a>
+  <a class="card" href="https://www.youtube.com" target="_blank"><span>🎬</span>YouTube</a>
+  <a class="card" href="https://www.ticketportal.sk" target="_blank"><span>🎬</span>Ticketportal</a>
+</div>
+
+<!-- ÚRADY -->
+<h2>🏛️ Úradné stránky</h2>
+<div class="section">
+  <a class="card" href="https://www.slovensko.sk" target="_blank"><span>🏛️</span>Slovensko.sk</a>
+  <a class="card" href="https://www.minv.sk" target="_blank"><span>🏛️</span>Ministerstvo vnútra</a>
+  <a class="card" href="https://www.finance.gov.sk" target="_blank"><span>🏛️</span>Ministerstvo financií</a>
+  <a class="card" href="https://www.minedu.sk" target="_blank"><span>🏛️</span>Ministerstvo školstva</a>
+  <a class="card" href="https://www.mzsr.sk" target="_blank"><span>🏛️</span>Ministerstvo zdravotníctva</a>
+  <a class="card" href="https://www.czso.cz" target="_blank"><span>🏛️</span>ČSÚ</a>
+  <a class="card" href="https://www.mvcr.cz" target="_blank"><span>🏛️</span>Ministerstvo vnútra ČR</a>
+</div>
+
+<!-- DOPRAVA -->
+<h2>🚌 Doprava</h2>
+<div class="section">
+  <a class="card" href="https://www.zssk.sk" target="_blank"><span>🚌</span>ZSSK</a>
+  <a class="card" href="https://www.regiojet.sk" target="_blank"><span>🚌</span>RegioJet</a>
+  <a class="card" href="https://imhd.sk/ba" target="_blank"><span>🚌</span>DPB Bratislava</a>
+  <a class="card" href="https://arriva.sk" target="_blank"><span>🚌</span>Arriva</a>
+  <a class="card" href="https://www.cd.cz" target="_blank"><span>🚌</span>České dráhy</a>
+  <a class="card" href="https://idos.idnes.cz" target="_blank"><span>🚌</span>IDOS</a>
+  <a class="card" href="https://www.flixbus.sk" target="_blank"><span>🚌</span>FlixBus</a>
+</div>
+
+<!-- POČASIE -->
+<h2>🌦 Počasie</h2>
+<div class="section">
+  <a class="card" href="https://www.shmu.sk" target="_blank"><span>🌦</span>SHMÚ</a>
+  <a class="card" href="https://www.chmi.cz" target="_blank"><span>🌦</span>ČHMÚ</a>
+  <a class="card" href="https://www.yr.no" target="_blank"><span>🌦</span>Yr.no</a>
+  <a class="card" href="https://www.meteoblue.com" target="_blank"><span>🌦</span>Meteoblue</a>
+  <a class="card" href="https://www.windy.com" target="_blank"><span>🌦</span>Windy</a>
+  <a class="card" href="https://www.accuweather.com" target="_blank"><span>🌦</span>AccuWeather</a>
+  <a class="card" href="https://weather.com" target="_blank"><span>🌦</span>Weather.com</a>
+  <a class="card" href="https://www.pocasie.sk" target="_blank"><span>🌦</span>Pocasie.sk</a>
+</div>
+
+<!-- MAPY & NAVIGÁCIA -->
+<h2>🗺️ Mapy & navigácia</h2>
+<div class="section">
+  <a class="card" href="https://maps.google.com" target="_blank"><span>🗺️</span>Google Maps</a>
+  <a class="card" href="https://mapy.cz" target="_blank"><span>🗺️</span>Mapy.cz</a>
+  <a class="card" href="https://www.waze.com" target="_blank"><span>🗺️</span>Waze</a>
+  <a class="card" href="https://www.openstreetmap.org" target="_blank"><span>🗺️</span>OpenStreetMap</a>
+  <a class="card" href="https://wego.here.com" target="_blank"><span>🗺️</span>Here WeGo</a>
+  <a class="card" href="https://www.bing.com/maps" target="_blank"><span>🗺️</span>Bing Maps</a>
+  <a class="card" href="https://maps.apple.com" target="_blank"><span>🗺️</span>Apple Maps</a>
+  <a class="card" href="https://www.planet.sk/mapy" target="_blank"><span>🗺️</span>Planet.sk Mapy</a>
+</div>
+
+</body>
+</html>
