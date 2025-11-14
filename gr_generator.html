@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Luxusný QR Generátor</title>
+
+  <!-- QRCodeJS knižnica -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+
+  <style>
+    :root {
+      --blur: 30px;
+      --glass-bg: rgba(255, 255, 255, 0.1);
+      --glass-bg-dark: rgba(0, 0, 0, 0.25);
+      --text: #1f2937;
+      --text-dark: #f3f4f6;
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --bg: #f0f4f8;
+      --bg-dark: #111827;
+      --input-bg: rgba(255, 255, 255, 0.6);
+      --input-bg-dark: rgba(255, 255, 255, 0.1);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      body {
+        background: var(--bg-dark);
+        color: var(--text-dark);
+      }
+      .container {
+        background: var(--glass-bg-dark);
+      }
+      input, select {
+        background: var(--input-bg-dark);
+        color: #fff;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+    }
+
+    .container {
+      width: 100%;
+      max-width: 480px;
+      margin: 40px;
+      padding: 40px;
+      border-radius: 20px;
+      backdrop-filter: blur(var(--blur));
+      background: var(--glass-bg);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+      transition: background 0.3s ease;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 28px;
+      margin-bottom: 30px;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+    }
+
+    label {
+      display: block;
+      margin-top: 20px;
+      margin-bottom: 6px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      background: var(--input-bg);
+      color: #111;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      transition: background 0.3s ease;
+    }
+
+    select option { background-color: white; color: black; }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      background: var(--primary);
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      border-radius: 12px;
+      margin-top: 20px;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.1s ease;
+      box-shadow: 0 6px 16px rgba(99, 102, 241, 0.3);
+    }
+
+    button:hover { background: var(--primary-hover); transform: translateY(-1px); }
+
+    #qrcode {
+      margin-top: 30px;
+      text-align: center;
+    }
+
+    #qrcode > div {
+      padding: 20px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      display: inline-block;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.96); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .footer {
+      margin-top: 30px;
+      text-align: center;
+      font-size: 13px;
+      opacity: 0.6;
+    }
+
+    @media (max-width: 500px) {
+      .container { padding: 30px 20px; }
+      h1 { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>QR Generátor</h1>
+
+    <label for="qrType">Typ QR kódu</label>
+    <select id="qrType">
+      <option value="url">🌐 URL</option>
+      <option value="text">📝 Text</option>
+      <option value="email">📧 E-mail</option>
+      <option value="tel">📞 Telefón</option>
+      <option value="sms">💬 SMS</option>
+    </select>
+
+    <label for="qrInput">Obsah</label>
+    <input type="text" id="qrInput" placeholder="Zadaj text, číslo alebo adresu" maxlength="2000" />
+
+    <label for="qrSize">Veľkosť QR</label>
+    <select id="qrSize">
+      <option value="200">200 x 200</option>
+      <option value="256" selected>256 x 256</option>
+      <option value="300">300 x 300</option>
+    </select>
+
+    <button id="generateBtn">Generovať QR</button>
+
+    <div id="qrcode"></div>
+
+  </div>
+
+  <script>
+    function sanitize(str) {
+      return str.replace(/[&<>"']/g, m =>
+        ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])
+      );
+    }
+
+    function generateQR() {
+      const type = document.getElementById("qrType").value;
+      let input = document.getElementById("qrInput").value.trim();
+      const size = parseInt(document.getElementById("qrSize").value);
+      const qrContainer = document.getElementById("qrcode");
+
+      qrContainer.innerHTML = "";
+
+      if (!input) return alert("Zadaj vstup.");
+      if (input.length > 2000) return alert("Vstup je príliš dlhý (max 2000 znakov).");
+
+      // ✅ Automatické doplnenie https:// ak chýba
+      if (type === "url") {
+        if (!/^https?:\/\//i.test(input)) {
+          input = "https://" + input;
+        }
+      }
+
+      let data = input;
+      if (type === "email") data = "mailto:" + input;
+      else if (type === "tel") data = "tel:" + input;
+      else if (type === "sms") data = "sms:" + input;
+
+      const qrWrapper = document.createElement("div");
+      qrContainer.appendChild(qrWrapper);
+
+      const darkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+      new QRCode(qrWrapper, {
+        text: sanitize(data),
+        width: size,
+        height: size,
+        colorDark: darkMode ? "#ffffff" : "#000000",
+        colorLight: darkMode ? "#111827" : "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+    }
+
+    document.getElementById("generateBtn").addEventListener("click", generateQR);
+  </script>
+</body>
+</html>
