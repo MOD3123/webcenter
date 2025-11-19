@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>Správy SK</title>
+<style>
+  :root {
+    --text-primary: #1c1c1c;
+    --text-secondary: #616161;
+    --text-tertiary: #8a8a8a;
+    --accent: #000d26;
+    --accent-hover: #000a1a;
+    --accent-press: #000000;
+    --accent-secondary: rgba(0, 13, 38, 0.15);
+    --accent-alt: #052213;
+    --accent-alt-hover: #030d0a;
+    --accent-alt-secondary: rgba(22, 163, 74, 0.1);
+    --border: #e0e0e0;
+    --border-subtle: #f0f0f0;
+    --card-bg: #ffffff;
+    --card-bg-secondary: #fafafa;
+    --bg: #f5f5f5;
+    --bg-layer: rgba(255, 255, 255, 0.7);
+    --shadow-flyout: 0 8px 24px rgba(0, 0, 0, 0.12);
+    --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.06);
+    --shadow-card-hover: 0 6px 20px rgba(0, 0, 0, 0.1);
+    --radius-small: 6px;
+    --radius-medium: 10px;
+    --radius-large: 16px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --text-primary: #ffffff;
+      --text-secondary: #c8c8c8;
+      --text-tertiary: #8a8a8a;
+      --accent: #1a4d99;
+      --accent-hover: #0d2d5e;
+      --accent-press: #051a38;
+      --accent-secondary: rgba(26, 77, 153, 0.15);
+      --accent-alt: #1a5c33;
+      --accent-alt-hover: #0d3d1f;
+      --accent-alt-secondary: rgba(74, 222, 128, 0.15);
+      --border: #2e2e2e;
+      --border-subtle: #262626;
+      --card-bg: #202020;
+      --card-bg-secondary: #1c1c1c;
+      --bg: #1a1a1a;
+      --bg-layer: rgba(32, 32, 32, 0.7);
+      --shadow-flyout: 0 8px 24px rgba(0, 0, 0, 0.5);
+      --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.3);
+      --shadow-card-hover: 0 6px 20px rgba(0, 0, 0, 0.4);
+    }
+  }
+  * { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+  }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: 'Segoe UI Variable', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    line-height: 1.5;
+    overflow-x: hidden;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  
+  ::-webkit-scrollbar { 
+    width: 14px; 
+  }
+  ::-webkit-scrollbar-track { 
+    background: transparent; 
+  }
+  ::-webkit-scrollbar-thumb { 
+    background: var(--text-tertiary); 
+    border-radius: 7px;
+    border: 3px solid var(--bg);
+    transition: background 0.2s ease;
+  }
+  ::-webkit-scrollbar-thumb:hover { 
+    background: var(--text-secondary); 
+  }
+
+  header {
+    background: var(--bg-layer);
+    backdrop-filter: blur(60px) saturate(150%);
+    border-bottom: 1px solid var(--border-subtle);
+    padding: 24px 20px;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    animation: slideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  header h1 {
+    font-size: clamp(1.75rem, 5vw, 2.25rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-bottom: 8px;
+    color: #ffffff;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+  header p {
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  #source-selection {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 140px);
+    padding: 32px 16px;
+    animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  .source-menu {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-large);
+    box-shadow: var(--shadow-flyout);
+    max-width: 960px;
+    width: 100%;
+    padding: 40px;
+    animation: scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  .source-menu h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 28px;
+    letter-spacing: -0.02em;
+    text-align: center;
+  }
+  
+  .source-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+  }
+  
+  .source-btn {
+    background: var(--card-bg-secondary);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-medium);
+    padding: 18px 22px;
+    cursor: pointer;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  
+  .source-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--accent-secondary);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  
+  .source-btn:hover {
+    background: var(--card-bg);
+    border-color: var(--accent);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: var(--shadow-card-hover);
+  }
+  
+  .source-btn:hover::before {
+    opacity: 1;
+  }
+  
+  .source-btn:active {
+    transform: translateY(0) scale(0.98);
+    transition: all 0.05s ease;
+  }
+  
+  .source-btn.primary-action {
+    grid-column: 1 / -1;
+    border: 2px solid transparent;
+    font-size: 1.0625rem;
+    padding: 22px;
+    font-weight: 700;
+  }
+  
+  .source-btn.all-sources {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+  
+  .source-btn.all-sources::before {
+    background: rgba(255, 255, 255, 0.15);
+  }
+  
+  .source-btn.all-sources:hover {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+  }
+  
+  .source-btn.website-list {
+    background: var(--accent-alt);
+    color: white;
+    border-color: var(--accent-alt);
+  }
+  
+  .source-btn.website-list::before {
+    background: rgba(255, 255, 255, 0.15);
+  }
+  
+  .source-btn.website-list:hover {
+    background: var(--accent-alt-hover);
+    border-color: var(--accent-alt-hover);
+  }
+
+  #content-view {
+    display: none;
+    animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  #content-view.active {
+    display: block;
+  }
+
+  .toolbar {
+    max-width: 1400px;
+    margin: 28px auto;
+    padding: 0 16px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  
+  .back-btn {
+    padding: 12px 18px;
+    background: var(--card-bg);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-medium);
+    cursor: pointer;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    box-shadow: var(--shadow-card);
+  }
+  
+  .back-btn:hover {
+    background: var(--card-bg-secondary);
+    transform: translateX(-3px);
+    border-color: var(--accent);
+  }
+  
+  .back-btn:active {
+    transform: translateX(0) scale(0.96);
+  }
+  
+  .search-box {
+    flex: 1;
+    min-width: 280px;
+    position: relative;
+  }
+  
+  .search-box input {
+    width: 100%;
+    padding: 12px 18px 12px 44px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-medium);
+    background: var(--card-bg);
+    color: var(--text-primary);
+    font-size: 0.9375rem;
+    transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    box-shadow: var(--shadow-card);
+  }
+  
+  .search-box input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-secondary);
+  }
+  
+  .search-box input::placeholder {
+    color: var(--text-tertiary);
+  }
+  
+  .search-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-tertiary);
+    pointer-events: none;
+    font-size: 1.125rem;
+  }
+  
+  .filter-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  
+  .filter-btn {
+    padding: 12px 18px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-medium);
+    background: var(--card-bg);
+    color: var(--text-primary);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    box-shadow: var(--shadow-card);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .filter-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--accent-secondary);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  
+  .filter-btn:hover {
+    background: var(--card-bg-secondary);
+    transform: translateY(-2px);
+    border-color: var(--accent);
+  }
+  
+  .filter-btn:hover::before {
+    opacity: 1;
+  }
+  
+  .filter-btn.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+  
+  .filter-btn.active::before {
+    opacity: 0;
+  }
+
+  #rss-feed {
+    max-width: 1400px;
+    margin: 0 auto 40px;
+    padding: 0 16px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 20px;
+  }
+
+  @media (max-width: 768px) {
+    #rss-feed {
+      grid-template-columns: 1fr;
+    }
+    .toolbar {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .source-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .item-card {
+    background: var(--card-bg);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-large);
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-card);
+    transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    overflow: hidden;
+    opacity: 0;
+    animation: cardFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    position: relative;
+  }
+  
+  .item-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent) 0%, var(--accent-alt) 100%);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  
+  .item-card:hover { 
+    transform: translateY(-8px) scale(1.015); 
+    box-shadow: var(--shadow-flyout);
+    border-color: var(--accent);
+  }
+  
+  .item-card:hover::before {
+    transform: scaleX(1);
+  }
+
+  .item-thumb {
+    width: 100%;
+    height: 240px;
+    object-fit: cover;
+    background: var(--card-bg-secondary);
+    transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  
+  .item-card:hover .item-thumb {
+    transform: scale(1.08);
+  }
+  
+  video.item-thumb {
+    height: 240px;
+  }
+
+  .item-content { 
+    padding: 24px; 
+    display: flex; 
+    flex-direction: column; 
+    flex: 1; 
+  }
+  
+  .item-content h2 { 
+    margin: 0 0 14px; 
+    font-size: 1.125rem; 
+    font-weight: 700;
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+  }
+  
+  .item-content h2 a { 
+    text-decoration: none; 
+    color: var(--text-primary); 
+    transition: color 0.2s ease;
+  }
+  
+  .item-content h2 a:hover {
+    color: var(--accent);
+  }
+  
+  .badges { 
+    display: flex; 
+    gap: 8px; 
+    margin-bottom: 14px; 
+    flex-wrap: wrap; 
+  }
+  
+  .badge { 
+    font-size: 0.6875rem; 
+    padding: 5px 11px; 
+    background: var(--accent-secondary); 
+    color: var(--accent); 
+    border-radius: 14px; 
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  
+  .badge.source { 
+    background: var(--card-bg-secondary); 
+    color: var(--text-secondary);
+  }
+  
+  .badge.today {
+    background: rgba(16, 124, 16, 0.15);
+    color: #107c10;
+  }
+  
+  @media (prefers-color-scheme: dark) {
+    .badge.today {
+      background: rgba(106, 194, 105, 0.2);
+      color: #6ac269;
+    }
+  }
+  
+  .item-content p { 
+    flex: 1; 
+    margin: 0 0 18px; 
+    font-size: 0.9375rem; 
+    color: var(--text-secondary); 
+    line-height: 1.65; 
+  }
+  
+  .read-more-btn { 
+    width: 100%; 
+    padding: 12px 18px; 
+    font-size: 0.9375rem; 
+    background: var(--accent); 
+    color: white; 
+    border-radius: var(--radius-medium); 
+    text-align: center; 
+    font-weight: 700; 
+    text-decoration: none; 
+    transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
+    border: none;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .read-more-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.15);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  
+  .read-more-btn:hover { 
+    background: var(--accent-hover); 
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-card);
+  }
+  
+  .read-more-btn:hover::before {
+    opacity: 1;
+  }
+  
+  .read-more-btn:active {
+    background: var(--accent-press);
+    transform: translateY(0) scale(0.98);
+  }
+
+  .message-box {
+    grid-column: 1 / -1;
+    text-align: center;
+    background: var(--card-bg);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-large);
+    padding: 40px;
+    box-shadow: var(--shadow-card);
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: 1rem;
+  }
+  
+  .loading-msg { 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    gap: 12px; 
+    min-height: 120px; 
+  }
+
+  .dot {
+    width: 12px; 
+    height: 12px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 1.4s infinite both;
+  }
+  
+  .dot:nth-child(1) { animation-delay: 0s; }
+  .dot:nth-child(2) { animation-delay: 0.2s; }
+  .dot:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes pulse {
+    0%, 80%, 100% { 
+      opacity: 0.4; 
+      transform: scale(0.8); 
+    }
+    40% { 
+      opacity: 1; 
+      transform: scale(1.4); 
+    }
+  }
+
+  @keyframes cardFadeIn { 
+    from { 
+      opacity: 0; 
+      transform: translateY(40px) scale(0.94); 
+    }
+    to { 
+      opacity: 1; 
+      transform: translateY(0) scale(1); 
+    } 
+  }
+
+  @keyframes fadeIn {
+    from { 
+      opacity: 0; 
+    }
+    to { 
+      opacity: 1; 
+    }
+  }
+
+  @keyframes slideDown {
+    from { 
+      opacity: 0; 
+      transform: translateY(-30px); 
+    }
+    to { 
+      opacity: 1; 
+      transform: translateY(0); 
+    }
+  }
+
+  @keyframes scaleIn {
+    from { 
+      opacity: 0; 
+      transform: scale(0.92); 
+    }
+    to { 
+      opacity: 1; 
+      transform: scale(1); 
+    }
+  }
+
+  .stats {
+    max-width: 1400px;
+    margin: 20px auto;
+    padding: 0 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--text-secondary);
+    font-size: 0.9375rem;
+    font-weight: 600;
+  }
+
+  #back-to-top {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    width: 56px;
+    height: 56px;
+    background: var(--card-bg);
+    color: var(--text-primary);
+    border: 1.5px solid var(--border);
+    border-radius: 50%;
+    font-size: 1.75rem;
+    cursor: pointer;
+    box-shadow: var(--shadow-flyout);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    z-index: 99;
+    backdrop-filter: blur(20px);
+  }
+  
+  #back-to-top.visible {
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  #back-to-top:hover {
+    transform: translateY(-6px) scale(1.08);
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+  
+  #back-to-top:active {
+    transform: translateY(-3px) scale(1.02);
+  }
+
+  
+
+  
+
+  
+
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Správy SK</h1>
+</header>
+
+<div id="source-selection">
+  <div class="source-menu">
+    <h2>Ponuka</h2>
+    <div class="source-grid" id="source-grid"></div>
+  </div>
+</div>
+
+<div id="content-view">
+  <div class="toolbar">
+    <button class="back-btn" id="back-btn">
+      <span>←</span>
+      <span>Ponuka</span>
+    </button>
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="search-input" placeholder="Hľadať v nadpisoch a textoch...">
+    </div>
+    <div class="filter-buttons">
+      <button class="filter-btn active" data-filter="all">Všetky</button>
+      <button class="filter-btn" data-filter="today">Dnes</button>
+      <button class="filter-btn" data-filter="video">Video</button>
+    </div>
+  </div>
+
+  <div class="stats">
+    <span id="count-info">Načítavam...</span>
+    <span id="last-update"></span>
+  </div>
+
+  <div id="rss-feed">
+    <div class="message-box loading-msg">
+      <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+    </div>
+  </div>
+</div>
+
+<button id="back-to-top" title="Späť na vrch">↑</button>
+
+<script>
+(async function(){
+  const FEEDS = {
+    "Všetky správy": [
+      "https://spravy.pravda.sk/rss/xml","https://domov.sme.sk/rss","https://hnonline.sk/feed",
+      "https://touchit.sk/feed","https://www.teraz.sk/rss/vsetky-spravy.rss","https://www.startitup.sk/feed/",
+      "https://www.ta3.com/rss/5/spravy","https://www.info.sk/rss/","https://www.novinky.cz/rss",
+      "https://www.imeteo.sk/rss/news","https://spravy.pravda.sk/regiony/rss/xml/","https://sita.sk/feed/",
+      "https://www.ceskenoviny.cz/sluzby/rss/zpravy.php","https://refresher.sk/rss","https://www.bratislavak.sk/rss",
+      "https://sportweb.pravda.sk/rss/xml/","https://www.aktuality.sk/rss/","https://zive.aktuality.sk/rss/najnovsie/",
+      "https://www.zive.cz/rss","https://www.reflex.cz/rss","https://www.mojandroid.sk/feed/atom/",
+      "https://androidportal.sk/feed/","https://spravy.stvr.sk/feed/","https://www.blesk.cz/rss",
+      "https://www.newsbyte.sk/feed/","https://ereport.sk/feed","https://standard.sk/feed","https://www.postoj.sk/rss",
+      "https://cz24.news/feed/"
+    ],
+    "CZ24.news": ["https://cz24.news/feed/"],
+    "eReport": ["https://ereport.sk/feed"],
+    "Pravda.sk": ["https://spravy.pravda.sk/rss/xml"],
+    "SME.sk": ["https://domov.sme.sk/rss"],
+    "HNonline": ["https://hnonline.sk/feed"],
+    "TouchIT": ["https://touchit.sk/feed"],
+    "Teraz.sk": ["https://www.teraz.sk/rss/vsetky-spravy.rss"],
+    "Startitup": ["https://www.startitup.sk/feed/"],
+    "TA3": ["https://www.ta3.com/rss/5/spravy"],
+    "Info.sk": ["https://www.info.sk/rss/"],
+    "Novinky.cz": ["https://www.novinky.cz/rss"],
+    "iMeteo": ["https://www.imeteo.sk/rss/news"],
+    "SITA": ["https://sita.sk/feed/"],
+    "České Noviny": ["https://www.ceskenoviny.cz/sluzby/rss/zpravy.php"],
+    "Refresher": ["https://refresher.sk/rss"],
+    "Bratislavák": ["https://www.bratislavak.sk/rss"],
+    "Šport Pravda": ["https://sportweb.pravda.sk/rss/xml/"],
+    "Aktuality.sk": ["https://www.aktuality.sk/rss/"],
+    "Živé.sk": ["https://zive.aktuality.sk/rss/najnovsie/"],
+    "Zive.cz": ["https://www.zive.cz/rss"],
+    "Reflex": ["https://www.reflex.cz/rss"],
+    "MojAndroid": ["https://www.mojandroid.sk/feed/atom/"],
+    "AndroidPortal": ["https://androidportal.sk/feed/"],
+    "RTVS": ["https://spravy.stvr.sk/feed/"],
+    "Blesk.cz": ["https://www.blesk.cz/rss"],
+    "NewsByte": ["https://www.newsbyte.sk/feed/"],
+    "Standard": ["https://standard.sk/feed"],
+    "Postoj": ["https://www.postoj.sk/rss"]
+  };
+
+  const PAGE_SIZE = 12;
+  const BATCH_SIZE = 5;
+  let allItems = [], filteredItems = [], index = 0;
+  let currentFilter = 'all', searchQuery = '';
+  let selectedSource = null;
+
+  const sourceSelection = document.getElementById("source-selection");
+  const contentView = document.getElementById("content-view");
+  const sourceGrid = document.getElementById("source-grid");
+  const container = document.getElementById("rss-feed");
+  const searchInput = document.getElementById("search-input");
+  const countInfo = document.getElementById("count-info");
+  const lastUpdate = document.getElementById("last-update");
+  const backToTop = document.getElementById("back-to-top");
+  const backBtn = document.getElementById("back-btn");
+
+  function showSourceMenu() {
+    sourceSelection.style.display = "flex";
+    contentView.classList.remove("active");
+    window.scrollTo(0, 0);
+  }
+
+  function showContent() {
+    sourceSelection.style.display = "none";
+    contentView.classList.add("active");
+  }
+
+  function showWebsiteList() {
+    window.open('https://no-ship-it26.github.io/webcenter/spravodajske_weby', '_blank');
+  }
+
+  function initSourceMenu() {
+    sourceGrid.innerHTML = '';
+    
+    const allBtn = document.createElement('button');
+    allBtn.className = 'source-btn primary-action all-sources';
+    allBtn.textContent = '📰 Všetky správy';
+    allBtn.onclick = () => selectSource('Všetky správy');
+    sourceGrid.appendChild(allBtn);
+
+    const listBtn = document.createElement('button');
+    listBtn.className = 'source-btn primary-action website-list';
+    listBtn.textContent = '📋 Zoznam webov';
+    listBtn.onclick = showWebsiteList;
+    sourceGrid.appendChild(listBtn);
+
+    
+
+    Object.keys(FEEDS).forEach(name => {
+      if (name === 'Všetky správy') return;
+      const btn = document.createElement('button');
+      btn.className = 'source-btn';
+      btn.textContent = name;
+      btn.onclick = () => selectSource(name);
+      sourceGrid.appendChild(btn);
+    });
+  }
+
+  async function selectSource(sourceName) {
+    selectedSource = sourceName;
+    showContent();
+    allItems = [];
+    filteredItems = [];
+    index = 0;
+    container.innerHTML = '<div class="message-box loading-msg"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
+    
+    const feeds = FEEDS[sourceName];
+    for (let i = 0; i < feeds.length; i += BATCH_SIZE) {
+      const batch = feeds.slice(i, i + BATCH_SIZE);
+      const results = await Promise.all(batch.map(fetchXMLFeed));
+      allItems = allItems.concat(...results);
+      allItems.sort((a, b) => b.pubDate - a.pubDate);
+      
+      if (i === 0) {
+        applyFilters();
+      }
+    }
+    applyFilters();
+  }
+
+  async function fetchXMLFeed(url){
+    try{
+      const res = await fetch("https://corsproxy.io/?" + encodeURIComponent(url), { timeout: 5000 });
+      const text = await res.text();
+      const xml = new DOMParser().parseFromString(text,"text/xml");
+      const channel = xml.querySelector("channel");
+      const source = channel?.querySelector("title")?.textContent || url;
+
+      const items = [...xml.querySelectorAll("item")].map(item=>{
+        let pub = new Date(
+          item.querySelector("pubDate")?.textContent ||
+          item.querySelector("updated")?.textContent ||
+          item.querySelector("dc\\:date")?.textContent ||
+          item.querySelector("date")?.textContent ||
+          ""
+        );
+        if (isNaN(pub)) pub = new Date();
+
+        let thumb = "", video = "";
+        const enclosure = item.querySelector("enclosure");
+        if(enclosure){
+          const type = enclosure.getAttribute("type") || "";
+          const url = enclosure.getAttribute("url") || "";
+          if(type.startsWith("image")) thumb = url;
+          else if(type.startsWith("video")) video = url;
+        }
+
+        if(!thumb){
+          const media = item.querySelector("media\\:content, content");
+          if(media && media.getAttribute("url")) thumb = media.getAttribute("url");
+          else{
+            const descHTML = item.querySelector("description")?.textContent || "";
+            const match = descHTML.match(/<img[^>]+src="([^">]+)"/);
+            if(match) thumb = match[1];
+          }
+        }
+
+        let rawDesc = item.querySelector("description")?.textContent || "";
+        rawDesc = rawDesc.replace(/<[^>]*>/g, "").trim();
+
+        const descLimit = 200;
+        let shortDesc = rawDesc.slice(0, descLimit);
+        if (rawDesc.length > descLimit) {
+          const lastSpace = shortDesc.lastIndexOf(" ");
+          if(lastSpace > 0) shortDesc = shortDesc.slice(0, lastSpace);
+        }
+
+        return {
+          title: item.querySelector("title")?.textContent || "",
+          link: item.querySelector("link")?.textContent || "",
+          desc: shortDesc,
+          pubDate: pub,
+          source,
+          thumb,
+          video
+        };
+      }).filter(it => it.title && it.link);
+      return items;
+    } catch(e){
+      console.warn("Nepodarilo sa načítať feed:", url, e);
+      return [];
+    }
+  }
+
+  const videoObserver = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        const video = entry.target;
+        video.src = video.dataset.src;
+        video.load();
+        observer.unobserve(video);
+      }
+    });
+  }, { rootMargin: "200px" });
+
+  function applyFilters(){
+    filteredItems = allItems.filter(item => {
+      let matchFilter = true;
+      if(currentFilter === 'today'){
+        const isToday = item.pubDate.toDateString() === new Date().toDateString();
+        matchFilter = isToday;
+      } else if(currentFilter === 'video'){
+        matchFilter = !!item.video;
+      }
+
+      let matchSearch = true;
+      if(searchQuery){
+        const q = searchQuery.toLowerCase();
+        matchSearch = item.title.toLowerCase().includes(q) || 
+                     item.desc.toLowerCase().includes(q) ||
+                     item.source.toLowerCase().includes(q);
+      }
+
+      return matchFilter && matchSearch;
+    });
+
+    index = 0;
+    container.innerHTML = '';
+    updateStats();
+    renderNext();
+  }
+
+  function updateStats(){
+    countInfo.textContent = `Zobrazených: ${Math.min(index + PAGE_SIZE, filteredItems.length)} z ${filteredItems.length} článkov`;
+    lastUpdate.textContent = `Zdroj: ${selectedSource} • ${new Date().toLocaleTimeString('sk-SK')}`;
+  }
+
+  function renderNext(){
+    const prevLoader = container.querySelector(".loading-msg");
+    if(prevLoader) prevLoader.remove();
+
+    if(index >= filteredItems.length){
+      if(container.children.length === 0){
+        const noResults = document.createElement("div");
+        noResults.className = "message-box";
+        noResults.textContent = "😕 Nenašli sa žiadne výsledky";
+        container.appendChild(noResults);
+      } else {
+        const end = document.createElement("div");
+        end.className = "message-box";
+        end.textContent = "✅ Všetky články načítané";
+        container.appendChild(end);
+      }
+      return;
+    }
+
+    const slice = filteredItems.slice(index, index + PAGE_SIZE);
+    slice.forEach((i, idx) => {
+      const card = document.createElement("div");
+      card.className = "item-card";
+      card.style.animationDelay = `${idx * 0.05}s`;
+
+      const isToday = i.pubDate.toDateString() === new Date().toDateString();
+      const badgeDate = `${i.pubDate.toLocaleDateString("sk-SK")} ${i.pubDate.toLocaleTimeString("sk-SK",{hour:"2-digit",minute:"2-digit"})}`;
+
+      card.innerHTML = `
+        ${i.video 
+          ? `<video class="item-thumb lazy-video" data-src="${i.video}" controls preload="metadata"></video>` 
+          : (i.thumb ? `<img class="item-thumb" src="${i.thumb}" alt="${i.title}" loading="lazy">` : '')
+        }
+        <div class="item-content">
+          <h2><a href="${i.link}" target="_blank" rel="noopener noreferrer">${i.title}</a></h2>
+          <div class="badges">
+            <span class="badge ${isToday ? 'today' : ''}">${badgeDate}</span>
+            <span class="badge source">${i.source}</span>
+          </div>
+          <p>${i.desc}${i.desc.length >= 190 ? '...' : ''}</p>
+          <a class="read-more-btn" href="${i.link}" target="_blank" rel="noopener noreferrer">Čítať celý článok →</a>
+        </div>
+      `;
+      container.appendChild(card);
+
+      const video = card.querySelector("video.lazy-video");
+      if(video) videoObserver.observe(video);
+    });
+
+    index += slice.length;
+    updateStats();
+
+    if(index < filteredItems.length){
+      window.addEventListener("scroll", onScroll, { passive: true });
+    }
+  }
+
+  function onScroll(){
+    if(window.innerHeight + window.scrollY + 200 >= document.body.scrollHeight){
+      window.removeEventListener("scroll", onScroll);
+      renderNext();
+    }
+
+    if(window.scrollY > 500){
+      backToTop.classList.add('visible');
+    } else {
+      backToTop.classList.remove('visible');
+    }
+  }
+
+  backToTop.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  backBtn.addEventListener('click', () => {
+    showSourceMenu();
+  });
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFilter = btn.dataset.filter;
+      applyFilters();
+    });
+  });
+
+  let searchTimeout;
+  searchInput.addEventListener('input', (e) => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+      searchQuery = e.target.value.trim();
+      applyFilters();
+    }, 300);
+  });
+
+  initSourceMenu();
+})();
+</script>
+</body>
+</html>
