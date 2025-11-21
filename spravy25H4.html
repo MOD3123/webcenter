@@ -171,11 +171,22 @@
     color: white;
     border-color: var(--accent-alt);
     box-shadow: var(--shadow-md);
-    grid-column: 1 / -1;
   }
 
   .source-btn.website-list:hover {
     background: linear-gradient(135deg, var(--accent-alt-hover), #065f46);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .source-btn.sport {
+    background: linear-gradient(135deg, #1870a8, #1870a8);
+    color: white;
+    border-color: #1a88cd;
+    box-shadow: var(--shadow-md);
+  }
+
+  .source-btn.sport:hover {
+    background: linear-gradient(135deg, #16547b, #175378);
     box-shadow: var(--shadow-lg);
   }
 
@@ -536,6 +547,7 @@
   #back-to-top.visible {
     opacity: 1;
     visibility: visible;
+    display: block;
   }
 
   #back-to-top:hover {
@@ -625,7 +637,7 @@
 
 <div id="source-selection">
   <div class="source-menu">
-    <h2>Ponuka</h2>
+    <h2>Vyberte zdroj správ</h2>
     <div class="source-grid" id="source-grid"></div>
   </div>
 </div>
@@ -674,6 +686,12 @@
       "https://androidportal.sk/feed/","https://spravy.stvr.sk/feed/","https://www.blesk.cz/rss",
       "https://www.newsbyte.sk/feed/","https://ereport.sk/feed","https://standard.sk/feed","https://www.postoj.sk/rss",
       "https://cz24.news/feed/"
+    ],
+    "Šport": [
+      "https://isport.blesk.cz/rss",
+      "https://sportweb.pravda.sk/rss/xml/",
+      "https://www.sport.cz/rss2",
+      "https://sport.aktuality.sk/api/rss"
     ],
     "CZ24.news": ["https://cz24.news/feed/"],
     "eReport": ["https://ereport.sk/feed"],
@@ -744,14 +762,20 @@
     allBtn.onclick = () => selectSource('Všetky správy');
     sourceGrid.appendChild(allBtn);
 
+    const sportBtn = document.createElement('button');
+    sportBtn.className = 'source-btn primary-action sport';
+    sportBtn.textContent = 'Športové správy';
+    sportBtn.onclick = () => selectSource('Šport');
+    sourceGrid.appendChild(sportBtn);
+
     const listBtn = document.createElement('button');
     listBtn.className = 'source-btn primary-action website-list';
-    listBtn.textContent = 'Zoznam webov';
+    listBtn.textContent = 'Zoznam spravodajských webov';
     listBtn.onclick = showWebsiteList;
     sourceGrid.appendChild(listBtn);
 
     Object.keys(FEEDS).forEach(name => {
-      if (name === 'Všetky správy') return;
+      if (name === 'Všetky správy' || name === 'Šport') return;
       const btn = document.createElement('button');
       btn.className = 'source-btn';
       btn.textContent = name;
