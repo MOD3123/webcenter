@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="sk">
 <head>
@@ -627,6 +626,22 @@
     }
   }
 
+
+  @media (max-width: 1024px) {
+    .source-grid {
+      grid-template-columns: 1fr !important;
+      gap: 10px !important;
+      padding: 0 15px !important;
+      max-width: 100% !important;
+    }
+
+    .source-btn {
+      padding: 14px 16px !important;
+      font-size: 14px !important;
+      text-align: center !important;
+      width: 100% !important;
+    }
+  }
 </style>
 </head>
 <body>
@@ -638,7 +653,7 @@
 
 <div id="source-selection">
   <div class="source-menu">
-    <h2>Spravodajské weby</h2>
+    <h2>Správy SK</h2>
     <div class="source-grid" id="source-grid"></div>
   </div>
 </div>
