@@ -70,8 +70,9 @@
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    font-size: 15px;
   }
-  
+
   ::-webkit-scrollbar { 
     width: 12px; 
   }
@@ -98,7 +99,7 @@
     min-height: calc(100vh - 160px);
     padding: 40px 20px;
   }
-  
+
   .source-menu {
     background: var(--card-bg);
     border: 2px solid var(--border);
@@ -108,7 +109,7 @@
     width: 100%;
     padding: 64px 56px;
   }
-  
+
   .source-menu h2 {
     font-size: 2.5rem;
     font-weight: 900;
@@ -117,13 +118,13 @@
     text-align: center;
     color: var(--text-primary);
   }
-  
+
   .source-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     gap: 16px;
   }
-  
+
   .source-btn {
     background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(16, 185, 129, 0.1));
     border: 2px solid var(--border);
@@ -159,19 +160,20 @@
     border-color: var(--accent);
     box-shadow: var(--shadow-md);
   }
-  
+
   .source-btn.all-sources:hover {
     background: linear-gradient(135deg, var(--accent-hover), #1e40af);
     box-shadow: var(--shadow-lg);
   }
-  
+
   .source-btn.website-list {
     background: linear-gradient(135deg, var(--accent-alt), #047857);
     color: white;
     border-color: var(--accent-alt);
     box-shadow: var(--shadow-md);
+    grid-column: 1 / -1;
   }
-  
+
   .source-btn.website-list:hover {
     background: linear-gradient(135deg, var(--accent-alt-hover), #065f46);
     box-shadow: var(--shadow-lg);
@@ -180,35 +182,38 @@
   #content-view {
     display: none;
   }
-  
+
   #content-view.active {
     display: block;
   }
 
   .toolbar {
     max-width: 1440px;
-    margin: 32px auto;
-    padding: 0 20px;
+    margin: 20px auto;
+    padding: 0 15px;
     display: flex;
-    gap: 12px;
+    gap: 8px;
     flex-wrap: wrap;
-    align-items: center;
+    align-items: stretch;
   }
-  
+
   .back-btn {
     background: var(--card-bg);
     color: var(--text-primary);
     border: 2px solid var(--border);
-    padding: 10px 16px;
+    padding: 10px 14px;
     border-radius: var(--radius-md);
     cursor: pointer;
     font-size: 14px;
     font-weight: 600;
     transition: all 0.15s ease;
     display: flex;
-    gap: 8px;
+    gap: 6px;
     align-items: center;
+    justify-content: center;
     box-shadow: var(--shadow-sm);
+    flex: 0 0 auto;
+    min-width: 120px;
   }
 
   .back-btn:hover {
@@ -217,57 +222,57 @@
     color: var(--accent);
     box-shadow: var(--shadow-md);
   }
-  
+
   .search-box {
     flex: 1;
-    min-width: 300px;
+    min-width: 250px;
     position: relative;
   }
-  
+
   .search-box input {
     width: 100%;
-    padding: 12px 20px 12px 44px;
+    padding: 8px 15px 8px 36px;
     border: 2px solid var(--border);
     border-radius: var(--radius-md);
     background: var(--card-bg);
     color: var(--text-primary);
-    font-size: 1rem;
+    font-size: 14px;
     font-weight: 500;
     transition: all 0.2s ease;
     box-shadow: var(--shadow-sm);
   }
-  
+
   .search-box input:focus {
     outline: none;
     border-color: var(--accent);
     box-shadow: 0 0 0 3px var(--accent-light);
   }
-  
+
   .search-box input::placeholder {
     color: var(--text-tertiary);
   }
-  
+
   .search-icon {
     position: absolute;
-    left: 16px;
+    left: 12px;
     top: 50%;
     transform: translateY(-50%);
     color: var(--text-tertiary);
     pointer-events: none;
-    font-size: 1.125rem;
+    font-size: 1rem;
   }
-  
+
   .filter-buttons {
     display: flex;
-    gap: 8px;
+    gap: 6px;
     flex-wrap: wrap;
   }
-  
+
   .filter-btn {
     background: var(--card-bg);
     color: var(--text-primary);
     border: 2px solid var(--border);
-    padding: 10px 18px;
+    padding: 8px 14px;
     border-radius: var(--radius-md);
     cursor: pointer;
     font-size: 14px;
@@ -291,35 +296,50 @@
 
   #rss-feed {
     max-width: 1440px;
-    margin: 0 auto 48px;
-    padding: 0 20px;
+    margin: 0 auto 40px;
+    padding: 0 15px;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-    gap: 24px;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 16px;
   }
 
   @media (max-width: 768px) {
     header {
       padding: 32px 20px;
     }
-    
+
     .source-menu {
       padding: 40px 24px;
     }
-    
+
     .source-menu h2 {
       font-size: 1.75rem;
     }
-    
+
     #rss-feed {
       grid-template-columns: 1fr;
     }
-    
+
     .toolbar {
       flex-direction: column;
-      align-items: stretch;
     }
-    
+
+    .back-btn {
+      width: 100%;
+    }
+
+    .search-box {
+      width: 100%;
+    }
+
+    .filter-buttons {
+      width: 100%;
+    }
+
+    .filter-buttons .view-mode-btn {
+      flex: 1;
+    }
+
     .source-grid {
       grid-template-columns: 1fr;
     }
@@ -335,7 +355,7 @@
     transition: all 0.2s ease;
     overflow: hidden;
   }
-  
+
   .item-card:hover { 
     box-shadow: var(--shadow-lg);
     border-color: var(--accent);
@@ -343,87 +363,79 @@
 
   .item-thumb {
     width: 100%;
-    height: 260px;
+    height: 240px;
     object-fit: cover;
     background: var(--card-bg-hover);
   }
-  
+
   video.item-thumb {
-    height: 260px;
+    height: 240px;
   }
 
   .item-content { 
-    padding: 28px; 
+    padding: 18px; 
     display: flex; 
     flex-direction: column; 
     flex: 1; 
   }
-  
+
   .item-content h2 { 
-    margin: 0 0 16px; 
-    font-size: 1.25rem; 
+    margin: 0 0 12px; 
+    font-size: 1.05rem; 
     font-weight: 700;
-    line-height: 1.4;
+    line-height: 1.35;
     letter-spacing: -0.015em;
   }
-  
+
   .item-content h2 a { 
     text-decoration: none; 
     color: var(--text-primary); 
     transition: color 0.2s ease;
   }
-  
+
   .item-content h2 a:hover {
     color: var(--accent);
   }
-  
+
   .badges { 
     display: flex; 
     gap: 10px; 
-    margin-bottom: 16px; 
+    margin-bottom: 12px; 
     flex-wrap: wrap; 
   }
-  
+
   .badge { 
-    font-size: 0.75rem; 
-    padding: 6px 12px; 
+    font-size: 0.7rem; 
+    padding: 5px 10px; 
     background: var(--accent-light); 
     color: var(--accent); 
-    border-radius: 6px; 
+    border-radius: 4px; 
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    border: 1px solid var(--accent);
   }
-  
+
   .badge.source { 
-    background: var(--border-light); 
-    color: var(--text-secondary);
+    background: var(--accent-light); 
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    text-transform: none;
+    letter-spacing: 0;
   }
-  
-  .badge.today {
-    background: #dcfce7;
-    color: #16a34a;
-  }
-  
-  @media (prefers-color-scheme: dark) {
-    .badge.today {
-      background: rgba(34, 197, 94, 0.2);
-      color: #4ade80;
-    }
-  }
-  
+
   .item-content p { 
     flex: 1; 
-    margin: 0 0 20px; 
-    font-size: 0.9375rem; 
+    margin: 0 0 12px; 
+    font-size: 0.9rem; 
     color: var(--text-secondary); 
-    line-height: 1.7; 
+    line-height: 1.5; 
   }
-  
+
   .read-more-btn { 
     width: 100%; 
-    padding: 14px 20px; 
-    font-size: 1rem; 
+    padding: 10px 12px; 
+    font-size: 0.9rem; 
     background: var(--accent);
     color: white; 
     border-radius: var(--radius-md); 
@@ -434,12 +446,12 @@
     border: none;
     cursor: pointer;
   }
-  
+
   .read-more-btn:hover { 
     background: var(--accent-hover);
     box-shadow: var(--shadow-md);
   }
-  
+
   .read-more-btn:active {
     transform: translateY(0);
   }
@@ -450,44 +462,53 @@
     background: var(--card-bg);
     border: 2px solid var(--border);
     border-radius: var(--radius-lg);
-    padding: 48px;
+    padding: 40px;
     box-shadow: var(--shadow-sm);
     color: var(--text-secondary);
     font-weight: 600;
-    font-size: 1.125rem;
+    font-size: 1rem;
   }
-  
+
   .loading-msg { 
     display: flex; 
     justify-content: center; 
     align-items: center; 
-    gap: 12px; 
-    min-height: 120px; 
+    gap: 10px; 
+    min-height: 100px; 
   }
 
   .dot {
-    width: 12px; 
-    height: 12px;
+    width: 10px; 
+    height: 10px;
     background: var(--accent);
     border-radius: 50%;
+    animation: bounce 1.4s infinite ease-in-out both;
+  }
+
+  .dot:nth-child(1) { animation-delay: -0.32s; }
+  .dot:nth-child(2) { animation-delay: -0.16s; }
+
+  @keyframes bounce {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1); }
   }
 
   .stats {
     max-width: 1440px;
-    margin: 24px auto;
-    padding: 0 20px;
+    margin: 12px auto;
+    padding: 0 15px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     color: var(--text-secondary);
-    font-size: 0.9375rem;
+    font-size: 0.9rem;
     font-weight: 600;
   }
-  
+
   @media (max-width: 640px) {
     .stats {
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
       text-align: center;
     }
   }
@@ -509,52 +530,34 @@
     visibility: hidden;
     transition: all 0.2s ease;
     z-index: 99;
+    display: none;
   }
-  
+
   #back-to-top.visible {
     opacity: 1;
     visibility: visible;
   }
-  
+
   #back-to-top:hover {
     background: var(--accent-hover);
   }
-  
+
   #back-to-top:active {
     transform: translateY(-2px);
   }
 
-  .source-category {
-    margin-top: 32px;
-  }
-  
-  .source-category-title {
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 16px;
-    padding: 0 4px;
-  }
-  
-  .view-mode-toggle {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 16px;
-  }
-  
   .view-mode-btn {
     background: var(--card-bg);
     color: var(--text-primary);
     border: 2px solid var(--border);
-    padding: 10px 18px;
+    padding: 8px 14px;
     border-radius: var(--radius-md);
     cursor: pointer;
     font-size: 14px;
     font-weight: 600;
     transition: all 0.15s ease;
     box-shadow: var(--shadow-sm);
+    min-width: 100px;
   }
 
   .view-mode-btn:hover {
@@ -569,45 +572,45 @@
     color: white;
     box-shadow: var(--shadow-md);
   }
-  
+
   #rss-feed.compact-view {
     grid-template-columns: 1fr;
-    gap: 12px;
+    gap: 10px;
   }
-  
+
   #rss-feed.compact-view .item-card {
     flex-direction: row;
     align-items: stretch;
   }
-  
+
   #rss-feed.compact-view .item-thumb {
-    width: 200px;
+    width: 150px;
     height: auto;
-    min-height: 160px;
+    min-height: 130px;
   }
-  
+
   #rss-feed.compact-view .item-content {
-    padding: 20px;
+    padding: 12px;
   }
-  
+
   #rss-feed.compact-view .item-content h2 {
-    font-size: 1.125rem;
-    margin-bottom: 12px;
+    font-size: 1rem;
+    margin-bottom: 8px;
   }
-  
+
   #rss-feed.compact-view .item-content p {
-    font-size: 0.875rem;
-    margin-bottom: 16px;
+    font-size: 0.85rem;
+    margin-bottom: 10px;
   }
-  
+
   @media (max-width: 768px) {
     #rss-feed.compact-view .item-card {
       flex-direction: column;
     }
-    
+
     #rss-feed.compact-view .item-thumb {
       width: 100%;
-      height: 200px;
+      height: 150px;
     }
   }
 
@@ -636,11 +639,6 @@
     <div class="search-box">
       <span class="search-icon">🔍</span>
       <input type="text" id="search-input" placeholder="Hľadať v nadpisoch a textoch...">
-    </div>
-    <div class="filter-buttons">
-      <button class="filter-btn active" data-filter="all">Všetky</button>
-      <button class="filter-btn" data-filter="today">Dnes</button>
-      <button class="filter-btn" data-filter="video">Video</button>
     </div>
     <div class="filter-buttons">
       <button class="view-mode-btn active" data-view="grid">Mriežka</button>
@@ -708,7 +706,6 @@
   };
 
   const PAGE_SIZE = 12;
-  const BATCH_SIZE = 5;
   let allItems = [], filteredItems = [], index = 0;
   let currentFilter = 'all', searchQuery = '';
   let selectedSource = null;
@@ -740,16 +737,16 @@
 
   function initSourceMenu() {
     sourceGrid.innerHTML = '';
-    
+
     const allBtn = document.createElement('button');
     allBtn.className = 'source-btn primary-action all-sources';
-    allBtn.textContent = '📰 Všetky správy';
+    allBtn.textContent = 'Všetky správy';
     allBtn.onclick = () => selectSource('Všetky správy');
     sourceGrid.appendChild(allBtn);
 
     const listBtn = document.createElement('button');
     listBtn.className = 'source-btn primary-action website-list';
-    listBtn.textContent = '📋 Zoznam webov';
+    listBtn.textContent = 'Zoznam webov';
     listBtn.onclick = showWebsiteList;
     sourceGrid.appendChild(listBtn);
 
@@ -770,18 +767,12 @@
     filteredItems = [];
     index = 0;
     container.innerHTML = '<div class="message-box loading-msg"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
-    
+
     const feeds = FEEDS[sourceName];
-    for (let i = 0; i < feeds.length; i += BATCH_SIZE) {
-      const batch = feeds.slice(i, i + BATCH_SIZE);
-      const results = await Promise.all(batch.map(fetchXMLFeed));
-      allItems = allItems.concat(...results);
-      allItems.sort((a, b) => b.pubDate - a.pubDate);
-      
-      if (i === 0) {
-        applyFilters();
-      }
-    }
+    const results = await Promise.all(feeds.map(fetchXMLFeed));
+    allItems = results.flat();
+    allItems.sort((a, b) => b.pubDate - a.pubDate);
+    
     applyFilters();
   }
 
@@ -797,7 +788,7 @@
         let pub = new Date(
           item.querySelector("pubDate")?.textContent ||
           item.querySelector("updated")?.textContent ||
-          item.querySelector("dc\\:date")?.textContent ||
+          item.querySelector('[dc\:date]') || { textContent: '' }?.textContent ||
           item.querySelector("date")?.textContent ||
           ""
         );
@@ -813,19 +804,50 @@
         }
 
         if(!thumb){
-          const media = item.querySelector("media\\:content, content");
-          if(media && media.getAttribute("url")) thumb = media.getAttribute("url");
-          else{
-            const descHTML = item.querySelector("description")?.textContent || "";
-            const match = descHTML.match(/<img[^>]+src="([^">]+)"/);
-            if(match) thumb = match[1];
+          const thumbnailTag = item.querySelector("thumbnail");
+          if(thumbnailTag) {
+            thumb = thumbnailTag.textContent.trim();
+          }
+        }
+
+        if(!thumb){
+          const sznImage = item.querySelector("image url, szn\\:image szn\\:url");
+          if(sznImage) {
+            thumb = sznImage.textContent.trim();
+          }
+        }
+
+        if(!thumb && !video){
+          const mediaContent = item.querySelector('media\\:content, content');
+          if(mediaContent){
+            const type = mediaContent.getAttribute("type") || "";
+            const url = mediaContent.getAttribute("url") || "";
+            if(type.startsWith("image")) thumb = url;
+            else if(type.startsWith("video")) video = url;
+          }
+        }
+
+        if(!thumb){
+          const descHTML = item.querySelector("description")?.textContent || "";
+          const imgMatch = descHTML.match(/<img[^>]+src="([^">]+)"/);
+          if(imgMatch) thumb = imgMatch[1];
+          
+          if(!video){
+            const videoMatch = descHTML.match(/<video[^>]+src="([^">]+)"/);
+            if(videoMatch) video = videoMatch[1];
+            else {
+              const iframeMatch = descHTML.match(/<iframe[^>]+src="([^">]+)"/);
+              if(iframeMatch && (iframeMatch[1].includes('youtube') || iframeMatch[1].includes('vimeo'))) {
+                video = iframeMatch[1];
+              }
+            }
           }
         }
 
         let rawDesc = item.querySelector("description")?.textContent || "";
         rawDesc = rawDesc.replace(/<[^>]*>/g, "").trim();
 
-        const descLimit = 200;
+        const descLimit = 1000;
         let shortDesc = rawDesc.slice(0, descLimit);
         if (rawDesc.length > descLimit) {
           const lastSpace = shortDesc.lastIndexOf(" ");
@@ -862,14 +884,6 @@
 
   function applyFilters(){
     filteredItems = allItems.filter(item => {
-      let matchFilter = true;
-      if(currentFilter === 'today'){
-        const isToday = item.pubDate.toDateString() === new Date().toDateString();
-        matchFilter = isToday;
-      } else if(currentFilter === 'video'){
-        matchFilter = !!item.video;
-      }
-
       let matchSearch = true;
       if(searchQuery){
         const q = searchQuery.toLowerCase();
@@ -878,7 +892,7 @@
                      item.source.toLowerCase().includes(q);
       }
 
-      return matchFilter && matchSearch;
+      return matchSearch;
     });
 
     index = 0;
@@ -927,11 +941,11 @@
         <div class="item-content">
           <h2><a href="${i.link}" target="_blank" rel="noopener noreferrer">${i.title}</a></h2>
           <div class="badges">
-            <span class="badge ${isToday ? 'today' : ''}">${badgeDate}</span>
+            <span class="badge">${badgeDate}</span>
             <span class="badge source">${i.source}</span>
           </div>
-          <p>${i.desc}${i.desc.length >= 190 ? '...' : ''}</p>
-          <a class="read-more-btn" href="${i.link}" target="_blank" rel="noopener noreferrer">Čítať celý článok</a>
+          <p>${i.desc}${i.desc.length >= 990 ? '...' : ''}</p>
+          <a class="read-more-btn" href="${i.link}" target="_blank" rel="noopener noreferrer">Čítať</a>
         </div>
       `;
       container.appendChild(card);
@@ -970,15 +984,6 @@
   });
 
   window.addEventListener('scroll', onScroll, { passive: true });
-
-  document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      currentFilter = btn.dataset.filter;
-      applyFilters();
-    });
-  });
 
   document.querySelectorAll('.view-mode-btn').forEach(btn => {
     btn.addEventListener('click', () => {
