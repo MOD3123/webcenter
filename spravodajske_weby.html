@@ -1,312 +1,782 @@
+
 <!DOCTYPE html>
 <html lang="sk">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>Spravodajské weby</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>Správy SK</title>
 <style>
-  * {
-    box-sizing: border-box;
+
+  :root {
+    --text-primary: #1a1a1a;
+    --text-secondary: #4a4a4a;
+    --text-tertiary: #6b6b6b;
+    --accent: #2563eb;
+    --accent-hover: #1d4ed8;
+    --accent-light: #dbeafe;
+    --accent-alt: #059669;
+    --accent-alt-hover: #047857;
+    --accent-alt-light: #d1fae5;
+    --border: #e2e8f0;
+    --border-light: #f1f5f9;
+    --card-bg: #ffffff;
+    --card-bg-hover: #f8fafc;
+    --bg: #f8fafc;
+    --bg-elevated: #ffffff;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-tertiary: #64748b;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --accent-light: rgba(59, 130, 246, 0.2);
+      --accent-alt: #10b981;
+      --accent-alt-hover: #059669;
+      --accent-alt-light: rgba(16, 185, 129, 0.2);
+      --border: #334155;
+      --border-light: #1e293b;
+      --card-bg: #1e293b;
+      --card-bg-hover: #334155;
+      --bg: #0f172a;
+      --bg-elevated: #1e293b;
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.6);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.7);
+    }
+  }
+
+  * { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+  }
+
+  html {
+    scroll-behavior: smooth;
   }
 
   body {
-    margin: 0;
-    padding: 0;
-    background: linear-gradient(135deg, #0f0c29 0%, #1a1a2e 50%, #16213e 100%);
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: #eee;
-    min-height: 100vh;
-    position: relative;
-    overflow-x: hidden;
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-size: 15px;
   }
 
-  /* Animovaný gradient pozadie */
-  body::before {
-    content: '';
-    position: fixed;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(58, 208, 123, 0.1) 0%, transparent 70%);
-    animation: pulse 15s ease-in-out infinite;
-    z-index: 0;
+  ::-webkit-scrollbar { 
+    width: 12px; 
+  }
+  ::-webkit-scrollbar-track { 
+    background: var(--bg); 
+  }
+  ::-webkit-scrollbar-thumb { 
+    background: var(--border); 
+    border-radius: 6px;
+    border: 3px solid var(--bg);
+  }
+  ::-webkit-scrollbar-thumb:hover { 
+    background: var(--text-tertiary); 
   }
 
-  @keyframes pulse {
-    0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.3; }
-    50% { transform: scale(1.2) rotate(180deg); opacity: 0.5; }
+  header {
+    display: none;
   }
 
-  .container {
-    position: relative;
-    z-index: 1;
-    padding: 40px 16px;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
-  .header {
-    text-align: center;
-    margin-bottom: 60px;
-    animation: fadeInDown 0.8s ease-out;
-  }
-
-  @keyframes fadeInDown {
-    from {
-      opacity: 0;
-      transform: translateY(-30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .emoji {
-    font-size: 100px;
-    display: inline-block;
-    animation: float 3s ease-in-out infinite;
-    filter: drop-shadow(0 0 20px rgba(58, 208, 123, 0.4));
-  }
-
-  @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-15px); }
-  }
-
-  h1 {
-    margin: 20px 0 12px;
-    font-size: 48px;
-    font-weight: 800;
-    background: linear-gradient(135deg, #3ad07b, #2fa766, #4ee88d);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    letter-spacing: 1px;
-    text-shadow: 0 0 30px rgba(58, 208, 123, 0.3);
-  }
-
-  .subtitle {
-    font-size: 16px;
-    color: #aaa;
-    margin-top: 8px;
-    font-weight: 300;
-  }
-
-  .section {
-    margin-bottom: 60px;
-    animation: fadeInUp 0.8s ease-out;
-    animation-fill-mode: both;
-  }
-
-  .section:nth-child(2) { animation-delay: 0.1s; }
-  .section:nth-child(3) { animation-delay: 0.2s; }
-  .section:nth-child(4) { animation-delay: 0.3s; }
-
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  h2 {
-    margin: 0 0 30px;
-    font-size: 32px;
-    font-weight: 700;
-    color: #fff;
-    text-align: center;
-    position: relative;
-    display: inline-block;
-    left: 50%;
-    transform: translateX(-50%);
-  }
-
-  h2::after {
-    content: '';
-    position: absolute;
-    bottom: -8px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 60%;
-    height: 3px;
-    background: linear-gradient(90deg, transparent, #3ad07b, transparent);
-    border-radius: 2px;
-  }
-
-  .button-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 0 10px;
-  }
-
-  .fancy-button {
+  #source-selection {
     display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 160px);
+    padding: 40px 20px;
+  }
+
+  .source-menu {
+    background: var(--card-bg);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    max-width: 1200px;
+    width: 100%;
+    padding: 64px 56px;
+  }
+
+  .source-menu h2 {
+    font-size: 2.5rem;
+    font-weight: 900;
+    margin-bottom: 48px;
+    letter-spacing: -0.04em;
+    text-align: center;
+    color: var(--text-primary);
+  }
+
+  .source-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+  }
+
+  .source-btn {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(16, 185, 129, 0.1));
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 16px 24px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    transition: all 0.15s ease;
+  }
+
+  .source-btn:hover {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(16, 185, 129, 0.15));
+    border-color: var(--accent);
+    box-shadow: var(--shadow-md);
+  }
+
+  .source-btn:active {
+    transform: translateY(0);
+  }
+
+  .source-btn.primary-action {
+    grid-column: 1 / -1;
+    font-size: 16px;
+    padding: 20px;
+    font-weight: 700;
+  }
+
+  .source-btn.all-sources {
+    background: linear-gradient(135deg, var(--accent), #1d4ed8);
+    color: white;
+    border-color: var(--accent);
+    box-shadow: var(--shadow-md);
+  }
+
+  .source-btn.all-sources:hover {
+    background: linear-gradient(135deg, var(--accent-hover), #1e40af);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .source-btn.website-list {
+    background: linear-gradient(135deg, var(--accent-alt), #047857);
+    color: white;
+    border-color: var(--accent-alt);
+    box-shadow: var(--shadow-md);
+  }
+
+  .source-btn.website-list:hover {
+    background: linear-gradient(135deg, var(--accent-alt-hover), #065f46);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .source-btn.sport {
+    background: linear-gradient(135deg, #1870a8, #1870a8);
+    color: white;
+    border-color: #1a88cd;
+    box-shadow: var(--shadow-md);
+  }
+
+  .source-btn.sport:hover {
+    background: linear-gradient(135deg, #16547b, #175378);
+    box-shadow: var(--shadow-lg);
+  }
+
+  #content-view {
+    display: none;
+  }
+
+  #content-view.active {
+    display: block;
+  }
+
+  .toolbar {
+    max-width: 1440px;
+    margin: 20px auto;
+    padding: 0 15px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: stretch;
+  }
+
+  .back-btn {
+    background: var(--card-bg);
+    color: var(--text-primary);
+    border: 2px solid var(--border);
+    padding: 10px 14px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.15s ease;
+    display: flex;
+    gap: 6px;
     align-items: center;
     justify-content: center;
-    padding: 22px 28px;
-    font-size: 18px;
-    font-weight: 600;
-    background: rgba(58, 208, 123, 0.15);
-    backdrop-filter: blur(10px);
-    border: 2px solid rgba(58, 208, 123, 0.3);
-    color: #3ad07b;
-    text-decoration: none;
-    border-radius: 16px;
-    text-align: center;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow-sm);
+    flex: 0 0 auto;
+    min-width: 120px;
+  }
+
+  .back-btn:hover {
+    background: var(--card-bg-hover);
+    border-color: var(--accent);
+    color: var(--accent);
+    box-shadow: var(--shadow-md);
+  }
+
+  .search-box {
+    flex: 1;
+    min-width: 250px;
     position: relative;
+  }
+
+  .search-box input {
+    width: 100%;
+    padding: 8px 15px 8px 36px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--card-bg);
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .search-box input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-light);
+  }
+
+  .search-box input::placeholder {
+    color: var(--text-tertiary);
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-tertiary);
+    pointer-events: none;
+    font-size: 1rem;
+  }
+
+  .filter-buttons {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .filter-btn {
+    background: var(--card-bg);
+    color: var(--text-primary);
+    border: 2px solid var(--border);
+    padding: 8px 14px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.15s ease;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .filter-btn:hover {
+    background: var(--card-bg-hover);
+    border-color: var(--accent);
+    box-shadow: var(--shadow-md);
+  }
+
+  .filter-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+    box-shadow: var(--shadow-md);
+  }
+
+  #rss-feed {
+    max-width: 1440px;
+    margin: 0 auto 40px;
+    padding: 0 15px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 16px;
+  }
+
+  @media (max-width: 768px) {
+    header {
+      padding: 32px 20px;
+    }
+
+    .source-menu {
+      padding: 40px 24px;
+    }
+
+    .source-menu h2 {
+      font-size: 1.75rem;
+    }
+
+    #rss-feed {
+      grid-template-columns: 1fr;
+    }
+
+    .toolbar {
+      flex-direction: column;
+    }
+
+    .back-btn {
+      width: 100%;
+    }
+
+    .search-box {
+      width: 100%;
+    }
+
+    .filter-buttons {
+      width: 100%;
+    }
+
+    .filter-buttons .view-mode-btn {
+      flex: 1;
+    }
+
+    .source-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .item-card {
+    background: var(--card-bg);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-lg);
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s ease;
     overflow: hidden;
   }
 
-  .fancy-button::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
+  .item-card:hover { 
+    box-shadow: var(--shadow-lg);
+    border-color: var(--accent);
+  }
+
+  .item-thumb {
     width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(58, 208, 123, 0.2), transparent);
-    transition: left 0.5s;
+    height: 240px;
+    object-fit: cover;
+    background: var(--card-bg-hover);
   }
 
-  .fancy-button:hover::before {
-    left: 100%;
+  video.item-thumb {
+    height: 240px;
   }
 
-  .fancy-button:hover {
-    background: rgba(58, 208, 123, 0.25);
-    border-color: #3ad07b;
-    color: #fff;
-    box-shadow: 0 0 30px rgba(58, 208, 123, 0.5), 0 12px 32px rgba(0, 0, 0, 0.4);
-    transform: translateY(-3px) scale(1.02);
+  .item-content { 
+    padding: 18px; 
+    display: flex; 
+    flex-direction: column; 
+    flex: 1; 
   }
 
-  .fancy-button:active {
-    transform: translateY(-1px) scale(0.98);
+  .item-content h2 { 
+    margin: 0 0 12px; 
+    font-size: 1.05rem; 
+    font-weight: 700;
+    line-height: 1.35;
+    letter-spacing: -0.015em;
   }
 
-  /* Ikony pre kategórie */
-  .section-icon {
-    display: inline-block;
-    margin-right: 12px;
-    font-size: 28px;
-    vertical-align: middle;
-    filter: drop-shadow(0 0 10px rgba(58, 208, 123, 0.3));
+  .item-content h2 a { 
+    text-decoration: none; 
+    color: var(--text-primary); 
+    transition: color 0.2s ease;
   }
 
-  /* Footer */
-  .footer {
+  .item-content h2 a:hover {
+    color: var(--accent);
+  }
+
+  .badges { 
+    display: flex; 
+    gap: 10px; 
+    margin-bottom: 12px; 
+    flex-wrap: wrap; 
+  }
+
+  .badge { 
+    font-size: 0.7rem; 
+    padding: 5px 10px; 
+    background: var(--accent-light); 
+    color: var(--accent); 
+    border-radius: 4px; 
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border: 1px solid var(--accent);
+  }
+
+  .badge.source { 
+    background: var(--accent-light); 
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  .item-content p { 
+    flex: 1; 
+    margin: 0 0 12px; 
+    font-size: 0.9rem; 
+    color: var(--text-secondary); 
+    line-height: 1.5; 
+  }
+
+  .read-more-btn { 
+    width: 100%; 
+    padding: 10px 12px; 
+    font-size: 0.9rem; 
+    background: var(--accent);
+    color: white; 
+    border-radius: var(--radius-md); 
+    text-align: center; 
+    font-weight: 700; 
+    text-decoration: none; 
+    transition: all 0.2s ease; 
+    border: none;
+    cursor: pointer;
+  }
+
+  .read-more-btn:hover { 
+    background: var(--accent-hover);
+    box-shadow: var(--shadow-md);
+  }
+
+  .read-more-btn:active {
+    transform: translateY(0);
+  }
+
+  .message-box {
+    grid-column: 1 / -1;
     text-align: center;
-    padding: 40px 20px;
-    color: #888;
+    background: var(--card-bg);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 40px;
+    box-shadow: var(--shadow-sm);
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: 1rem;
+  }
+
+  .loading-msg { 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    gap: 10px; 
+    min-height: 100px; 
+  }
+
+  .dot {
+    width: 10px; 
+    height: 10px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: bounce 1.4s infinite ease-in-out both;
+  }
+
+  .dot:nth-child(1) { animation-delay: -0.32s; }
+  .dot:nth-child(2) { animation-delay: -0.16s; }
+
+  @keyframes bounce {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1); }
+  }
+
+  .stats {
+    max-width: 1440px;
+    margin: 12px auto;
+    padding: 0 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  @media (max-width: 640px) {
+    .stats {
+      flex-direction: column;
+      gap: 6px;
+      text-align: center;
+    }
+  }
+
+  #back-to-top {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    width: 56px;
+    height: 56px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    cursor: pointer;
+    box-shadow: var(--shadow-lg);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    z-index: 99;
+    display: none;
+  }
+
+  #back-to-top.visible {
+    opacity: 1;
+    visibility: visible;
+    display: block;
+  }
+
+  #back-to-top:hover {
+    background: var(--accent-hover);
+  }
+
+  #back-to-top:active {
+    transform: translateY(-2px);
+  }
+
+  .view-mode-btn {
+    background: var(--card-bg);
+    color: var(--text-primary);
+    border: 2px solid var(--border);
+    padding: 8px 14px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
     font-size: 14px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    margin-top: 80px;
+    font-weight: 600;
+    transition: all 0.15s ease;
+    box-shadow: var(--shadow-sm);
+    min-width: 100px;
   }
 
-  /* Responzívne úpravy */
+  .view-mode-btn:hover {
+    background: var(--card-bg-hover);
+    border-color: var(--accent);
+    box-shadow: var(--shadow-md);
+  }
+
+  .view-mode-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+    box-shadow: var(--shadow-md);
+  }
+
+  #rss-feed.compact-view {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  #rss-feed.compact-view .item-card {
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  #rss-feed.compact-view .item-thumb {
+    width: 150px;
+    height: auto;
+    min-height: 130px;
+  }
+
+  #rss-feed.compact-view .item-content {
+    padding: 12px;
+  }
+
+  #rss-feed.compact-view .item-content h2 {
+    font-size: 1rem;
+    margin-bottom: 8px;
+  }
+
+  #rss-feed.compact-view .item-content p {
+    font-size: 0.85rem;
+    margin-bottom: 10px;
+  }
+
   @media (max-width: 768px) {
-    h1 { font-size: 38px; }
-    h2 { font-size: 26px; }
-    .emoji { font-size: 80px; }
-    .button-grid {
-      grid-template-columns: 1fr;
-      gap: 16px;
+    #rss-feed.compact-view .item-card {
+      flex-direction: column;
     }
-    .fancy-button {
-      font-size: 17px;
-      padding: 20px 24px;
+
+    #rss-feed.compact-view .item-thumb {
+      width: 100%;
+      height: 150px;
     }
   }
 
-  @media (max-width: 360px) {
-    h1 { font-size: 32px; }
-    h2 { font-size: 22px; }
-    .emoji { font-size: 70px; }
-    .fancy-button {
-      font-size: 16px;
-      padding: 18px 20px;
-    }
-  }
-
-  /* Scroll animácie */
-  @media (prefers-reduced-motion: no-preference) {
-    .section {
-      opacity: 0;
-      animation: fadeInUp 0.8s ease-out forwards;
-    }
-  }
 </style>
 </head>
 <body>
 
-<div class="container">
-  <div class="header">
-    <span class="emoji">📰</span>
-    <h1>Spravodajské weby</h1>
-  </div>
+<header>
+  <h1>Správy SK</h1>
+  <p>Agregátor slovenských a českých správ</p>
+</header>
 
-  <div class="section">
-    <h2></span>Správy</h2>
-    <div class="button-grid">
-      <a class="fancy-button" href="https://ereport.sk/">eREPORT</a>
-      <a class="fancy-button" href="https://cz24.news/">CZ24</a>
-      <a class="fancy-button" href="https://sme.sk/">Sme.sk</a>
-      <a class="fancy-button" href="https://tvnoviny.sk/">TV NOVINY (Markíza)</a>
-      <a class="fancy-button" href="https://www.teraz.sk/">Teraz</a>
-      <a class="fancy-button" href="https://spravy.rtvs.sk/">Správy RTVS</a>
-      <a class="fancy-button" href="https://www.ta3.com/">TA3</a>
-      <a class="fancy-button" href="https://bleskovky.sk/">Bleskovky</a>
-      <a class="fancy-button" href="https://www.bakurier.sk/">Bratislavský kuriér</a>
-      <a class="fancy-button" href="https://bratislava24.sk/">Bratislava24</a>
-      <a class="fancy-button" href="https://trend.sk/">Trend</a>
-      <a class="fancy-button" href="https://dnes24.sk/">Dnes24.sk</a>
-      <a class="fancy-button" href="https://bratislavskenoviny.sk/">Bratislavské noviny</a>
-      <a class="fancy-button" href="https://info.sk/">Info.sk</a>
-      <a class="fancy-button" href="https://ct24.ceskatelevize.cz/">ČT 24</a>
-      <a class="fancy-button" href="https://pravda.sk/">Pravda</a>
-      <a class="fancy-button" href="https://noviny.sk/">Noviny.sk (TV JOJ)</a>
-      <a class="fancy-button" href="https://regiony.sk/">Regióny.sk</a>
-      <a class="fancy-button" href="https://topky.sk/">Topky</a>
-      <a class="fancy-button" href="https://ctk.cz/">ČTK</a>
-      <a class="fancy-button" href="https://hnonline.sk/">Hospodárske Noviny</a>
-      <a class="fancy-button" href="https://aktuality.sk/">Aktuality.sk</a>
-      <a class="fancy-button" href="https://bratislavaden.sk/">BratislavaDen.sk</a>
-    </div>
-  </div>
-
-  <div class="section">
-    <h2></span>Technológie</h2>
-    <div class="button-grid">
-      <a class="fancy-button" href="https://touchit.sk/">TouchIT</a>
-      <a class="fancy-button" href="https://vosveteit.zoznam.sk/">VoSveteIT.sk</a>
-      <a class="fancy-button" href="https://zive.cz/">Živé.cz</a>
-      <a class="fancy-button" href="https://zive.sk/">Živé.sk</a>
-      <a class="fancy-button" href="https://mojandroid.sk/">Môj Android</a>
-    </div>
-  </div>
-
-  <div class="section">
-    <h2></span>Šport</h2>
-    <div class="button-grid">
-      <a class="fancy-button" href="https://sportnet.sme.sk/">Sportnet</a>
-      <a class="fancy-button" href="https://sportky.sk/">Športky.sk</a>
-      <a class="fancy-button" href="https://sport.sk/">Šport.sk</a>
-      <a class="fancy-button" href="https://sportweb.pravda.sk/">Športweb</a>
-    </div>
-  </div>
+<div id="source-selection">
+  <div class="source-menu">
+    <h2>Spravodajské weby</h2>
+    <div class="source-grid" id="source-grid"></div>
   </div>
 </div>
 
+<div id="content-view">
+  <div class="toolbar">
+    <button class="back-btn" id="back-btn">
+      <span>←</span>
+      <span>Ponuka</span>
+    </button>
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="search-input" placeholder="Hľadať v nadpisoch a textoch...">
+    </div>
+    <div class="filter-buttons">
+      <button class="view-mode-btn active" data-view="grid">Mriežka</button>
+      <button class="view-mode-btn" data-view="compact">Kompakt</button>
+    </div>
+  </div>
+
+  <div class="stats">
+    <span id="count-info">Načítavam...</span>
+    <span id="last-update"></span>
+  </div>
+
+  <div id="rss-feed">
+    <div class="message-box loading-msg">
+      <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+    </div>
+  </div>
+</div>
+
+<button id="back-to-top" title="Späť na vrch">↑</button>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const sourceGrid = document.getElementById('source-grid');
+  sourceGrid.innerHTML = '';
+  sourceGrid.style.justifyItems = 'center';
+  sourceGrid.style.gridTemplateColumns = 'repeat(3, minmax(200px, 1fr))';
+
+  // Kategórie s tlačidlami
+  const categories = [
+    {
+      name: 'Správy',
+      links: [
+        { text: 'eREPORT', url: 'https://ereport.sk/' },
+        { text: 'CZ24', url: 'https://cz24.news/' },
+        { text: 'Sme.sk', url: 'https://sme.sk/' },
+        { text: 'TV NOVINY', url: 'https://tvnoviny.sk/' },
+        { text: 'Teraz', url: 'https://www.teraz.sk/' },
+        { text: 'RTVS', url: 'https://spravy.rtvs.sk/' },
+        { text: 'TA3', url: 'https://www.ta3.com/' },
+        { text: 'Bleskovky', url: 'https://bleskovky.sk/' },
+        { text: 'Bratislavský kuriér', url: 'https://www.bakurier.sk/' },
+        { text: 'Bratislava24', url: 'https://bratislava24.sk/' },
+        { text: 'Trend', url: 'https://trend.sk/' },
+        { text: 'Dnes24.sk', url: 'https://dnes24.sk/' },
+        { text: 'Bratislavské noviny', url: 'https://bratislavskenoviny.sk/' },
+        { text: 'Info.sk', url: 'https://info.sk/' },
+        { text: 'ČT 24', url: 'https://ct24.ceskatelevize.cz/' },
+        { text: 'Pravda', url: 'https://pravda.sk/' },
+        { text: 'Noviny.sk', url: 'https://noviny.sk/' },
+        { text: 'Regióny.sk', url: 'https://regiony.sk/' },
+        { text: 'Topky', url: 'https://topky.sk/' },
+        { text: 'ČTK', url: 'https://ctk.cz/' },
+        { text: 'HNonline', url: 'https://hnonline.sk/' },
+        { text: 'Aktuality.sk', url: 'https://aktuality.sk/' },
+        { text: 'BratislavaDen.sk', url: 'https://bratislavaden.sk/' }
+      ]
+    },
+    {
+      name: 'Technológie',
+      links: [
+        { text: 'TouchIT', url: 'https://touchit.sk/' },
+        { text: 'VoSveteIT', url: 'https://vosveteit.zoznam.sk/' },
+        { text: 'Živé.cz', url: 'https://zive.cz/' },
+        { text: 'Živé.sk', url: 'https://zive.sk/' },
+        { text: 'Môj Android', url: 'https://mojandroid.sk/' }
+      ]
+    },
+    {
+      name: 'Šport',
+      links: [
+        { text: 'Sportnet', url: 'https://sportnet.sme.sk/' },
+        { text: 'Športky.sk', url: 'https://sportky.sk/' },
+        { text: 'Šport.sk', url: 'https://sport.sk/' },
+        { text: 'Športweb', url: 'https://sportweb.pravda.sk/' }
+      ]
+    }
+  ];
+
+  // Generujem kategórie a tlačidlá
+  categories.forEach(category => {
+    // Nadpis kategórie - full width
+    const categoryDiv = document.createElement('div');
+    categoryDiv.style.gridColumn = '1 / -1';
+    categoryDiv.style.marginTop = '20px';
+    categoryDiv.style.textAlign = 'center';
+
+    const categoryTitle = document.createElement('h3');
+    categoryTitle.textContent = category.name;
+    categoryTitle.style.fontSize = '1.2em';
+    categoryTitle.style.fontWeight = '600';
+    categoryTitle.style.color = 'var(--text-primary)';
+    categoryTitle.style.marginBottom = '12px';
+    categoryTitle.style.paddingBottom = '8px';
+    categoryTitle.style.borderBottom = '1px solid var(--border)';
+    categoryTitle.style.display = 'inline-block';
+    categoryTitle.style.width = '100%';
+
+    categoryDiv.appendChild(categoryTitle);
+    sourceGrid.appendChild(categoryDiv);
+
+    // Tlačidlá kategórie
+    category.links.forEach(link => {
+      const a = document.createElement('a');
+      a.href = link.url;
+      a.target = '_blank';
+      a.className = 'source-btn';
+      a.textContent = link.text;
+      a.style.textDecoration = 'none';
+      a.style.width = '100%';
+      a.style.textAlign = 'center';
+      a.style.display = 'flex';
+      a.style.alignItems = 'center';
+      a.style.justifyContent = 'center';
+      a.style.fontWeight = 'bold';
+      sourceGrid.appendChild(a);
+    });
+  });
+
+  // Skryjem ostatné časti
+  document.getElementById('content-view').style.display = 'none';
+  if (document.querySelector('.toolbar')) document.querySelector('.toolbar').style.display = 'none';
+  if (document.querySelector('.stats')) document.querySelector('.stats').style.display = 'none';
+  if (document.getElementById('back-to-top')) document.getElementById('back-to-top').style.display = 'none';
+});
+</script>
 </body>
 </html>
