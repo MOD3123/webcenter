@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rádio</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 100%);
+            color: #e8e8f0;
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid rgba(100, 100, 255, 0.15);
+        }
+
+        header h1 {
+            font-size: 2.4em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff 0%, #a8a8ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -1px;
+        }
+
+        .player-section {
+            background: linear-gradient(145deg, #1e1e35 0%, #252540 100%);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(100, 100, 255, 0.2);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .now-playing h2 {
+            color: #ffffff;
+            font-size: 1.6em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            letter-spacing: -0.3px;
+        }
+
+        .now-playing p {
+            color: #9999cc;
+            font-size: 1em;
+            font-weight: 500;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-top: 25px;
+        }
+
+        .control-btn {
+            background: rgba(40, 40, 70, 0.6);
+            color: #e8e8f0;
+            border: 1px solid rgba(100, 100, 255, 0.3);
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            font-size: 17px;
+            cursor: pointer;
+        }
+
+        .control-btn.play-btn {
+            width: 60px;
+            height: 60px;
+            font-size: 20px;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            border: none;
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+        }
+
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-left: auto;
+        }
+
+        .volume-control i {
+            color: #8888bb;
+            font-size: 15px;
+        }
+
+        .volume-slider {
+            width: 120px;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(100, 100, 255, 0.15);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.5);
+        }
+
+        .volume-slider::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.5);
+        }
+
+        .search-box {
+            margin-bottom: 15px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 16px 20px;
+            background: linear-gradient(145deg, #1e1e35 0%, #252540 100%);
+            border: 1px solid rgba(100, 100, 255, 0.2);
+            border-radius: 16px;
+            color: #e8e8f0;
+            font-size: 15px;
+        }
+
+        .search-box input::placeholder {
+            color: #6666aa;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: rgba(99, 102, 241, 0.5);
+        }
+
+        .radio-list {
+            background: linear-gradient(145deg, #1e1e35 0%, #252540 100%);
+            border-radius: 20px;
+            border: 1px solid rgba(100, 100, 255, 0.2);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        body::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        body::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        body::-webkit-scrollbar-thumb {
+            background: rgba(99, 102, 241, 0.4);
+            border-radius: 6px;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            padding: 18px 24px;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(100, 100, 255, 0.08);
+        }
+
+        .radio-item:last-child {
+            border-bottom: none;
+        }
+
+        .radio-item.active {
+            background: rgba(99, 102, 241, 0.15);
+            border-left: 4px solid #6366f1;
+        }
+
+        .radio-item i {
+            font-size: 10px;
+            margin-right: 16px;
+            color: #6666aa;
+            width: 18px;
+            text-align: center;
+        }
+
+        .radio-item.active i {
+            color: #6366f1;
+        }
+
+        .radio-item span {
+            font-size: 15px;
+            font-weight: 500;
+            color: #d0d0e8;
+        }
+
+        .radio-item.active span {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .loading,
+        .no-results {
+            text-align: center;
+            color: #8888bb;
+            padding: 50px 20px;
+            font-size: 15px;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 20px 15px;
+            }
+
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .player-section {
+                padding: 30px 20px;
+            }
+
+            .controls {
+                flex-wrap: wrap;
+            }
+
+            .volume-control {
+                margin-left: 0;
+                width: 100%;
+                justify-content: center;
+            }
+
+            .volume-slider {
+                flex: 1;
+                max-width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Rádio</h1>
+        </header>
+
+        <div class="player-section">
+            <div class="now-playing">
+                <h2 id="station-name">Vyberte stanicu</h2>
+                <p id="station-status">Pripravené</p>
+            </div>
+
+            <div class="controls">
+                <button class="control-btn play-btn" id="play-btn" title="Prehrať">
+                    <i class="fas fa-play"></i>
+                </button>
+                <button class="control-btn" id="stop-btn" title="Zastaviť">
+                    <i class="fas fa-stop"></i>
+                </button>
+                <div class="volume-control">
+                    <i class="fas fa-volume-down"></i>
+                    <input type="range" class="volume-slider" id="volume-slider" min="0" max="100" value="70">
+                    <i class="fas fa-volume-up"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="search-box">
+            <input type="text" id="search-input" placeholder="Hľadať stanicu...">
+        </div>
+
+        <div class="radio-list" id="radio-list">
+            <div class="loading">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Načítavam</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.12/hls.min.js"></script>
+    <script>
+        const radioData = {
+            "subLinks": [
+                {"url": "https://dash3.antik.sk/live/test_slovensko_radio/playlist.m3u8", "label": "1. Rádio Slovensko"},
+                {"url": "https://dash3.antik.sk/live/test_regina_ba/playlist.m3u8", "label": "2. Rádio Regina Západ"},
+                {"url": "https://dash2.antik.sk/live/test_devin_radio/playlist.m3u8", "label": "3. Rádio Devín"},
+                {"url": "https://dash3.antik.sk/live/test_fm_radio/playlist.m3u8", "label": "4. Rádio_FM"},
+                {"url": "https://dash2.antik.sk/live/test_patria_radio/playlist.m3u8", "label": "5. Rádio Patria"},
+                {"url": "https://dash2.antik.sk/live/test_litera_radio/playlist.m3u8", "label": "6. Rádio Litera"},
+                {"url": "https://dash3.antik.sk/live/test_junior_radio/playlist.m3u8", "label": "7. Rádio Junior"},
+                {"url": "https://dash3.antik.sk/live/test_jemne/playlist.m3u8", "label": "8. Melody"},
+                {"url": "https://dash3.antik.sk/live/test_dychovka/playlist.m3u8", "label": "9. Rádio Dychovka"},
+                {"url": "https://dash2.antik.sk/live/test_radio_dechovka_atk/playlist.m3u8", "label": "10. Rádio Dechovka"},
+                {"url": "https://dash2.antik.sk/live/test_vlna_radio/playlist.m3u8", "label": "11. Rádio Vlna"},
+                {"url": "https://dash2.antik.sk/live/test_express_radio/playlist.m3u8", "label": "12. Rádio Expres"},
+                {"url": "https://dash2.antik.sk/live/test_europa2/playlist.m3u8", "label": "13. Europa2"},
+                {"url": "https://dash2.antik.sk/live/test_best_fm_atk/playlist.m3u8", "label": "14. BestFM"},
+                {"url": "https://dash2.antik.sk/live/test_fun_radio/playlist.m3u8", "label": "15. Fun Rádio"},
+                {"url": "https://dash2.antik.sk/live/fun_radio_dance/playlist.m3u8", "label": "16. Fun Rádio Dance"},
+                {"url": "https://dash2.antik.sk/live/fun_radio_skcz/playlist.m3u8", "label": "17. Fun Rádio CZ-SK"},
+                {"url": "https://dash3.antik.sk/live/fun_radio_8090/playlist.m3u8", "label": "18. Fun Rádio 80s - 90s"},
+                {"url": "https://dash2.antik.sk/live/fun_radio_chill/playlist.m3u8", "label": "19. Fun Rádio Chill"},
+                {"url": "https://dash2.antik.sk/live/test_radio_rock_atk/playlist.m3u8", "label": "20. Rádio Rock"},
+                {"url": "https://dash3.antik.sk/live/test_janko_hrasko_atk/playlist.m3u8", "label": "21. Janko Hraško"},
+                {"url": "https://dash3.antik.sk/live/test_cro_1_radiozurnal_atk/playlist.m3u8", "label": "22. ČRO1 - Radiožurnál"},
+                {"url": "https://dash2.antik.sk/live/test_cro2_praha/playlist.m3u8", "label": "23. ČRO2 - Dvojka"},
+                {"url": "https://dash3.antik.sk/live/test_cro3_vltava/playlist.m3u8", "label": "24. ČRO3 - Vltava"},
+                {"url": "https://dash3.antik.sk/live/test_cro_plus_atk/playlist.m3u8", "label": "25. ČRO Plus"},
+                {"url": "https://dash2.antik.sk/live/test_cro_sportzurnal/playlist.m3u8", "label": "26. ČRO - Radiožurnál Sport"},
+                {"url": "https://dash3.antik.sk/live/test_cro_d_dur_atk/playlist.m3u8", "label": "27. ČRO - D-dur"},
+                {"url": "https://dash2.antik.sk/live/test_plusjazz/playlist.m3u8", "label": "28. ČRO - Jazz"},
+                {"url": "https://dash3.antik.sk/live/test_cro_wawe_atk/playlist.m3u8", "label": "29. ČRO Wave"},
+                {"url": "https://dash2.antik.sk/live/test_cro_region_atk/playlist.m3u8", "label": "30. ČRO Region"},
+                {"url": "https://dash3.antik.sk/live/test_cro_sever_atk/playlist.m3u8", "label": "31. ČRO - Sever"},
+                {"url": "https://dash2.antik.sk/live/test_cro_junior/playlist.m3u8", "label": "32. ČRO - Junior"},
+                {"url": "https://dash2.antik.sk/live/test_cro_pohoda/playlist.m3u8", "label": "33. ČRO - Pohoda"},
+                {"url": "https://dash3.antik.sk/live/test_radio_world/playlist.m3u8", "label": "34. World Radio"},
+                {"url": "https://dash2.antik.sk/live/test_viva_radio/playlist.m3u8", "label": "35. Rádio Viva"},
+                {"url": "https://dash2.antik.sk/live/test_fit_family_radio_atk/playlist.m3u8", "label": "36. FIT Family Radio"},
+                {"url": "https://dash3.antik.sk/live/test_dance_radio_atk/playlist.m3u8", "label": "37. Dance Rádio"},
+                {"url": "https://dash2.antik.sk/live/test_dobre_radio_atktv/playlist.m3u8", "label": "38. Dobré Rádio"},
+                {"url": "https://dash2.antik.sk/live/test_proglas/playlist.m3u8", "label": "39. Rádio Proglas"},
+                {"url": "https://dash3.antik.sk/live/test_parada/playlist.m3u8", "label": "40. Rádio Paráda"},
+                {"url": "https://dash3.antik.sk/live/test_maria_slovensko/playlist.m3u8", "label": "41. Rádio Mária Slovensko"},
+                {"url": "https://dash2.antik.sk/live/test_radio_7_atk/playlist.m3u8", "label": "42. Rádio 7"},
+                {"url": "https://dash2.antik.sk/live/test_lumen/playlist.m3u8", "label": "43. Rádio Lumen"},
+                {"url": "https://dash2.antik.sk/live/test_g_radio_atk/playlist.m3u8", "label": "44. G-Radio"},
+                {"url": "https://dash3.antik.sk/live/test_wow_atk/playlist.m3u8", "label": "45. Rádio WoW"},
+                {"url": "https://dash3.antik.sk/live/test_dw_radio/playlist.m3u8", "label": "46. DW Radio"},
+                {"url": "https://dash3.antik.sk/live/test_hitradio/playlist.m3u8", "label": "47. Hitrádio Slovakia"},
+                {"url": "https://dash3.antik.sk/live/test_radio_sirava/playlist.m3u8", "label": "48. Rádio Šírava"},
+                {"url": "https://dash3.antik.sk/live/test_radio_jupiter/playlist.m3u8", "label": "49. Rádio Jupiter"},
+                {"url": "https://dash2.antik.sk/live/test_detske_radio_atk/playlist.m3u8", "label": "50. Detské rádio"},
+                {"url": "https://dash3.antik.sk/live/test_radio_kiks/playlist.m3u8", "label": "51. Rádio KIKS"},
+                {"url": "https://dash2.antik.sk/live/test_signal_radio/playlist.m3u8", "label": "52. Rádio Signal"},
+                {"url": "https://dash2.antik.sk/live/test_rock_radio/playlist.m3u8", "label": "53. Rock"},
+                {"url": "https://dash2.antik.sk/live/test_hitradio_cerna_hora/playlist.m3u8", "label": "54. Hitradio Černá hora"},
+                {"url": "https://dash2.antik.sk/live/test_classic_praha/playlist.m3u8", "label": "55. Rádio Classic Praha"},
+                {"url": "https://dash2.antik.sk/live/test_oldies_radio/playlist.m3u8", "label": "56. Rádio Oldies"},
+                {"url": "https://dash2.antik.sk/live/test_country_radio/playlist.m3u8", "label": "57. Country Radio"},
+                {"url": "https://dash2.antik.sk/live/test_blanik_radio/playlist.m3u8", "label": "58. Rádio Blanik"},
+                {"url": "https://dash2.antik.sk/live/test_frekvence_1/playlist.m3u8", "label": "59. Rádio Frekvence 1"},
+                {"url": "https://dash2.antik.sk/live/test_beat_radio/playlist.m3u8", "label": "60. Rádio Beat"}
+            ]
+        };
+
+        let audio = new Audio();
+        let hls = null;
+        let currentStation = null;
+        let isPlaying = false;
+
+        const playBtn = document.getElementById('play-btn');
+        const stopBtn = document.getElementById('stop-btn');
+        const volumeSlider = document.getElementById('volume-slider');
+        const stationName = document.getElementById('station-name');
+        const stationStatus = document.getElementById('station-status');
+        const radioList = document.getElementById('radio-list');
+        const searchInput = document.getElementById('search-input');
+
+        audio.volume = 0.7;
+
+        function renderRadioList(stations) {
+            radioList.innerHTML = '';
+            
+            if (stations.length === 0) {
+                radioList.innerHTML = '<div class="no-results">Žiadne výsledky</div>';
+                return;
+            }
+
+            stations.forEach(station => {
+                const div = document.createElement('div');
+                div.className = 'radio-item';
+                div.innerHTML = `
+                    <i class="fas fa-circle"></i>
+                    <span>${station.label}</span>
+                `;
+                div.addEventListener('click', () => selectStation(station, div));
+                radioList.appendChild(div);
+            });
+        }
+
+        function selectStation(station, element) {
+            document.querySelectorAll('.radio-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            element.classList.add('active');
+            
+            currentStation = station;
+            stationName.textContent = station.label;
+            playStation();
+        }
+
+        function playStation() {
+            if (!currentStation) return;
+
+            if (hls) {
+                hls.destroy();
+            }
+
+            stationStatus.textContent = 'Pripája sa...';
+
+            if (Hls.isSupported()) {
+                hls = new Hls({
+                    enableWorker: true,
+                    lowLatencyMode: true,
+                });
+                hls.loadSource(currentStation.url);
+                hls.attachMedia(audio);
+                hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                    audio.play();
+                    isPlaying = true;
+                    playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                    stationStatus.textContent = 'Prehráva sa';
+                });
+                hls.on(Hls.Events.ERROR, function(event, data) {
+                    if (data.fatal) {
+                        stationStatus.textContent = 'Chyba pripojenia';
+                        isPlaying = false;
+                        playBtn.innerHTML = '<i class="fas fa-play"></i>';
+                    }
+                });
+            } else if (audio.canPlayType('application/vnd.apple.mpegurl')) {
+                audio.src = currentStation.url;
+                audio.play();
+                isPlaying = true;
+                playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                stationStatus.textContent = 'Prehráva sa';
+            }
+        }
+
+        function stopStation() {
+            audio.pause();
+            if (hls) {
+                hls.destroy();
+                hls = null;
+            }
+            isPlaying = false;
+            playBtn.innerHTML = '<i class="fas fa-play"></i>';
+            stationStatus.textContent = 'Zastavené';
+        }
+
+        playBtn.addEventListener('click', () => {
+            if (!currentStation) {
+                stationStatus.textContent = 'Vyberte stanicu';
+                return;
+            }
+            if (isPlaying) {
+                audio.pause();
+                isPlaying = false;
+                playBtn.innerHTML = '<i class="fas fa-play"></i>';
+                stationStatus.textContent = 'Pozastavené';
+            } else {
+                audio.play();
+                isPlaying = true;
+                playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                stationStatus.textContent = 'Prehráva sa';
+            }
+        });
+
+        stopBtn.addEventListener('click', stopStation);
+
+        volumeSlider.addEventListener('input', (e) => {
+            audio.volume = e.target.value / 100;
+        });
+
+        searchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const filtered = radioData.subLinks.filter(station => 
+                station.label.toLowerCase().includes(searchTerm)
+            );
+            renderRadioList(filtered);
+        });
+
+        renderRadioList(radioData.subLinks);
+    </script>
+</body>
+</html>
