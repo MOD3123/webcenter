@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Periodická tabuľka prvkov</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #fafafa;
+            color: #212121;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #121212;
+                color: #e0e0e0;
+            }
+        }
+
+        /* Skrytie scrollbárov */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        body, .periodic-table-container {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        h1 {
+            display: none;
+        }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .controls input, .controls button {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .controls input, .controls button {
+                background-color: #1e1e1e;
+                color: #e0e0e0;
+                border-color: #424242;
+            }
+        }
+
+        .controls input {
+            flex: 1;
+            min-width: 200px;
+            background-color: #fff;
+            color: #212121;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .controls input {
+                background-color: #1e1e1e;
+                color: #e0e0e0;
+            }
+        }
+
+        .controls button {
+            background-color: #e8e8e8;
+            color: #212121;
+            border: 1px solid #ccc;
+            font-weight: 500;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .controls button {
+                background-color: #2a2a2a;
+                color: #e0e0e0;
+                border-color: #424242;
+            }
+        }
+
+        .controls button:hover {
+            background-color: #d0d0d0;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .controls button:hover {
+                background-color: #383838;
+            }
+        }
+
+        .periodic-table-container {
+            flex: 1;
+            overflow: auto;
+            border-radius: 8px;
+            padding: 4px;
+        }
+
+        .periodic-table {
+            display: inline-grid;
+            grid-template-columns: repeat(18, 1fr);
+            gap: 4px;
+            padding: 8px;
+            min-width: max-content;
+        }
+
+        .element {
+            min-width: 56px;
+            min-height: 56px;
+            padding: 6px;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid rgba(0,0,0,0.1);
+            font-size: 12px;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .element {
+                border-color: rgba(255,255,255,0.1);
+            }
+        }
+
+        .element:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .element:hover {
+                box-shadow: 0 4px 12px rgba(255,255,255,0.15);
+            }
+        }
+
+        .element-number {
+            font-size: 10px;
+            opacity: 0.7;
+        }
+
+        .element-symbol {
+            font-size: 18px;
+            font-weight: bold;
+            line-height: 1;
+            margin: 2px 0;
+        }
+
+        .element-name {
+            font-size: 9px;
+            opacity: 0.8;
+        }
+
+        /* Kategórie prvkov - farby */
+        .metal-alkali { background: linear-gradient(135deg, #ff9999 0%, #ff7777 100%); color: white; }
+        .metal-alkaline { background: linear-gradient(135deg, #ffcc99 0%, #ffaa55 100%); color: white; }
+        .metal-transition { background: linear-gradient(135deg, #99ccff 0%, #5599ff 100%); color: white; }
+        .metal-lanthanide { background: linear-gradient(135deg, #99ffcc 0%, #55ff99 100%); color: white; }
+        .metal-actinide { background: linear-gradient(135deg, #ff99ff 0%, #ff55ff 100%); color: white; }
+        .metal-post { background: linear-gradient(135deg, #cccccc 0%, #aaaaaa 100%); color: white; }
+        .nonmetal { background: linear-gradient(135deg, #99ff99 0%, #55ff55 100%); color: white; }
+        .nonmetal-other { background: linear-gradient(135deg, #ffff99 0%, #ffff55 100%); color: black; }
+        .halogen { background: linear-gradient(135deg, #ff99ff 0%, #dd55dd 100%); color: white; }
+        .noble-gas { background: linear-gradient(135deg, #99ffff 0%, #55ffff 100%); color: white; }
+        .semimetal { background: linear-gradient(135deg, #ffcccc 0%, #ff9999 100%); color: white; }
+
+        @media (prefers-color-scheme: dark) {
+            .metal-alkali { background: linear-gradient(135deg, #cc3333 0%, #aa1111 100%); }
+            .metal-alkaline { background: linear-gradient(135deg, #cc8833 0%, #aa6611 100%); }
+            .metal-transition { background: linear-gradient(135deg, #3366cc 0%, #1144aa 100%); }
+            .metal-lanthanide { background: linear-gradient(135deg, #33cc88 0%, #11aa66 100%); }
+            .metal-actinide { background: linear-gradient(135deg, #cc33cc 0%, #aa1188 100%); }
+            .metal-post { background: linear-gradient(135deg, #666666 0%, #444444 100%); }
+            .nonmetal { background: linear-gradient(135deg, #33cc33 0%, #11aa11 100%); }
+            .nonmetal-other { background: linear-gradient(135deg, #cccc33 0%, #aaaa11 100%); color: black; }
+            .halogen { background: linear-gradient(135deg, #cc33cc 0%, #aa1188 100%); }
+            .noble-gas { background: linear-gradient(135deg, #33cccc 0%, #11aaaa 100%); }
+            .semimetal { background: linear-gradient(135deg, #cc6666 0%, #aa3333 100%); }
+        }
+
+        .element.empty {
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 16px;
+            justify-content: center;
+            font-size: 12px;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-color {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .legend-color {
+                border-color: rgba(255,255,255,0.1);
+            }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 24px;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .modal-content {
+                background-color: #1e1e1e;
+                color: #e0e0e0;
+            }
+        }
+
+        .modal-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .modal-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb {
+            background: #999;
+            border-radius: 3px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb:hover {
+            background: #666;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .modal-content::-webkit-scrollbar-thumb {
+                background: #555;
+            }
+
+            .modal-content::-webkit-scrollbar-thumb:hover {
+                background: #777;
+            }
+        }
+
+        .modal-close {
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #999;
+            background: none;
+            border: none;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+
+        .modal-close:hover {
+            color: #000;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .modal-close:hover {
+                color: #fff;
+            }
+        }
+
+        .element-details {
+            clear: both;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+
+        .element-details h2 {
+            font-size: 24px;
+            margin-bottom: 12px;
+            margin-top: 0;
+        }
+
+        .element-details p {
+            margin: 8px 0;
+            line-height: 1.5;
+        }
+
+        .detail-row {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            gap: 12px;
+            margin: 8px 0;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .detail-row {
+                border-color: #333;
+            }
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #666;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .detail-label {
+                color: #aaa;
+            }
+        }
+    
+        .element-name-sk {
+            font-size: 9px;
+            font-weight: 500;
+            opacity: 0.85;
+        }
+
+        .periodic-table-container {
+            cursor: grab;
+        }
+
+        .periodic-table-container.dragging {
+            cursor: grabbing;
+        }
+    
+        @media (prefers-color-scheme: dark) {
+            [style*="background: rgba(0,0,0,0.05)"] {
+                background: rgba(255,255,255,0.08) !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Periodická tabuľka prvkov</h1>
+
+    <div class="controls">
+        <div style="flex: 1; min-width: 200px; position: relative;">
+            <input type="text" id="searchInput" placeholder="Hľadať prvok (názov, symbol, číslo)..." style="width: 100%; padding-right: 32px;">
+            <button id="clearSearchBtn" onclick="resetSearch()" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 20px; cursor: pointer; color: inherit; opacity: 0.6; padding: 0; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">✕</button>
+        </div>
+    </div>
+
+    <div class="periodic-table-container">
+        <div class="periodic-table" id="periodicTable"></div>
+    </div>
+
+    <div class="legend">
+        <div class="legend-item">
+            <div class="legend-color metal-alkali"></div>
+            <span>Alkalické kovy</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color metal-alkaline"></div>
+            <span>Alkalické zeminy</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color metal-transition"></div>
+            <span>Prechodné kovy</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color nonmetal"></div>
+            <span>Nekovové prvky</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color halogen"></div>
+            <span>Halogény</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color noble-gas"></div>
+            <span>Vzácne plyny</span>
+        </div>
+    </div>
+
+    <div id="elementModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <div class="element-details" id="elementDetails"></div>
+        </div>
+    </div>
+
+    <script>
+        // Zákaz kopírovania
+        document.addEventListener('copy', function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        // Zákaz strihu
+        document.addEventListener('cut', function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        // Zákaz pravého kliknutia (voliteľne)
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        const elements = [
+            { number: 1, symbol: 'H', name: 'Vodík', name_sk: 'Vodík', category: 'nonmetal', period: 1, group: 1, mass: 1.008, row: 1, col: 1 },
+            { number: 2, symbol: 'He', name: 'Hélium', name_sk: 'Hélium', category: 'noble-gas', period: 1, group: 18, mass: 4.003, row: 1, col: 18 },
+            { number: 3, symbol: 'Li', name: 'Lítium', name_sk: 'Lítium', category: 'metal-alkali', period: 2, group: 1, mass: 6.941, row: 2, col: 1 },
+            { number: 4, symbol: 'Be', name: 'Berýlium', name_sk: 'Berýlium', category: 'metal-alkaline', period: 2, group: 2, mass: 9.012, row: 2, col: 2 },
+            { number: 5, symbol: 'B', name: 'Bór', name_sk: 'Bór', category: 'semimetal', period: 2, group: 13, mass: 10.811, row: 2, col: 13 },
+            { number: 6, symbol: 'C', name: 'Uhlík', name_sk: 'Uhlík', category: 'nonmetal', period: 2, group: 14, mass: 12.011, row: 2, col: 14 },
+            { number: 7, symbol: 'N', name: 'Dusík', name_sk: 'Dusík', category: 'nonmetal', period: 2, group: 15, mass: 14.007, row: 2, col: 15 },
+            { number: 8, symbol: 'O', name: 'Kyslík', name_sk: 'Kyslík', category: 'nonmetal', period: 2, group: 16, mass: 15.999, row: 2, col: 16 },
+            { number: 9, symbol: 'F', name: 'Fluór', name_sk: 'Fluór', category: 'halogen', period: 2, group: 17, mass: 18.998, row: 2, col: 17 },
+            { number: 10, symbol: 'Ne', name: 'Neón', name_sk: 'Neón', category: 'noble-gas', period: 2, group: 18, mass: 20.180, row: 2, col: 18 },
+            { number: 11, symbol: 'Na', name: 'Sodík', name_sk: 'Sodík', category: 'metal-alkali', period: 3, group: 1, mass: 22.990, row: 3, col: 1 },
+            { number: 12, symbol: 'Mg', name: 'Horčík', name_sk: 'Horčík', category: 'metal-alkaline', period: 3, group: 2, mass: 24.305, row: 3, col: 2 },
+            { number: 13, symbol: 'Al', name: 'Hliník', name_sk: 'Hliník', category: 'metal-post', period: 3, group: 13, mass: 26.982, row: 3, col: 13 },
+            { number: 14, symbol: 'Si', name: 'Kremík', name_sk: 'Kremík', category: 'semimetal', period: 3, group: 14, mass: 28.086, row: 3, col: 14 },
+            { number: 15, symbol: 'P', name: 'Fosfor', name_sk: 'Fosfor', category: 'nonmetal', period: 3, group: 15, mass: 30.974, row: 3, col: 15 },
+            { number: 16, symbol: 'S', name: 'Síra', name_sk: 'Síra', category: 'nonmetal', period: 3, group: 16, mass: 32.065, row: 3, col: 16 },
+            { number: 17, symbol: 'Cl', name: 'Chlór', name_sk: 'Chlór', category: 'halogen', period: 3, group: 17, mass: 35.453, row: 3, col: 17 },
+            { number: 18, symbol: 'Ar', name: 'Argón', name_sk: 'Argón', category: 'noble-gas', period: 3, group: 18, mass: 39.948, row: 3, col: 18 },
+            { number: 19, symbol: 'K', name: 'Draslík', name_sk: 'Draslík', category: 'metal-alkali', period: 4, group: 1, mass: 39.098, row: 4, col: 1 },
+            { number: 20, symbol: 'Ca', name: 'Vápnik', name_sk: 'Vápnik', category: 'metal-alkaline', period: 4, group: 2, mass: 40.078, row: 4, col: 2 },
+            { number: 21, symbol: 'Sc', name: 'Skandium', name_sk: 'Skandium', category: 'metal-transition', period: 4, group: 3, mass: 44.956, row: 4, col: 3 },
+            { number: 22, symbol: 'Ti', name: 'Titán', name_sk: 'Titán', category: 'metal-transition', period: 4, group: 4, mass: 47.867, row: 4, col: 4 },
+            { number: 23, symbol: 'V', name: 'Vanád', name_sk: 'Vanád', category: 'metal-transition', period: 4, group: 5, mass: 50.942, row: 4, col: 5 },
+            { number: 24, symbol: 'Cr', name: 'Chróm', name_sk: 'Chróm', category: 'metal-transition', period: 4, group: 6, mass: 51.996, row: 4, col: 6 },
+            { number: 25, symbol: 'Mn', name: 'Mangán', name_sk: 'Mangán', category: 'metal-transition', period: 4, group: 7, mass: 54.938, row: 4, col: 7 },
+            { number: 26, symbol: 'Fe', name: 'Železo', name_sk: 'Železo', category: 'metal-transition', period: 4, group: 8, mass: 55.845, row: 4, col: 8 },
+            { number: 27, symbol: 'Co', name: 'Kobalt', name_sk: 'Kobalt', category: 'metal-transition', period: 4, group: 9, mass: 58.933, row: 4, col: 9 },
+            { number: 28, symbol: 'Ni', name: 'Nikel', name_sk: 'Nikel', category: 'metal-transition', period: 4, group: 10, mass: 58.693, row: 4, col: 10 },
+            { number: 29, symbol: 'Cu', name: 'Meď', name_sk: 'Meď', category: 'metal-transition', period: 4, group: 11, mass: 63.546, row: 4, col: 11 },
+            { number: 30, symbol: 'Zn', name: 'Zinok', name_sk: 'Zinok', category: 'metal-transition', period: 4, group: 12, mass: 65.380, row: 4, col: 12 },
+            { number: 31, symbol: 'Ga', name: 'Gálium', name_sk: 'Gálium', category: 'metal-post', period: 4, group: 13, mass: 69.723, row: 4, col: 13 },
+            { number: 32, symbol: 'Ge', name: 'Germánium', name_sk: 'Germánium', category: 'semimetal', period: 4, group: 14, mass: 72.640, row: 4, col: 14 },
+            { number: 33, symbol: 'As', name: 'Arzén', name_sk: 'Arzén', category: 'semimetal', period: 4, group: 15, mass: 74.922, row: 4, col: 15 },
+            { number: 34, symbol: 'Se', name: 'Selén', name_sk: 'Selén', category: 'nonmetal', period: 4, group: 16, mass: 78.960, row: 4, col: 16 },
+            { number: 35, symbol: 'Br', name: 'Bróm', name_sk: 'Bróm', category: 'halogen', period: 4, group: 17, mass: 79.904, row: 4, col: 17 },
+            { number: 36, symbol: 'Kr', name: 'Kryptón', name_sk: 'Kryptón', category: 'noble-gas', period: 4, group: 18, mass: 83.798, row: 4, col: 18 },
+            { number: 37, symbol: 'Rb', name: 'Rubídium', name_sk: 'Rubídium', category: 'metal-alkali', period: 5, group: 1, mass: 85.468, row: 5, col: 1 },
+            { number: 38, symbol: 'Sr', name: 'Stroncium', name_sk: 'Stroncium', category: 'metal-alkaline', period: 5, group: 2, mass: 87.620, row: 5, col: 2 },
+            { number: 39, symbol: 'Y', name: 'Yttrium', name_sk: 'Yttrium', category: 'metal-transition', period: 5, group: 3, mass: 88.906, row: 5, col: 3 },
+            { number: 40, symbol: 'Zr', name: 'Zirkónium', name_sk: 'Zirkónium', category: 'metal-transition', period: 5, group: 4, mass: 91.224, row: 5, col: 4 },
+            { number: 41, symbol: 'Nb', name: 'Niób', name_sk: 'Niób', category: 'metal-transition', period: 5, group: 5, mass: 92.906, row: 5, col: 5 },
+            { number: 42, symbol: 'Mo', name: 'Molybdén', name_sk: 'Molybdén', category: 'metal-transition', period: 5, group: 6, mass: 95.940, row: 5, col: 6 },
+            { number: 43, symbol: 'Tc', name: 'Technécium', name_sk: 'Technécium', category: 'metal-transition', period: 5, group: 7, mass: 98.000, row: 5, col: 7 },
+            { number: 44, symbol: 'Ru', name: 'Ruténium', name_sk: 'Ruténium', category: 'metal-transition', period: 5, group: 8, mass: 101.070, row: 5, col: 8 },
+            { number: 45, symbol: 'Rh', name: 'Ródium', name_sk: 'Ródium', category: 'metal-transition', period: 5, group: 9, mass: 102.906, row: 5, col: 9 },
+            { number: 46, symbol: 'Pd', name: 'Paládium', name_sk: 'Paládium', category: 'metal-transition', period: 5, group: 10, mass: 106.420, row: 5, col: 10 },
+            { number: 47, symbol: 'Ag', name: 'Striebro', name_sk: 'Striebro', category: 'metal-transition', period: 5, group: 11, mass: 107.868, row: 5, col: 11 },
+            { number: 48, symbol: 'Cd', name: 'Kadmium', name_sk: 'Kadmium', category: 'metal-transition', period: 5, group: 12, mass: 112.411, row: 5, col: 12 },
+            { number: 49, symbol: 'In', name: 'Indium', name_sk: 'Indium', category: 'metal-post', period: 5, group: 13, mass: 114.818, row: 5, col: 13 },
+            { number: 50, symbol: 'Sn', name: 'Cín', name_sk: 'Cín', category: 'metal-post', period: 5, group: 14, mass: 118.711, row: 5, col: 14 },
+            { number: 51, symbol: 'Sb', name: 'Antimón', name_sk: 'Antimón', category: 'semimetal', period: 5, group: 15, mass: 121.760, row: 5, col: 15 },
+            { number: 52, symbol: 'Te', name: 'Telúr', name_sk: 'Telúr', category: 'semimetal', period: 5, group: 16, mass: 127.600, row: 5, col: 16 },
+            { number: 53, symbol: 'I', name: 'Jód', name_sk: 'Jód', category: 'halogen', period: 5, group: 17, mass: 126.904, row: 5, col: 17 },
+            { number: 54, symbol: 'Xe', name: 'Xenón', name_sk: 'Xenón', category: 'noble-gas', period: 5, group: 18, mass: 131.293, row: 5, col: 18 },
+            { number: 55, symbol: 'Cs', name: 'Cézium', name_sk: 'Cézium', category: 'metal-alkali', period: 6, group: 1, mass: 132.905, row: 6, col: 1 },
+            { number: 56, symbol: 'Ba', name: 'Bárium', name_sk: 'Bárium', category: 'metal-alkaline', period: 6, group: 2, mass: 137.327, row: 6, col: 2 },
+            { number: 57, symbol: 'La', name: 'Lantán', name_sk: 'Lantán', category: 'metal-lanthanide', period: 6, group: 3, mass: 138.905, row: 6, col: 3 },
+            { number: 72, symbol: 'Hf', name: 'Hafnium', name_sk: 'Hafnium', category: 'metal-transition', period: 6, group: 4, mass: 178.492, row: 6, col: 4 },
+            { number: 73, symbol: 'Ta', name: 'Tantál', name_sk: 'Tantál', category: 'metal-transition', period: 6, group: 5, mass: 180.948, row: 6, col: 5 },
+            { number: 74, symbol: 'W', name: 'Volfrám', name_sk: 'Volfrám', category: 'metal-transition', period: 6, group: 6, mass: 183.840, row: 6, col: 6 },
+            { number: 75, symbol: 'Re', name: 'Rénium', name_sk: 'Rénium', category: 'metal-transition', period: 6, group: 7, mass: 186.207, row: 6, col: 7 },
+            { number: 76, symbol: 'Os', name: 'Osmium', name_sk: 'Osmium', category: 'metal-transition', period: 6, group: 8, mass: 190.960, row: 6, col: 8 },
+            { number: 77, symbol: 'Ir', name: 'Irídium', name_sk: 'Irídium', category: 'metal-transition', period: 6, group: 9, mass: 192.217, row: 6, col: 9 },
+            { number: 78, symbol: 'Pt', name: 'Platina', name_sk: 'Platina', category: 'metal-transition', period: 6, group: 10, mass: 195.084, row: 6, col: 10 },
+            { number: 79, symbol: 'Au', name: 'Zlato', name_sk: 'Zlato', category: 'metal-transition', period: 6, group: 11, mass: 196.967, row: 6, col: 11 },
+            { number: 80, symbol: 'Hg', name: 'Ortuť', name_sk: 'Ortuť', category: 'metal-transition', period: 6, group: 12, mass: 200.592, row: 6, col: 12 },
+            { number: 81, symbol: 'Tl', name: 'Táľium', name_sk: 'Táľium', category: 'metal-post', period: 6, group: 13, mass: 204.383, row: 6, col: 13 },
+            { number: 82, symbol: 'Pb', name: 'Olovo', name_sk: 'Olovo', category: 'metal-post', period: 6, group: 14, mass: 207.200, row: 6, col: 14 },
+            { number: 83, symbol: 'Bi', name: 'Bisnut', name_sk: 'Bisnut', category: 'semimetal', period: 6, group: 15, mass: 208.980, row: 6, col: 15 },
+            { number: 84, symbol: 'Po', name: 'Polónium', name_sk: 'Polónium', category: 'semimetal', period: 6, group: 16, mass: 209.000, row: 6, col: 16 },
+            { number: 85, symbol: 'At', name: 'Astát', name_sk: 'Astát', category: 'halogen', period: 6, group: 17, mass: 210.000, row: 6, col: 17 },
+            { number: 86, symbol: 'Rn', name: 'Radón', name_sk: 'Radón', category: 'noble-gas', period: 6, group: 18, mass: 222.000, row: 6, col: 18 },
+            { number: 87, symbol: 'Fr', name: 'Francium', name_sk: 'Francium', category: 'metal-alkali', period: 7, group: 1, mass: 223.000, row: 7, col: 1 },
+            { number: 88, symbol: 'Ra', name: 'Rádium', name_sk: 'Rádium', category: 'metal-alkaline', period: 7, group: 2, mass: 226.000, row: 7, col: 2 },
+            { number: 89, symbol: 'Ac', name: 'Aktinium', name_sk: 'Aktinium', category: 'metal-actinide', period: 7, group: 3, mass: 227.000, row: 7, col: 3 },
+            { number: 104, symbol: 'Rf', name: 'Rutherfordium', name_sk: 'Rutherfordium', category: 'metal-transition', period: 7, group: 4, mass: 261.000, row: 7, col: 4 },
+            { number: 105, symbol: 'Db', name: 'Dubnium', name_sk: 'Dubnium', category: 'metal-transition', period: 7, group: 5, mass: 262.000, row: 7, col: 5 },
+            { number: 106, symbol: 'Sg', name: 'Seaborgium', name_sk: 'Seaborgium', category: 'metal-transition', period: 7, group: 6, mass: 266.000, row: 7, col: 6 },
+            { number: 107, symbol: 'Bh', name: 'Bohrium', name_sk: 'Bohrium', category: 'metal-transition', period: 7, group: 7, mass: 264.000, row: 7, col: 7 },
+            { number: 108, symbol: 'Hs', name: 'Hassium', name_sk: 'Hassium', category: 'metal-transition', period: 7, group: 8, mass: 269.000, row: 7, col: 8 },
+            { number: 109, symbol: 'Mt', name: 'Meitnerium', name_sk: 'Meitnerium', category: 'metal-transition', period: 7, group: 9, mass: 278.000, row: 7, col: 9 },
+            { number: 110, symbol: 'Ds', name: 'Darmstadtium', name_sk: 'Darmstadtium', category: 'metal-transition', period: 7, group: 10, mass: 281.000, row: 7, col: 10 },
+            { number: 111, symbol: 'Rg', name: 'Roentgenium', name_sk: 'Roentgenium', category: 'metal-transition', period: 7, group: 11, mass: 280.000, row: 7, col: 11 },
+            { number: 112, symbol: 'Cn', name: 'Copernicium', name_sk: 'Copernicium', category: 'metal-transition', period: 7, group: 12, mass: 285.000, row: 7, col: 12 },
+            { number: 113, symbol: 'Nh', name: 'Nihonium', name_sk: 'Nihonium', category: 'metal-post', period: 7, group: 13, mass: 286.000, row: 7, col: 13 },
+            { number: 114, symbol: 'Fl', name: 'Flerovium', name_sk: 'Flerovium', category: 'metal-post', period: 7, group: 14, mass: 289.000, row: 7, col: 14 },
+            { number: 115, symbol: 'Mc', name: 'Moscovium', name_sk: 'Moscovium', category: 'metal-post', period: 7, group: 15, mass: 288.000, row: 7, col: 15 },
+            { number: 116, symbol: 'Lv', name: 'Livermorium', name_sk: 'Livermorium', category: 'metal-post', period: 7, group: 16, mass: 293.000, row: 7, col: 16 },
+            { number: 117, symbol: 'Ts', name: 'Teneseium', name_sk: 'Teneseium', category: 'halogen', period: 7, group: 17, mass: 294.000, row: 7, col: 17 },
+            { number: 118, symbol: 'Og', name: 'Oganesson', name_sk: 'Oganesson', category: 'noble-gas', period: 7, group: 18, mass: 294.000, row: 7, col: 18 },
+        ];
+
+        const lanthanides = [
+            { number: 58, symbol: 'Ce', name: 'Cér', name_sk: 'Cér', category: 'metal-lanthanide', period: 6, group: 3, mass: 140.116, row: 8, col: 3 },
+            { number: 59, symbol: 'Pr', name: 'Praseodým', name_sk: 'Praseodým', category: 'metal-lanthanide', period: 6, group: 3, mass: 140.908, row: 8, col: 4 },
+            { number: 60, symbol: 'Nd', name: 'Neodým', name_sk: 'Neodým', category: 'metal-lanthanide', period: 6, group: 3, mass: 144.242, row: 8, col: 5 },
+            { number: 61, symbol: 'Pm', name: 'Prométium', name_sk: 'Prométium', category: 'metal-lanthanide', period: 6, group: 3, mass: 145.000, row: 8, col: 6 },
+            { number: 62, symbol: 'Sm', name: 'Samárium', name_sk: 'Samárium', category: 'metal-lanthanide', period: 6, group: 3, mass: 150.360, row: 8, col: 7 },
+            { number: 63, symbol: 'Eu', name: 'Európium', name_sk: 'Európium', category: 'metal-lanthanide', period: 6, group: 3, mass: 151.964, row: 8, col: 8 },
+            { number: 64, symbol: 'Gd', name: 'Gadolinium', name_sk: 'Gadolinium', category: 'metal-lanthanide', period: 6, group: 3, mass: 157.250, row: 8, col: 9 },
+            { number: 65, symbol: 'Tb', name: 'Terbium', name_sk: 'Terbium', category: 'metal-lanthanide', period: 6, group: 3, mass: 158.925, row: 8, col: 10 },
+            { number: 66, symbol: 'Dy', name: 'Dysprozium', name_sk: 'Dysprozium', category: 'metal-lanthanide', period: 6, group: 3, mass: 162.500, row: 8, col: 11 },
+            { number: 67, symbol: 'Ho', name: 'Holmium', name_sk: 'Holmium', category: 'metal-lanthanide', period: 6, group: 3, mass: 164.930, row: 8, col: 12 },
+            { number: 68, symbol: 'Er', name: 'Erbium', name_sk: 'Erbium', category: 'metal-lanthanide', period: 6, group: 3, mass: 167.259, row: 8, col: 13 },
+            { number: 69, symbol: 'Tm', name: 'Túlium', name_sk: 'Túlium', category: 'metal-lanthanide', period: 6, group: 3, mass: 168.934, row: 8, col: 14 },
+            { number: 70, symbol: 'Yb', name: 'Ytterbium', name_sk: 'Ytterbium', category: 'metal-lanthanide', period: 6, group: 3, mass: 173.040, row: 8, col: 15 },
+            { number: 71, symbol: 'Lu', name: 'Lután', name_sk: 'Lután', category: 'metal-lanthanide', period: 6, group: 3, mass: 174.967, row: 8, col: 16 },
+        ];
+
+        const actinides = [
+            { number: 90, symbol: 'Th', name: 'Tórium', name_sk: 'Tórium', category: 'metal-actinide', period: 7, group: 3, mass: 232.038, row: 9, col: 3 },
+            { number: 91, symbol: 'Pa', name: 'Protaktinium', name_sk: 'Protaktinium', category: 'metal-actinide', period: 7, group: 3, mass: 231.036, row: 9, col: 4 },
+            { number: 92, symbol: 'U', name: 'Urán', name_sk: 'Urán', category: 'metal-actinide', period: 7, group: 3, mass: 238.029, row: 9, col: 5 },
+            { number: 93, symbol: 'Np', name: 'Neptúnium', name_sk: 'Neptúnium', category: 'metal-actinide', period: 7, group: 3, mass: 237.000, row: 9, col: 6 },
+            { number: 94, symbol: 'Pu', name: 'Plutónium', name_sk: 'Plutónium', category: 'metal-actinide', period: 7, group: 3, mass: 244.000, row: 9, col: 7 },
+            { number: 95, symbol: 'Am', name: 'Amerícium', name_sk: 'Amerícium', category: 'metal-actinide', period: 7, group: 3, mass: 243.000, row: 9, col: 8 },
+            { number: 96, symbol: 'Cm', name: 'Kúrium', name_sk: 'Kúrium', category: 'metal-actinide', period: 7, group: 3, mass: 247.000, row: 9, col: 9 },
+            { number: 97, symbol: 'Bk', name: 'Berkélium', name_sk: 'Berkélium', category: 'metal-actinide', period: 7, group: 3, mass: 247.000, row: 9, col: 10 },
+            { number: 98, symbol: 'Cf', name: 'Kalifornium', name_sk: 'Kalifornium', category: 'metal-actinide', period: 7, group: 3, mass: 251.000, row: 9, col: 11 },
+            { number: 99, symbol: 'Es', name: 'Einsteinium', name_sk: 'Einsteinium', category: 'metal-actinide', period: 7, group: 3, mass: 252.000, row: 9, col: 12 },
+            { number: 100, symbol: 'Fm', name: 'Fermium', name_sk: 'Fermium', category: 'metal-actinide', period: 7, group: 3, mass: 257.000, row: 9, col: 13 },
+            { number: 101, symbol: 'Md', name: 'Mendelévium', name_sk: 'Mendelévium', category: 'metal-actinide', period: 7, group: 3, mass: 258.000, row: 9, col: 14 },
+            { number: 102, symbol: 'No', name: 'Nobelium', name_sk: 'Nobelium', category: 'metal-actinide', period: 7, group: 3, mass: 259.000, row: 9, col: 15 },
+            { number: 103, symbol: 'Lr', name: 'Lawrencium', name_sk: 'Lawrencium', category: 'metal-actinide', period: 7, group: 3, mass: 266.000, row: 9, col: 16 },
+        ];
+
+        const allElements = [...elements, ...lanthanides, ...actinides];
+
+        const extendedData = {
+            1: { density: 8.988e-05, meltingC: -259.14, boilingC: -252.87, electronConfig: "1s¹", atomicRadius: 53, electronegativity: 2.2, ionizationEnergy: 1312.0, discovered: 1766, phase: "plyn", block: "s", oxidationStates: "+1, -1" },
+            2: { density: 0.0001785, meltingC: -272.2, boilingC: -268.93, electronConfig: "1s²", atomicRadius: 31, electronegativity: null, ionizationEnergy: 2372.3, discovered: 1868, phase: "plyn", block: "s", oxidationStates: "0" },
+            3: { density: 0.534, meltingC: 180.54, boilingC: 1342, electronConfig: "[He]2s¹", atomicRadius: 167, electronegativity: 0.98, ionizationEnergy: 520.2, discovered: 1817, phase: "pevná", block: "s", oxidationStates: "+1" },
+            4: { density: 1.85, meltingC: 1287, boilingC: 2468, electronConfig: "[He]2s²", atomicRadius: 112, electronegativity: 1.57, ionizationEnergy: 899.5, discovered: 1798, phase: "pevná", block: "s", oxidationStates: "+2" },
+            5: { density: 2.34, meltingC: 2076, boilingC: 3927, electronConfig: "[He]2s²2p¹", atomicRadius: 87, electronegativity: 2.04, ionizationEnergy: 800.6, discovered: 1808, phase: "pevná", block: "p", oxidationStates: "+3" },
+            6: { density: 2.267, meltingC: 3550, boilingC: 4027, electronConfig: "[He]2s²2p²", atomicRadius: 67, electronegativity: 2.55, ionizationEnergy: 1086.5, discovered: -3750, phase: "pevná", block: "p", oxidationStates: "+4, +2, -4" },
+            7: { density: 0.0012506, meltingC: -210.0, boilingC: -195.79, electronConfig: "[He]2s²2p³", atomicRadius: 56, electronegativity: 3.04, ionizationEnergy: 1402.3, discovered: 1772, phase: "plyn", block: "p", oxidationStates: "+5, +4, +3, +2, -3" },
+            8: { density: 0.001429, meltingC: -218.79, boilingC: -182.95, electronConfig: "[He]2s²2p⁴", atomicRadius: 48, electronegativity: 3.44, ionizationEnergy: 1313.9, discovered: 1774, phase: "plyn", block: "p", oxidationStates: "-2, -1" },
+            9: { density: 0.001696, meltingC: -219.62, boilingC: -188.12, electronConfig: "[He]2s²2p⁵", atomicRadius: 42, electronegativity: 3.98, ionizationEnergy: 1681.0, discovered: 1886, phase: "plyn", block: "p", oxidationStates: "-1" },
+            10: { density: 0.0008999, meltingC: -248.59, boilingC: -246.08, electronConfig: "[He]2s²2p⁶", atomicRadius: 38, electronegativity: null, ionizationEnergy: 2080.7, discovered: 1898, phase: "plyn", block: "p", oxidationStates: "0" },
+            11: { density: 0.971, meltingC: 97.72, boilingC: 883, electronConfig: "[Ne]3s¹", atomicRadius: 190, electronegativity: 0.93, ionizationEnergy: 495.8, discovered: 1807, phase: "pevná", block: "s", oxidationStates: "+1" },
+            12: { density: 1.738, meltingC: 650, boilingC: 1090, electronConfig: "[Ne]3s²", atomicRadius: 145, electronegativity: 1.31, ionizationEnergy: 737.7, discovered: 1755, phase: "pevná", block: "s", oxidationStates: "+2" },
+            13: { density: 2.698, meltingC: 660.32, boilingC: 2519, electronConfig: "[Ne]3s²3p¹", atomicRadius: 118, electronegativity: 1.61, ionizationEnergy: 577.5, discovered: 1825, phase: "pevná", block: "p", oxidationStates: "+3" },
+            14: { density: 2.3296, meltingC: 1414, boilingC: 3265, electronConfig: "[Ne]3s²3p²", atomicRadius: 111, electronegativity: 1.9, ionizationEnergy: 786.5, discovered: 1824, phase: "pevná", block: "p", oxidationStates: "+4, +2, -4" },
+            15: { density: 1.82, meltingC: 44.15, boilingC: 280.5, electronConfig: "[Ne]3s²3p³", atomicRadius: 98, electronegativity: 2.19, ionizationEnergy: 1011.8, discovered: 1669, phase: "pevná", block: "p", oxidationStates: "+5, +3, -3" },
+            16: { density: 2.067, meltingC: 115.21, boilingC: 444.6, electronConfig: "[Ne]3s²3p⁴", atomicRadius: 88, electronegativity: 2.58, ionizationEnergy: 999.6, discovered: -500, phase: "pevná", block: "p", oxidationStates: "+6, +4, -2" },
+            17: { density: 0.003214, meltingC: -101.5, boilingC: -34.04, electronConfig: "[Ne]3s²3p⁵", atomicRadius: 79, electronegativity: 3.16, ionizationEnergy: 1251.2, discovered: 1774, phase: "plyn", block: "p", oxidationStates: "+7, +5, +3, +1, -1" },
+            18: { density: 0.0017837, meltingC: -189.35, boilingC: -185.85, electronConfig: "[Ne]3s²3p⁶", atomicRadius: 71, electronegativity: null, ionizationEnergy: 1520.6, discovered: 1894, phase: "plyn", block: "p", oxidationStates: "0" },
+            19: { density: 0.862, meltingC: 63.38, boilingC: 759, electronConfig: "[Ar]4s¹", atomicRadius: 243, electronegativity: 0.82, ionizationEnergy: 418.8, discovered: 1807, phase: "pevná", block: "s", oxidationStates: "+1" },
+            20: { density: 1.54, meltingC: 842, boilingC: 1484, electronConfig: "[Ar]4s²", atomicRadius: 194, electronegativity: 1.0, ionizationEnergy: 589.8, discovered: 1808, phase: "pevná", block: "s", oxidationStates: "+2" },
+            21: { density: 2.989, meltingC: 1541, boilingC: 2836, electronConfig: "[Ar]3d¹4s²", atomicRadius: 184, electronegativity: 1.36, ionizationEnergy: 633.1, discovered: 1879, phase: "pevná", block: "d", oxidationStates: "+3" },
+            22: { density: 4.54, meltingC: 1668, boilingC: 3287, electronConfig: "[Ar]3d²4s²", atomicRadius: 176, electronegativity: 1.54, ionizationEnergy: 658.8, discovered: 1791, phase: "pevná", block: "d", oxidationStates: "+4, +3, +2" },
+            23: { density: 6.11, meltingC: 1910, boilingC: 3407, electronConfig: "[Ar]3d³4s²", atomicRadius: 171, electronegativity: 1.63, ionizationEnergy: 650.9, discovered: 1801, phase: "pevná", block: "d", oxidationStates: "+5, +4, +3, +2" },
+            24: { density: 7.15, meltingC: 1907, boilingC: 2671, electronConfig: "[Ar]3d⁵4s¹", atomicRadius: 166, electronegativity: 1.66, ionizationEnergy: 652.9, discovered: 1794, phase: "pevná", block: "d", oxidationStates: "+6, +3, +2" },
+            25: { density: 7.44, meltingC: 1246, boilingC: 2061, electronConfig: "[Ar]3d⁵4s²", atomicRadius: 161, electronegativity: 1.55, ionizationEnergy: 717.3, discovered: 1774, phase: "pevná", block: "d", oxidationStates: "+7, +4, +3, +2" },
+            26: { density: 7.874, meltingC: 1538, boilingC: 2861, electronConfig: "[Ar]3d⁶4s²", atomicRadius: 156, electronegativity: 1.83, ionizationEnergy: 762.5, discovered: -5000, phase: "pevná", block: "d", oxidationStates: "+3, +2" },
+            27: { density: 8.86, meltingC: 1495, boilingC: 2927, electronConfig: "[Ar]3d⁷4s²", atomicRadius: 152, electronegativity: 1.88, ionizationEnergy: 760.4, discovered: 1735, phase: "pevná", block: "d", oxidationStates: "+3, +2" },
+            28: { density: 8.912, meltingC: 1455, boilingC: 2913, electronConfig: "[Ar]3d⁸4s²", atomicRadius: 149, electronegativity: 1.91, ionizationEnergy: 737.1, discovered: 1751, phase: "pevná", block: "d", oxidationStates: "+2, +3" },
+            29: { density: 8.96, meltingC: 1084.62, boilingC: 2562, electronConfig: "[Ar]3d¹⁰4s¹", atomicRadius: 145, electronegativity: 1.9, ionizationEnergy: 745.5, discovered: -9000, phase: "pevná", block: "d", oxidationStates: "+2, +1" },
+            30: { density: 7.134, meltingC: 419.53, boilingC: 907, electronConfig: "[Ar]3d¹⁰4s²", atomicRadius: 142, electronegativity: 1.65, ionizationEnergy: 906.4, discovered: -1000, phase: "pevná", block: "d", oxidationStates: "+2" },
+            31: { density: 5.907, meltingC: 29.76, boilingC: 2204, electronConfig: "[Ar]3d¹⁰4s²4p¹", atomicRadius: 136, electronegativity: 1.81, ionizationEnergy: 578.8, discovered: 1875, phase: "pevná", block: "p", oxidationStates: "+3" },
+            32: { density: 5.323, meltingC: 938.25, boilingC: 2820, electronConfig: "[Ar]3d¹⁰4s²4p²", atomicRadius: 125, electronegativity: 2.01, ionizationEnergy: 762.2, discovered: 1886, phase: "pevná", block: "p", oxidationStates: "+4, +2" },
+            33: { density: 5.776, meltingC: 817, boilingC: 614, electronConfig: "[Ar]3d¹⁰4s²4p³", atomicRadius: 114, electronegativity: 2.18, ionizationEnergy: 947.0, discovered: -300, phase: "pevná", block: "p", oxidationStates: "+5, +3, -3" },
+            34: { density: 4.809, meltingC: 220.8, boilingC: 685, electronConfig: "[Ar]3d¹⁰4s²4p⁴", atomicRadius: 103, electronegativity: 2.55, ionizationEnergy: 941.0, discovered: 1817, phase: "pevná", block: "p", oxidationStates: "+6, +4, -2" },
+            35: { density: 3.122, meltingC: -7.2, boilingC: 58.8, electronConfig: "[Ar]3d¹⁰4s²4p⁵", atomicRadius: 94, electronegativity: 2.96, ionizationEnergy: 1139.9, discovered: 1826, phase: "kvapalná", block: "p", oxidationStates: "+7, +5, +3, +1, -1" },
+            36: { density: 0.003733, meltingC: -157.36, boilingC: -153.22, electronConfig: "[Ar]3d¹⁰4s²4p⁶", atomicRadius: 88, electronegativity: 3.0, ionizationEnergy: 1350.8, discovered: 1898, phase: "plyn", block: "p", oxidationStates: "+2, 0" },
+            37: { density: 1.532, meltingC: 39.31, boilingC: 688, electronConfig: "[Kr]5s¹", atomicRadius: 265, electronegativity: 0.82, ionizationEnergy: 403.0, discovered: 1861, phase: "pevná", block: "s", oxidationStates: "+1" },
+            38: { density: 2.64, meltingC: 777, boilingC: 1382, electronConfig: "[Kr]5s²", atomicRadius: 219, electronegativity: 0.95, ionizationEnergy: 549.5, discovered: 1790, phase: "pevná", block: "s", oxidationStates: "+2" },
+            39: { density: 4.469, meltingC: 1522, boilingC: 3345, electronConfig: "[Kr]4d¹5s²", atomicRadius: 212, electronegativity: 1.22, ionizationEnergy: 600.0, discovered: 1794, phase: "pevná", block: "d", oxidationStates: "+3" },
+            40: { density: 6.506, meltingC: 1855, boilingC: 4409, electronConfig: "[Kr]4d²5s²", atomicRadius: 206, electronegativity: 1.33, ionizationEnergy: 640.1, discovered: 1789, phase: "pevná", block: "d", oxidationStates: "+4" },
+            41: { density: 8.57, meltingC: 2477, boilingC: 4744, electronConfig: "[Kr]4d⁴5s¹", atomicRadius: 198, electronegativity: 1.6, ionizationEnergy: 652.1, discovered: 1801, phase: "pevná", block: "d", oxidationStates: "+5, +3" },
+            42: { density: 10.22, meltingC: 2623, boilingC: 4639, electronConfig: "[Kr]4d⁵5s¹", atomicRadius: 190, electronegativity: 2.16, ionizationEnergy: 684.3, discovered: 1781, phase: "pevná", block: "d", oxidationStates: "+6, +4, +3, +2" },
+            43: { density: 11.5, meltingC: 2157, boilingC: 4265, electronConfig: "[Kr]4d⁵5s²", atomicRadius: 183, electronegativity: 1.9, ionizationEnergy: 702.0, discovered: 1937, phase: "pevná", block: "d", oxidationStates: "+7, +6, +4" },
+            44: { density: 12.37, meltingC: 2334, boilingC: 4150, electronConfig: "[Kr]4d⁷5s¹", atomicRadius: 178, electronegativity: 2.2, ionizationEnergy: 710.2, discovered: 1844, phase: "pevná", block: "d", oxidationStates: "+8, +6, +4, +3, +2" },
+            45: { density: 12.41, meltingC: 1964, boilingC: 3695, electronConfig: "[Kr]4d⁸5s¹", atomicRadius: 173, electronegativity: 2.28, ionizationEnergy: 719.7, discovered: 1803, phase: "pevná", block: "d", oxidationStates: "+3, +1" },
+            46: { density: 12.02, meltingC: 1554.9, boilingC: 2963, electronConfig: "[Kr]4d¹⁰", atomicRadius: 169, electronegativity: 2.2, ionizationEnergy: 804.4, discovered: 1803, phase: "pevná", block: "d", oxidationStates: "+4, +2" },
+            47: { density: 10.501, meltingC: 961.78, boilingC: 2162, electronConfig: "[Kr]4d¹⁰5s¹", atomicRadius: 165, electronegativity: 1.93, ionizationEnergy: 731.0, discovered: -5000, phase: "pevná", block: "d", oxidationStates: "+1" },
+            48: { density: 8.69, meltingC: 321.07, boilingC: 767, electronConfig: "[Kr]4d¹⁰5s²", atomicRadius: 161, electronegativity: 1.69, ionizationEnergy: 867.8, discovered: 1817, phase: "pevná", block: "d", oxidationStates: "+2" },
+            49: { density: 7.31, meltingC: 156.6, boilingC: 2072, electronConfig: "[Kr]4d¹⁰5s²5p¹", atomicRadius: 156, electronegativity: 1.78, ionizationEnergy: 558.3, discovered: 1863, phase: "pevná", block: "p", oxidationStates: "+3" },
+            50: { density: 7.287, meltingC: 231.93, boilingC: 2602, electronConfig: "[Kr]4d¹⁰5s²5p²", atomicRadius: 145, electronegativity: 1.96, ionizationEnergy: 708.6, discovered: -3500, phase: "pevná", block: "p", oxidationStates: "+4, +2" },
+            51: { density: 6.685, meltingC: 630.63, boilingC: 1587, electronConfig: "[Kr]4d¹⁰5s²5p³", atomicRadius: 133, electronegativity: 2.05, ionizationEnergy: 834.0, discovered: -3000, phase: "pevná", block: "p", oxidationStates: "+5, +3, -3" },
+            52: { density: 6.232, meltingC: 449.51, boilingC: 988, electronConfig: "[Kr]4d¹⁰5s²5p⁴", atomicRadius: 123, electronegativity: 2.1, ionizationEnergy: 869.3, discovered: 1782, phase: "pevná", block: "p", oxidationStates: "+6, +4, -2" },
+            53: { density: 4.93, meltingC: 113.7, boilingC: 184.3, electronConfig: "[Kr]4d¹⁰5s²5p⁵", atomicRadius: 115, electronegativity: 2.66, ionizationEnergy: 1008.4, discovered: 1811, phase: "pevná", block: "p", oxidationStates: "+7, +5, +3, +1, -1" },
+            54: { density: 0.005887, meltingC: -111.75, boilingC: -108.12, electronConfig: "[Kr]4d¹⁰5s²5p⁶", atomicRadius: 108, electronegativity: 2.6, ionizationEnergy: 1170.4, discovered: 1898, phase: "plyn", block: "p", oxidationStates: "+8, +6, +4, +2, 0" },
+            55: { density: 1.873, meltingC: 28.44, boilingC: 671, electronConfig: "[Xe]6s¹", atomicRadius: 298, electronegativity: 0.79, ionizationEnergy: 375.7, discovered: 1860, phase: "pevná", block: "s", oxidationStates: "+1" },
+            56: { density: 3.594, meltingC: 727, boilingC: 1897, electronConfig: "[Xe]6s²", atomicRadius: 253, electronegativity: 0.89, ionizationEnergy: 502.9, discovered: 1808, phase: "pevná", block: "s", oxidationStates: "+2" },
+            57: { density: 6.145, meltingC: 920, boilingC: 3464, electronConfig: "[Xe]5d¹6s²", atomicRadius: 195, electronegativity: 1.1, ionizationEnergy: 538.1, discovered: 1839, phase: "pevná", block: "d", oxidationStates: "+3" },
+            58: { density: 6.77, meltingC: 795, boilingC: 3443, electronConfig: "[Xe]4f¹5d¹6s²", atomicRadius: 185, electronegativity: 1.12, ionizationEnergy: 534.4, discovered: 1803, phase: "pevná", block: "f", oxidationStates: "+4, +3" },
+            59: { density: 6.773, meltingC: 935, boilingC: 3520, electronConfig: "[Xe]4f³6s²", atomicRadius: 247, electronegativity: 1.13, ionizationEnergy: 527.0, discovered: 1885, phase: "pevná", block: "f", oxidationStates: "+4, +3" },
+            60: { density: 7.007, meltingC: 1024, boilingC: 3074, electronConfig: "[Xe]4f⁴6s²", atomicRadius: 206, electronegativity: 1.14, ionizationEnergy: 533.1, discovered: 1885, phase: "pevná", block: "f", oxidationStates: "+3" },
+            61: { density: 7.26, meltingC: 1042, boilingC: 3000, electronConfig: "[Xe]4f⁵6s²", atomicRadius: 205, electronegativity: 1.13, ionizationEnergy: 540.0, discovered: 1945, phase: "pevná", block: "f", oxidationStates: "+3" },
+            62: { density: 7.52, meltingC: 1072, boilingC: 1794, electronConfig: "[Xe]4f⁶6s²", atomicRadius: 238, electronegativity: 1.17, ionizationEnergy: 544.5, discovered: 1879, phase: "pevná", block: "f", oxidationStates: "+3, +2" },
+            63: { density: 5.243, meltingC: 826, boilingC: 1529, electronConfig: "[Xe]4f⁷6s²", atomicRadius: 231, electronegativity: 1.2, ionizationEnergy: 547.1, discovered: 1901, phase: "pevná", block: "f", oxidationStates: "+3, +2" },
+            64: { density: 7.895, meltingC: 1312, boilingC: 3273, electronConfig: "[Xe]4f⁷5d¹6s²", atomicRadius: 233, electronegativity: 1.2, ionizationEnergy: 593.4, discovered: 1880, phase: "pevná", block: "f", oxidationStates: "+3" },
+            65: { density: 8.229, meltingC: 1356, boilingC: 3230, electronConfig: "[Xe]4f⁹6s²", atomicRadius: 225, electronegativity: 1.2, ionizationEnergy: 565.8, discovered: 1843, phase: "pevná", block: "f", oxidationStates: "+4, +3" },
+            66: { density: 8.55, meltingC: 1407, boilingC: 2567, electronConfig: "[Xe]4f¹⁰6s²", atomicRadius: 228, electronegativity: 1.22, ionizationEnergy: 573.0, discovered: 1886, phase: "pevná", block: "f", oxidationStates: "+3" },
+            67: { density: 8.795, meltingC: 1461, boilingC: 2720, electronConfig: "[Xe]4f¹¹6s²", atomicRadius: 226, electronegativity: 1.23, ionizationEnergy: 581.0, discovered: 1878, phase: "pevná", block: "f", oxidationStates: "+3" },
+            68: { density: 9.066, meltingC: 1529, boilingC: 2868, electronConfig: "[Xe]4f¹²6s²", atomicRadius: 226, electronegativity: 1.24, ionizationEnergy: 589.3, discovered: 1842, phase: "pevná", block: "f", oxidationStates: "+3" },
+            69: { density: 9.321, meltingC: 1545, boilingC: 1950, electronConfig: "[Xe]4f¹³6s²", atomicRadius: 222, electronegativity: 1.25, ionizationEnergy: 596.7, discovered: 1879, phase: "pevná", block: "f", oxidationStates: "+3, +2" },
+            70: { density: 6.965, meltingC: 824, boilingC: 1196, electronConfig: "[Xe]4f¹⁴6s²", atomicRadius: 222, electronegativity: 1.1, ionizationEnergy: 603.4, discovered: 1878, phase: "pevná", block: "f", oxidationStates: "+3, +2" },
+            71: { density: 9.84, meltingC: 1652, boilingC: 3402, electronConfig: "[Xe]4f¹⁴5d¹6s²", atomicRadius: 217, electronegativity: 1.27, ionizationEnergy: 523.5, discovered: 1907, phase: "pevná", block: "d", oxidationStates: "+3" },
+            72: { density: 13.31, meltingC: 2233, boilingC: 4603, electronConfig: "[Xe]4f¹⁴5d²6s²", atomicRadius: 208, electronegativity: 1.3, ionizationEnergy: 658.5, discovered: 1923, phase: "pevná", block: "d", oxidationStates: "+4" },
+            73: { density: 16.654, meltingC: 3017, boilingC: 5458, electronConfig: "[Xe]4f¹⁴5d³6s²", atomicRadius: 200, electronegativity: 1.5, ionizationEnergy: 761.0, discovered: 1802, phase: "pevná", block: "d", oxidationStates: "+5" },
+            74: { density: 19.25, meltingC: 3422, boilingC: 5555, electronConfig: "[Xe]4f¹⁴5d⁴6s²", atomicRadius: 193, electronegativity: 2.36, ionizationEnergy: 770.0, discovered: 1783, phase: "pevná", block: "d", oxidationStates: "+6, +5, +4, +3, +2" },
+            75: { density: 21.02, meltingC: 3186, boilingC: 5596, electronConfig: "[Xe]4f¹⁴5d⁵6s²", atomicRadius: 188, electronegativity: 1.9, ionizationEnergy: 760.0, discovered: 1925, phase: "pevná", block: "d", oxidationStates: "+7, +6, +4, +2, -1" },
+            76: { density: 22.59, meltingC: 3033, boilingC: 5012, electronConfig: "[Xe]4f¹⁴5d⁶6s²", atomicRadius: 185, electronegativity: 2.2, ionizationEnergy: 840.0, discovered: 1803, phase: "pevná", block: "d", oxidationStates: "+8, +6, +4, +3, +2" },
+            77: { density: 22.56, meltingC: 2446, boilingC: 4428, electronConfig: "[Xe]4f¹⁴5d⁷6s²", atomicRadius: 180, electronegativity: 2.2, ionizationEnergy: 880.0, discovered: 1803, phase: "pevná", block: "d", oxidationStates: "+6, +4, +3, +2, +1" },
+            78: { density: 21.46, meltingC: 1768.3, boilingC: 3825, electronConfig: "[Xe]4f¹⁴5d⁹6s¹", atomicRadius: 177, electronegativity: 2.28, ionizationEnergy: 870.0, discovered: 1735, phase: "pevná", block: "d", oxidationStates: "+4, +2" },
+            79: { density: 19.282, meltingC: 1064.18, boilingC: 2856, electronConfig: "[Xe]4f¹⁴5d¹⁰6s¹", atomicRadius: 174, electronegativity: 2.54, ionizationEnergy: 890.1, discovered: -6000, phase: "pevná", block: "d", oxidationStates: "+3, +1" },
+            80: { density: 13.5336, meltingC: -38.83, boilingC: 356.73, electronConfig: "[Xe]4f¹⁴5d¹⁰6s²", atomicRadius: 171, electronegativity: 2.0, ionizationEnergy: 1007.1, discovered: -1500, phase: "kvapalná", block: "d", oxidationStates: "+2, +1" },
+            81: { density: 11.85, meltingC: 304, boilingC: 1473, electronConfig: "[Xe]4f¹⁴5d¹⁰6s²6p¹", atomicRadius: 156, electronegativity: 1.62, ionizationEnergy: 589.4, discovered: 1861, phase: "pevná", block: "p", oxidationStates: "+3, +1" },
+            82: { density: 11.342, meltingC: 327.46, boilingC: 1749, electronConfig: "[Xe]4f¹⁴5d¹⁰6s²6p²", atomicRadius: 154, electronegativity: 2.33, ionizationEnergy: 715.6, discovered: -7000, phase: "pevná", block: "p", oxidationStates: "+4, +2" },
+            83: { density: 9.807, meltingC: 271.3, boilingC: 1564, electronConfig: "[Xe]4f¹⁴5d¹⁰6s²6p³", atomicRadius: 143, electronegativity: 2.02, ionizationEnergy: 703.0, discovered: 1400, phase: "pevná", block: "p", oxidationStates: "+5, +3" },
+            84: { density: 9.32, meltingC: 254, boilingC: 962, electronConfig: "[Xe]4f¹⁴5d¹⁰6s²6p⁴", atomicRadius: 135, electronegativity: 2.0, ionizationEnergy: 812.1, discovered: 1898, phase: "pevná", block: "p", oxidationStates: "+6, +4, +2" },
+            85: { density: 7, meltingC: 302, boilingC: 337, electronConfig: "[Xe]4f¹⁴5d¹⁰6s²6p⁵", atomicRadius: 127, electronegativity: 2.2, ionizationEnergy: 920.0, discovered: 1940, phase: "pevná", block: "p", oxidationStates: "+7, +5, +3, +1, -1" },
+            86: { density: 0.00973, meltingC: -71, boilingC: -61.7, electronConfig: "[Xe]4f¹⁴5d¹⁰6s²6p⁶", atomicRadius: 120, electronegativity: 2.2, ionizationEnergy: 1037.0, discovered: 1900, phase: "plyn", block: "p", oxidationStates: "+2, 0" },
+            87: { density: 1.87, meltingC: 27, boilingC: 677, electronConfig: "[Rn]7s¹", atomicRadius: 348, electronegativity: 0.7, ionizationEnergy: 380.0, discovered: 1939, phase: "pevná", block: "s", oxidationStates: "+1" },
+            88: { density: 5.5, meltingC: 700, boilingC: 1737, electronConfig: "[Rn]7s²", atomicRadius: 283, electronegativity: 0.9, ionizationEnergy: 509.3, discovered: 1898, phase: "pevná", block: "s", oxidationStates: "+2" },
+            89: { density: 10.07, meltingC: 1050, boilingC: 3198, electronConfig: "[Rn]6d¹7s²", atomicRadius: 260, electronegativity: 1.1, ionizationEnergy: 499.0, discovered: 1899, phase: "pevná", block: "d", oxidationStates: "+3" },
+            90: { density: 11.72, meltingC: 1750, boilingC: 4788, electronConfig: "[Rn]6d²7s²", atomicRadius: 237, electronegativity: 1.3, ionizationEnergy: 587.0, discovered: 1829, phase: "pevná", block: "f", oxidationStates: "+4" },
+            91: { density: 15.37, meltingC: 1572, boilingC: 4027, electronConfig: "[Rn]5f²6d¹7s²", atomicRadius: 243, electronegativity: 1.5, ionizationEnergy: 568.0, discovered: 1913, phase: "pevná", block: "f", oxidationStates: "+5, +4" },
+            92: { density: 18.95, meltingC: 1135, boilingC: 4131, electronConfig: "[Rn]5f³6d¹7s²", atomicRadius: 240, electronegativity: 1.38, ionizationEnergy: 597.6, discovered: 1789, phase: "pevná", block: "f", oxidationStates: "+6, +5, +4, +3" },
+            93: { density: 20.45, meltingC: 644, boilingC: 3902, electronConfig: "[Rn]5f⁴6d¹7s²", atomicRadius: 221, electronegativity: 1.36, ionizationEnergy: 604.5, discovered: 1940, phase: "pevná", block: "f", oxidationStates: "+7, +6, +5, +4, +3" },
+            94: { density: 19.84, meltingC: 640, boilingC: 3228, electronConfig: "[Rn]5f⁶7s²", atomicRadius: 243, electronegativity: 1.28, ionizationEnergy: 584.7, discovered: 1940, phase: "pevná", block: "f", oxidationStates: "+6, +5, +4, +3" },
+            95: { density: 13.69, meltingC: 1176, boilingC: 2011, electronConfig: "[Rn]5f⁷7s²", atomicRadius: 244, electronegativity: 1.3, ionizationEnergy: 578.0, discovered: 1944, phase: "pevná", block: "f", oxidationStates: "+6, +5, +4, +3" },
+            96: { density: 13.51, meltingC: 1345, boilingC: 3110, electronConfig: "[Rn]5f⁷6d¹7s²", atomicRadius: 245, electronegativity: 1.3, ionizationEnergy: 581.0, discovered: 1944, phase: "pevná", block: "f", oxidationStates: "+4, +3" },
+            97: { density: 14.79, meltingC: 986, boilingC: 2627, electronConfig: "[Rn]5f⁹7s²", atomicRadius: 244, electronegativity: 1.3, ionizationEnergy: 601.0, discovered: 1949, phase: "pevná", block: "f", oxidationStates: "+4, +3" },
+            98: { density: 15.1, meltingC: 900, boilingC: 1470, electronConfig: "[Rn]5f¹⁰7s²", atomicRadius: 245, electronegativity: 1.3, ionizationEnergy: 608.0, discovered: 1950, phase: "pevná", block: "f", oxidationStates: "+4, +3" },
+            99: { density: 8.84, meltingC: 860, boilingC: 996, electronConfig: "[Rn]5f¹¹7s²", atomicRadius: 245, electronegativity: 1.3, ionizationEnergy: 619.0, discovered: 1952, phase: "pevná", block: "f", oxidationStates: "+3" },
+            100: { density: 9.7, meltingC: 1527, boilingC: null, electronConfig: "[Rn]5f¹²7s²", atomicRadius: 245, electronegativity: 1.3, ionizationEnergy: 627.0, discovered: 1952, phase: "pevná", block: "f", oxidationStates: "+3" },
+            101: { density: 10.3, meltingC: 827, boilingC: null, electronConfig: "[Rn]5f¹³7s²", atomicRadius: 246, electronegativity: 1.3, ionizationEnergy: 635.0, discovered: 1955, phase: "pevná", block: "f", oxidationStates: "+3, +2" },
+            102: { density: 9.9, meltingC: 827, boilingC: null, electronConfig: "[Rn]5f¹⁴7s²", atomicRadius: 259, electronegativity: 1.3, ionizationEnergy: 642.0, discovered: 1958, phase: "pevná", block: "f", oxidationStates: "+3, +2" },
+            103: { density: 15.6, meltingC: 1627, boilingC: null, electronConfig: "[Rn]5f¹⁴7s²7p¹", atomicRadius: 262, electronegativity: 1.3, ionizationEnergy: 470.0, discovered: 1961, phase: "pevná", block: "f", oxidationStates: "+3" },
+            104: { density: 23.2, meltingC: 2100, boilingC: 5500, electronConfig: "[Rn]5f¹⁴6d²7s²", atomicRadius: 267, electronegativity: null, ionizationEnergy: 580.0, discovered: 1964, phase: "pevná", block: "d", oxidationStates: "+4" },
+            105: { density: 29.3, meltingC: null, boilingC: null, electronConfig: "[Rn]5f¹⁴6d³7s²", atomicRadius: 268, electronegativity: null, ionizationEnergy: 665.0, discovered: 1967, phase: "pevná", block: "d", oxidationStates: "+5" },
+            106: { density: 35.0, meltingC: null, boilingC: null, electronConfig: "[Rn]5f¹⁴6d⁴7s²", atomicRadius: 271, electronegativity: null, ionizationEnergy: 757.0, discovered: 1974, phase: "pevná", block: "d", oxidationStates: "+6" },
+            107: { density: 37.1, meltingC: null, boilingC: null, electronConfig: "[Rn]5f¹⁴6d⁵7s²", atomicRadius: 274, electronegativity: null, ionizationEnergy: 740.0, discovered: 1981, phase: "pevná", block: "d", oxidationStates: "+7" },
+            108: { density: 40.7, meltingC: null, boilingC: null, electronConfig: "[Rn]5f¹⁴6d⁶7s²", atomicRadius: 277, electronegativity: null, ionizationEnergy: 730.0, discovered: 1984, phase: "pevná", block: "d", oxidationStates: "+8" },
+            109: { density: 37.4, meltingC: null, boilingC: null, electronConfig: "[Rn]5f¹⁴6d⁷7s²", atomicRadius: 276, electronegativity: null, ionizationEnergy: 800.0, discovered: 1982, phase: "pevná", block: "d", oxidationStates: "+9, +6, +4, +3, +1" },
+            110: { density: 34.8, meltingC: null, boilingC: null, electronConfig: "[Rn]5f¹⁴6d⁸7s²", atomicRadius: 281, electronegativity: null, ionizationEnergy: 840.0, discovered: 1994, phase: "pevná", block: "d", oxidationStates: "+8, +6, +4, +2" },
+            111: { density: 28.7, meltingC: null, boilingC: null, electronConfig: "[Rn]5f¹⁴6d⁹7s²", atomicRadius: 283, electronegativity: null, ionizationEnergy: 890.0, discovered: 1994, phase: "pevná", block: "d", oxidationStates: "+5, +3, +1, -1" },
+            112: { density: 23.7, meltingC: null, boilingC: null, electronConfig: "[Rn]5f¹⁴6d¹⁰7s²", atomicRadius: 285, electronegativity: null, ionizationEnergy: 1000.0, discovered: 1996, phase: "kvapalná", block: "d", oxidationStates: "+2, +1, 0" },
+            113: { density: 16, meltingC: 430, boilingC: 1100, electronConfig: "[Rn]5f¹⁴6d¹⁰7s²7p¹", atomicRadius: 287, electronegativity: null, ionizationEnergy: 820.0, discovered: 2003, phase: "pevná", block: "p", oxidationStates: "+5, +3, +1" },
+            114: { density: 14, meltingC: 67, boilingC: null, electronConfig: "[Rn]5f¹⁴6d¹⁰7s²7p²", atomicRadius: 289, electronegativity: null, ionizationEnergy: 832.0, discovered: 1998, phase: "pevná", block: "p", oxidationStates: "+6, +4, +2" },
+            115: { density: 13.5, meltingC: 400, boilingC: 1100, electronConfig: "[Rn]5f¹⁴6d¹⁰7s²7p³", atomicRadius: 290, electronegativity: null, ionizationEnergy: 538.0, discovered: 2003, phase: "pevná", block: "p", oxidationStates: "+3, +1" },
+            116: { density: 12.9, meltingC: 364, boilingC: 762, electronConfig: "[Rn]5f¹⁴6d¹⁰7s²7p⁴", atomicRadius: 293, electronegativity: null, ionizationEnergy: 743.0, discovered: 2000, phase: "pevná", block: "p", oxidationStates: "+4, +2, -2" },
+            117: { density: 7.2, meltingC: 350, boilingC: 610, electronConfig: "[Rn]5f¹⁴6d¹⁰7s²7p⁵", atomicRadius: 294, electronegativity: null, ionizationEnergy: 743.0, discovered: 2010, phase: "pevná", block: "p", oxidationStates: "+5, +3, +1, -1" },
+            118: { density: 5.0, meltingC: null, boilingC: null, electronConfig: "[Rn]5f¹⁴6d¹⁰7s²7p⁶", atomicRadius: 295, electronegativity: null, ionizationEnergy: 839.0, discovered: 2002, phase: "pevná", block: "p", oxidationStates: "+6, +4, +2, 0" },
+        };
+
+
+        function renderTable() {
+            const table = document.getElementById('periodicTable');
+            table.innerHTML = '';
+
+            // Hlavná tabuľka - BEZ Lantanoidov a Aktinoidov
+            const mainElements = allElements.filter(e => 
+                !(e.number >= 57 && e.number <= 71) && 
+                !(e.number >= 89 && e.number <= 103)
+            );
+
+            const maxRow = Math.max(...mainElements.map(e => e.row));
+            const maxCol = Math.max(...mainElements.map(e => e.col));
+
+            // Vytvorenie prázdnych buniek pre hlavnú tabuľku
+            for (let row = 1; row <= maxRow; row++) {
+                for (let col = 1; col <= maxCol; col++) {
+                    const element = mainElements.find(e => e.row === row && e.col === col);
+
+                    if (element) {
+                        const el = document.createElement('div');
+                        el.className = `element ${element.category}`;
+                        el.innerHTML = `
+                            <div class="element-number">${element.number}</div>
+                            <div class="element-symbol">${element.symbol}</div>
+                            <div class="element-mass">${element.mass.toFixed(3)}</div>
+                            <div class="element-name-sk">${element.name_sk}</div>
+                        `;
+                        el.onclick = () => showElement(element);
+                        table.appendChild(el);
+                    } else {
+                        const empty = document.createElement('div');
+                        empty.className = 'element empty';
+                        table.appendChild(empty);
+                    }
+                }
+            }
+
+            // LANTANOIDY - oddelené
+            const lanthanoidLabel = document.createElement('div');
+            lanthanoidLabel.style.gridColumn = '1 / -1';
+            lanthanoidLabel.style.marginTop = '32px';
+            lanthanoidLabel.style.fontSize = '12px';
+            lanthanoidLabel.style.fontWeight = '600';
+            lanthanoidLabel.style.opacity = '0.8';
+            lanthanoidLabel.style.paddingTop = '12px';
+            lanthanoidLabel.style.borderTop = '1px solid rgba(0,0,0,0.1)';
+            lanthanoidLabel.textContent = '* Lantanoidy (57-71):';
+            table.appendChild(lanthanoidLabel);
+
+            const lanthanoidContainer = document.createElement('div');
+            lanthanoidContainer.style.gridColumn = '1 / -1';
+            lanthanoidContainer.style.display = 'grid';
+            lanthanoidContainer.style.gridTemplateColumns = 'repeat(auto-fit, minmax(50px, 1fr))';
+            lanthanoidContainer.style.gap = '8px';
+            lanthanoidContainer.style.marginBottom = '16px';
+
+            const lanthanoidElements = allElements.filter(e => e.number >= 57 && e.number <= 71);
+            for (const element of lanthanoidElements) {
+                const el = document.createElement('div');
+                el.className = `element ${element.category}`;
+                el.innerHTML = `
+                            <div class="element-number">${element.number}</div>
+                            <div class="element-symbol">${element.symbol}</div>
+                            <div class="element-mass">${element.mass.toFixed(3)}</div>
+                            <div class="element-name-sk">${element.name_sk}</div>
+                        `;
+                el.onclick = () => showElement(element);
+                lanthanoidContainer.appendChild(el);
+            }
+            table.appendChild(lanthanoidContainer);
+
+            // AKTINOIDY - oddelené
+            const actinideLabel = document.createElement('div');
+            actinideLabel.style.gridColumn = '1 / -1';
+            actinideLabel.style.marginTop = '32px';
+            actinideLabel.style.fontSize = '12px';
+            actinideLabel.style.fontWeight = '600';
+            actinideLabel.style.opacity = '0.8';
+            actinideLabel.style.paddingTop = '12px';
+            actinideLabel.style.borderTop = '1px solid rgba(0,0,0,0.1)';
+            actinideLabel.textContent = '** Aktinoidy (89-103):';
+            table.appendChild(actinideLabel);
+
+            const actinideContainer = document.createElement('div');
+            actinideContainer.style.gridColumn = '1 / -1';
+            actinideContainer.style.display = 'grid';
+            actinideContainer.style.gridTemplateColumns = 'repeat(auto-fit, minmax(50px, 1fr))';
+            actinideContainer.style.gap = '8px';
+            actinideContainer.style.marginBottom = '16px';
+
+            const actinideElements = allElements.filter(e => e.number >= 89 && e.number <= 103);
+            for (const element of actinideElements) {
+                const el = document.createElement('div');
+                el.className = `element ${element.category}`;
+                el.innerHTML = `
+                            <div class="element-number">${element.number}</div>
+                            <div class="element-symbol">${element.symbol}</div>
+                            <div class="element-mass">${element.mass.toFixed(3)}</div>
+                            <div class="element-name-sk">${element.name_sk}</div>
+                        `;
+                el.onclick = () => showElement(element);
+                actinideContainer.appendChild(el);
+            }
+            table.appendChild(actinideContainer);
+        }
+
+        function showElement(element) {
+            const modal = document.getElementById('elementModal');
+            const details = document.getElementById('elementDetails');
+            const ext = extendedData[element.number] || {};
+
+            // Format discovered year
+            let discoveredText = ext.discovered;
+            if (ext.discovered < 0) {
+                discoveredText = 'Starovek (~' + Math.abs(ext.discovered) + ' pred n. l.)';
+            } else if (ext.discovered) {
+                discoveredText = ext.discovered;
+            } else {
+                discoveredText = 'Neznámy';
+            }
+
+            // Format density
+            let densityText = ext.density !== null ? (ext.density < 0.01 ? ext.density.toExponential(4) : ext.density.toFixed(4)) + ' g/cm³' : '—';
+
+            // Format melting and boiling points
+            let meltingText = ext.meltingC !== null ? ext.meltingC + ' °C (' + (ext.meltingC + 273.15).toFixed(2) + ' K)' : '—';
+            let boilingText = ext.boilingC !== null ? ext.boilingC + ' °C (' + (ext.boilingC + 273.15).toFixed(2) + ' K)' : '—';
+
+            details.innerHTML = `
+                <h2>${element.symbol} - ${element.name}</h2>
+
+                <div style="margin: 16px 0; padding: 12px; background: rgba(0,0,0,0.05); border-radius: 8px;">
+                    <div style="font-weight: 600; margin-bottom: 8px; opacity: 0.7;">Základné údaje</div>
+                    <div class="detail-row">
+                        <div class="detail-label">Protónové číslo:</div>
+                        <div>${element.number}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Atómová hmotnosť:</div>
+                        <div>${element.mass.toFixed(3)} u</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Perióda:</div>
+                        <div>${element.period}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Skupina:</div>
+                        <div>${element.group}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Blok:</div>
+                        <div>${ext.block || '—'}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Typ prvku:</div>
+                        <div>${getCategoryName(element.category)}</div>
+                    </div>
+                </div>
+
+                <div style="margin: 16px 0; padding: 12px; background: rgba(0,0,0,0.05); border-radius: 8px;">
+                    <div style="font-weight: 600; margin-bottom: 8px; opacity: 0.7;">Fyzikálne vlastnosti</div>
+                    <div class="detail-row">
+                        <div class="detail-label">Skupenstvo (25 °C):</div>
+                        <div>${ext.phase || '—'}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Hustota:</div>
+                        <div>${densityText}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Bod topenia:</div>
+                        <div>${meltingText}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Bod varu:</div>
+                        <div>${boilingText}</div>
+                    </div>
+                </div>
+
+                <div style="margin: 16px 0; padding: 12px; background: rgba(0,0,0,0.05); border-radius: 8px;">
+                    <div style="font-weight: 600; margin-bottom: 8px; opacity: 0.7;">Atómové vlastnosti</div>
+                    <div class="detail-row">
+                        <div class="detail-label">Elektrónová konfigurácia:</div>
+                        <div>${ext.electronConfig || '—'}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Atómový polomer:</div>
+                        <div>${ext.atomicRadius ? ext.atomicRadius + ' pm' : '—'}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Elektronegativita (Pauling):</div>
+                        <div>${ext.electronegativity !== null ? ext.electronegativity : '—'}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Ionizačná energia:</div>
+                        <div>${ext.ionizationEnergy ? ext.ionizationEnergy + ' kJ/mol' : '—'}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Oxidačné čísla:</div>
+                        <div>${ext.oxidationStates || '—'}</div>
+                    </div>
+                </div>
+
+                <div style="margin: 16px 0; padding: 12px; background: rgba(0,0,0,0.05); border-radius: 8px;">
+                    <div style="font-weight: 600; margin-bottom: 8px; opacity: 0.7;">História</div>
+                    <div class="detail-row">
+                        <div class="detail-label">Rok objavenia:</div>
+                        <div>${discoveredText}</div>
+                    </div>
+                </div>
+            `;
+            modal.classList.add('active');
+        }
+
+        function getCategoryName(category) {
+            const names = {
+                'metal-alkali': 'Alkalický kov',
+                'metal-alkaline': 'Alkalická zem',
+                'metal-transition': 'Prechodný kov',
+                'metal-lanthanide': 'Lantanoid',
+                'metal-actinide': 'Aktinoid',
+                'metal-post': 'Poschodový kov',
+                'nonmetal': 'Nekov',
+                'nonmetal-other': 'Iný nekov',
+                'halogen': 'Halogenén',
+                'noble-gas': 'Vzácny plyn',
+                'semimetal': 'Polopodstavec'
+            };
+            return names[category] || category;
+        }
+
+        function closeModal() {
+            document.getElementById('elementModal').classList.remove('active');
+        }
+
+        function resetSearch() {
+            document.getElementById('searchInput').value = '';
+            renderTable();
+        }
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            const table = document.getElementById('periodicTable');
+            table.innerHTML = '';
+
+            let filtered = allElements;
+            if (query) {
+                filtered = allElements.filter(el =>
+                    el.name.toLowerCase().includes(query) ||
+                    el.symbol.toLowerCase().includes(query) ||
+                    el.number.toString().includes(query)
+                );
+            }
+
+            if (filtered.length > 0) {
+                filtered.forEach(element => {
+                    const el = document.createElement('div');
+                    el.className = `element ${element.category}`;
+                    el.innerHTML = `
+                        <div class="element-number">${element.number}</div>
+                        <div class="element-symbol">${element.symbol}</div>
+                        <div class="element-name">${element.name}</div>
+                    `;
+                    el.onclick = () => showElement(element);
+                    table.appendChild(el);
+                });
+            } else {
+                table.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px;">Žiaden prvok nenájdený</div>';
+            }
+        });
+
+        window.onclick = (event) => {
+            const modal = document.getElementById('elementModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        };
+
+        renderTable();
+    
+        // Drag & drop pre posúvanie ako na mape
+        let isDragging = false;
+        let startX, startY, scrollLeft, scrollTop;
+        const container = document.querySelector('.periodic-table-container');
+
+        if (container) {
+            container.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                startX = e.pageX - container.offsetLeft;
+                startY = e.pageY - container.offsetTop;
+                scrollLeft = container.scrollLeft;
+                scrollTop = container.scrollTop;
+                container.classList.add('dragging');
+            });
+
+            container.addEventListener('mouseleave', () => {
+                isDragging = false;
+                container.classList.remove('dragging');
+            });
+
+            container.addEventListener('mouseup', () => {
+                isDragging = false;
+                container.classList.remove('dragging');
+            });
+
+            container.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                e.preventDefault();
+                const x = e.pageX - container.offsetLeft;
+                const y = e.pageY - container.offsetTop;
+                const walkX = (x - startX) * 1.5;
+                const walkY = (y - startY) * 1.5;
+                container.scrollLeft = scrollLeft - walkX;
+                container.scrollTop = scrollTop - walkY;
+            });
+        }
+    </script>
+</body>
+</html>
