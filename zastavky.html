@@ -14,7 +14,7 @@
         :root {
             --color-bg-primary: #1a1a1a;
             --color-surface: #2a2a2a;
-            --color-border: #404040;
+            --color-border: #214f98;
             --color-text-primary: #e0e0e0;
             --color-text-secondary: #a0a0a0;
             --color-accent: #00a8cc;
@@ -41,12 +41,14 @@
             border-bottom: 1px solid var(--color-border);
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
             z-index: 10;
+            text-align: center;
         }
 
         .header h1 {
             font-size: 1.5rem;
             margin: 0;
         }
+
 
         .main-content {
             display: flex;
@@ -59,7 +61,7 @@
         /* Vľavo: Stĺpec so zoznamom zastávok */
         .sidebar {
             width: 300px;
-            background-color: var(--color-surface);
+            background-color: #000;
             border-right: 1px solid var(--color-border);
             overflow-y: auto;
             display: flex;
@@ -81,6 +83,7 @@
             border-radius: 4px;
             color: var(--color-text-primary);
             font-size: 0.95rem;
+            text-align: center;
         }
 
         .search-input::placeholder {
@@ -124,7 +127,7 @@
         .stop-item.active {
             background-color: var(--color-accent);
             border-color: var(--color-accent);
-            color: #ffffff;
+            color: #000;
             font-weight: 600;
         }
 
@@ -225,23 +228,27 @@
         }
 
         .no-data {
-            padding: 2rem;
-            text-align: center;
-            color: var(--color-text-secondary);
+             display: flex;
+             justify-content: center;   /* horizontálne */
+             align-items: center;       /* vertikálne */
+             text-align: center;
+             color: var(--color-text-secondary);
+             font-size: 2rem;
+             height: 100%;              /* musí mať výšku rodiča */
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🚌 Zastávky</h1>
+            <h1>Zastávky</h1>
         </div>
 
         <div class="main-content">
             <!-- VĽAVO: Sidebar so zastávkami -->
             <div class="sidebar">
                 <div class="search-container">
-                    <input type="text" class="search-input" id="searchInput" placeholder="Hľadaj zastávku...">
+                    <input type="text" class="search-input" id="searchInput" placeholder="Hľadať zastávku">
                 </div>
                 <div class="stops-list" id="stopsList">
                     <!-- Zastávky sa vygenerujú dynamicky -->
@@ -269,6 +276,7 @@
             { id: 7, name: 'Zimný štadión', st: 443 },
             { id: 8, name: 'Hlavná stanica', st: 82 },
             { id: 9, name: 'Autobusová stanica', st: 4 },
+            { id: 31, name: 'Rajská', st: 303 },
             { id: 10, name: 'Stn. P. Biskupice', st: 462 },
             { id: 11, name: 'Prístavný most', st: 295 },
             { id: 12, name: 'Trnavské mýto', st: 394 },
