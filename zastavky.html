@@ -1,119 +1,379 @@
 <!DOCTYPE html>
 <html lang="sk">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>Zastávky</title>
-  <style>
-    body {
-      margin: 20px;
-      padding: 20px;
-      background-color: #121212;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      text-align: center;
-      color: #e0e0e0;
-      font-size: 24px;
-      touch-action: manipulation;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zastávky</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    .emoji {
-      font-size: 80px;
-      margin-bottom: 20px;
-    }
+        :root {
+            --color-bg-primary: #1a1a1a;
+            --color-surface: #2a2a2a;
+            --color-border: #404040;
+            --color-text-primary: #e0e0e0;
+            --color-text-secondary: #a0a0a0;
+            --color-accent: #00a8cc;
+            --color-accent-hover: #00d4ff;
+        }
 
-    h1 {
-      font-size: 36px;
-      margin: 10px 0 20px;
-      color: #bbdefb;
-    }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: var(--color-bg-primary);
+            color: var(--color-text-primary);
+            height: 100vh;
+            overflow: hidden;
+        }
 
-    h2 {
-      margin: 20px 0 10px;
-      font-size: 24px;
-      font-weight: bold;
-      color: #ccc;
-      border-bottom: 2px solid #90caf9;
-      display: inline-block;
-      padding-bottom: 4px;
-    }
+        .container {
+            display: flex;
+            height: 100vh;
+            flex-direction: column;
+        }
 
-    .button-container {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      max-width: 100%;
-      margin: 0 auto;
-      padding: 0 10px;
-    }
+        .header {
+            background-color: var(--color-surface);
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--color-border);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+        }
 
-    .sport-button {
-      padding: 20px;
-      font-size: 28px;
-      font-weight: bold;
-      background-color: #1e2a38;
-      border: 2px solid #90caf9;
-      color: #90caf9;
-      border-radius: 8px;
-      cursor: pointer;
-      text-decoration: none;
-      transition: background-color 0.2s ease, transform 0.2s ease;
-    }
+        .header h1 {
+            font-size: 1.5rem;
+            margin: 0;
+        }
 
-    .sport-button:hover {
-      background-color: #263a4f;
-      transform: scale(1.02);
-    }
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            gap: 0;
+            flex-direction: row;
+        }
 
-    .sport-button:active {
-      transform: scale(0.98);
-    }
-  </style>
+        /* Vľavo: Stĺpec so zoznamom zastávok */
+        .sidebar {
+            width: 300px;
+            background-color: var(--color-surface);
+            border-right: 1px solid var(--color-border);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            order: -1;
+        }
+
+        .search-container {
+            padding: 1rem;
+            background-color: rgba(0, 168, 204, 0.05);
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 4px;
+            color: var(--color-text-primary);
+            font-size: 0.95rem;
+        }
+
+        .search-input::placeholder {
+            color: var(--color-text-secondary);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--color-accent);
+            box-shadow: 0 0 4px rgba(0, 168, 204, 0.3);
+        }
+
+        .stops-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0.5rem;
+        }
+
+        .stop-item {
+            display: block;
+            padding: 1rem;
+            background-color: transparent;
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+            user-select: none;
+            text-decoration: none;
+            color: inherit;
+            text-align: center;
+            font-size: 1.1rem;
+            padding: 1.25rem;
+        }
+
+        .stop-item:hover {
+            background-color: rgba(0, 168, 204, 0.1);
+            border-color: var(--color-accent);
+        }
+
+        .stop-item.active {
+            background-color: var(--color-accent);
+            border-color: var(--color-accent);
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .stop-item.hidden {
+            display: none;
+        }
+
+        .stop-name {
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .stop-info {
+            font-size: 0.85rem;
+            color: var(--color-text-secondary);
+        }
+
+        .stop-item.active .stop-info {
+            color: rgba(0, 0, 0, 0.7);
+        }
+
+        /* Vpravo: WebView s tabuľkou */
+        .webview-container {
+            flex: 1;
+            background-color: var(--color-bg-primary);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .table-container {
+            flex: 1;
+            overflow: auto;
+            padding: 1rem;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 6px;
+        }
+
+        /* Responzivita pre mobil */
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+                gap: 0;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                max-height: none;
+                border-right: none;
+                border-bottom: 1px solid var(--color-border);
+                order: 0;
+            }
+
+            .stops-list {
+                display: flex;
+                flex-direction: column;
+                overflow: visible;
+                padding: 0.5rem;
+                gap: 0.5rem;
+            }
+
+            .stop-item {
+                flex: 0 1 100%;
+                margin-bottom: 0;
+            }
+
+            .webview-container {
+                display: none;
+            }
+        }
+
+        /* Scrollbar styling */
+        .stops-list::-webkit-scrollbar,
+        .table-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .stops-list::-webkit-scrollbar-track,
+        .table-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .stops-list::-webkit-scrollbar-thumb,
+        .table-container::-webkit-scrollbar-thumb {
+            background: var(--color-accent);
+            border-radius: 4px;
+        }
+
+        .stops-list::-webkit-scrollbar-thumb:hover,
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: var(--color-accent-hover);
+        }
+
+        .no-data {
+            padding: 2rem;
+            text-align: center;
+            color: var(--color-text-secondary);
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <div class="header">
+            <h1>🚌 Zastávky</h1>
+        </div>
 
-  <div class="emoji">🚏</div>
+        <div class="main-content">
+            <!-- VĽAVO: Sidebar so zastávkami -->
+            <div class="sidebar">
+                <div class="search-container">
+                    <input type="text" class="search-input" id="searchInput" placeholder="Hľadaj zastávku...">
+                </div>
+                <div class="stops-list" id="stopsList">
+                    <!-- Zastávky sa vygenerujú dynamicky -->
+                </div>
+            </div>
 
-  <h1>Zastávky</h1>
+            <!-- VPRAVO: WebView s tabuľkou -->
+            <div class="webview-container">
+                <div class="table-container" id="tableContainer">
+                    <div class="no-data">Vyberte zastávku</div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-  <div class="button-container">
-  <h2>MHD Bratislava</h2>
-    <a href="https://imhd.sk/ba/online-zastavkova-tabula?detectIdle=0&fullscreen=0&minDisp=0&nthDisplay=1&showClock=1&showInfoText=1&st=458&theme=darkblue&zoom=130" class="sport-button" target="_blank">Žitavská</a>
-    <a href="https://imhd.sk/ba/online-zastavkova-tabula?detectIdle=0&fullscreen=0&minDisp=0&nthDisplay=1&showClock=1&showInfoText=1&st=35&theme=darkblue&zoom=130" class="sport-button" target="_blank">Stn. Vrakuňa</a>
-    <a href="https://imhd.sk/ba/online-zastavkova-tabula?detectIdle=0&fullscreen=0&minDisp=0&nthDisplay=1&showClock=1&showInfoText=1&st=62&theme=darkblue&zoom=130" class="sport-button" target="_blank">Dudvážska</a>
-    <a href="https://imhd.sk/ba/online-zastavkova-tabula?detectIdle=0&fullscreen=0&minDisp=0&nthDisplay=1&showClock=1&showInfoText=1&st=94&theme=darkblue&zoom=130" class="sport-button" target="_blank">Hronská</a>
-    <a href="https://imhd.sk/ba/online-zastavkova-tabula?detectIdle=0&fullscreen=0&minDisp=0&nthDisplay=1&showClock=1&showInfoText=1&st=391&theme=darkblue&zoom=130" class="sport-button" target="_blank">Toryská</a>
-    <a href="https://imhd.sk/ba/online-zastavkova-tabula?detectIdle=0&fullscreen=0&minDisp=0&nthDisplay=1&showClock=1&showInfoText=1&st=139&theme=darkblue&zoom=130" class="sport-button" target="_blank">Komárovská</a>
-    <a href="https://imhd.sk/ba/online-zastavkova-tabula?detectIdle=0&fullscreen=0&minDisp=0&nthDisplay=1&showClock=1&showInfoText=1&st=443&theme=darkblue&zoom=130" class="sport-button" target="_blank">Zimný štadión</a>
-    <a href="https://imhd.sk/ba/online-zastavkova-tabula?detectIdle=0&fullscreen=0&minDisp=0&nthDisplay=1&showClock=1&showInfoText=1&st=82&theme=darkblue&zoom=130" class="sport-button" target="_blank">Hlavná stanica</a>
-    <a href="https://imhd.sk/ba/online-zastavkova-tabula?detectIdle=0&fullscreen=0&minDisp=0&nthDisplay=1&showClock=1&showInfoText=1&st=4&theme=darkblue&zoom=130" class="sport-button" target="_blank">Autobusová stanica</a>
-    <a href="https://imhd.sk/ba/online-zastavkova-tabula?detectIdle=0&fullscreen=0&minDisp=0&nthDisplay=1&showClock=1&showInfoText=1&st=462&theme=darkblue&zoom=130" class="sport-button" target="_blank">Stn. P. Biskupice</a>
-    <a href="https://imhd.sk/ba/online-zastavkova-tabula?detectIdle=0&fullscreen=0&minDisp=0&nthDisplay=1&showClock=1&showInfoText=1&st=295&theme=darkblue&zoom=130" class="sport-button" target="_blank">Prístavný most</a>
-    <a href="https://imhd.sk/ba/online-zastavkova-tabula?detectIdle=0&fullscreen=0&minDisp=0&nthDisplay=1&showClock=1&showInfoText=1&st=394&theme=darkblue&zoom=130" class="sport-button" target="_blank">Trnavské mýto</a>
-    <a href="https://imhd.sk/ba/online-zastavkova-tabula?detectIdle=0&fullscreen=0&minDisp=0&nthDisplay=1&showClock=1&showInfoText=1&st=299&theme=darkblue&zoom=130" class="sport-button" target="_blank">Račianske mýto</a>
-    <a href="https://imhd.sk/ba/online-zastavkova-tabula?detectIdle=0&fullscreen=0&minDisp=0&nthDisplay=1&showClock=1&showInfoText=1&st=430&theme=darkblue&zoom=130" class="sport-button" target="_blank">Saleziáni</a>
-    <a href="https://imhd.sk/ba/online-zastavkova-tabula?detectIdle=0&fullscreen=0&minDisp=0&nthDisplay=1&showClock=1&showInfoText=1&st=475&theme=darkblue&zoom=130" class="sport-button" target="_blank">Avion Shop. Park</a>
-    <a href="https://imhd.sk/ba/online-zastavkova-tabula?detectIdle=0&fullscreen=0&minDisp=0&nthDisplay=1&showClock=1&showInfoText=1&st=467&theme=darkblue&zoom=130" class="sport-button" target="_blank">Stn. Vinohrady</a>
-    <a href="https://imhd.sk/ba/online-zastavkova-tabula?detectIdle=0&fullscreen=0&minDisp=0&nthDisplay=1&showClock=1&showInfoText=1&st=331&theme=darkblue&zoom=130" class="sport-button" target="_blank">Slovnaftská</a>
-    <a href="https://imhd.sk/ba/online-zastavkova-tabula?detectIdle=0&fullscreen=0&minDisp=0&nthDisplay=1&showClock=1&showInfoText=1&st=557&theme=darkblue&zoom=130" class="sport-button" target="_blank">OC Slovnaftská</a>
-    <a href="https://imhd.sk/ba/online-zastavkova-tabula?detectIdle=0&fullscreen=0&minDisp=0&nthDisplay=1&showClock=1&showInfoText=1&st=513&theme=darkblue&zoom=130" class="sport-button" target="_blank">Nové SND</a>
-    <a href="https://imhd.sk/ba/online-zastavkova-tabula?detectIdle=0&fullscreen=0&minDisp=0&nthDisplay=1&showClock=1&showInfoText=1&st=386&theme=darkblue&zoom=130" class="sport-button" target="_blank">Vinohradnícka</a>
-    <a href="https://imhd.sk/ba/online-zastavkova-tabula?detectIdle=0&fullscreen=0&minDisp=0&nthDisplay=1&showClock=1&showInfoText=1&st=4295&theme=darkblue&zoom=130" class="sport-button" target="_blank">Ovčiarska</a>
-    <a href="https://imhd.sk/ba/online-zastavkova-tabula?detectIdle=0&fullscreen=0&minDisp=0&nthDisplay=1&showClock=1&showInfoText=1&st=382&theme=darkblue&zoom=130" class="sport-button" target="_blank">Púchovská</a>
-    <a href="https://imhd.sk/ba/online-zastavkova-tabula?detectIdle=0&fullscreen=0&minDisp=0&nthDisplay=1&showClock=1&showInfoText=1&st=571&theme=darkblue&zoom=130" class="sport-button" target="_blank">OC Rača</a>
-    <a href="https://imhd.sk/ba/online-zastavkova-tabula?detectIdle=0&fullscreen=0&minDisp=0&nthDisplay=1&showClock=1&showInfoText=1&st=197&theme=darkblue&zoom=130" class="sport-button" target="_blank">Miletičova</a>
-    <a href="https://imhd.sk/ba/online-zastavkova-tabula?detectIdle=0&fullscreen=0&minDisp=0&nthDisplay=1&showClock=1&showInfoText=1&st=5&theme=darkblue&zoom=130" class="sport-button" target="_blank">Astronomická</a>
-    <a href="https://imhd.sk/ba/online-zastavkova-tabula?detectIdle=0&fullscreen=0&minDisp=0&nthDisplay=1&showClock=1&showInfoText=1&st=83&theme=darkblue&zoom=130" class="sport-button" target="_blank">Hodžovo nám.</a>
-    <a href="https://imhd.sk/ba/online-zastavkova-tabula?detectIdle=0&fullscreen=0&minDisp=0&nthDisplay=1&showClock=1&showInfoText=1&st=445&theme=darkblue&zoom=130" class="sport-button" target="_blank">Zlaté piesky</a>
-    <a href="https://imhd.sk/ba/online-zastavkova-tabula?detectIdle=0&fullscreen=0&minDisp=0&nthDisplay=1&showClock=1&showInfoText=1&st=308&theme=darkblue&zoom=130" class="sport-button" target="_blank">Shopping Palace</a>
-  <h2>Železnice</h2>
-    <a href="https://imhd.sk/ba/online-zastavkova-tabula?detectIdle=0&fullscreen=0&minDisp=0&nthDisplay=1&showClock=1&showInfoText=1&st=82&theme=darkblue&zoom=130" class="sport-button" target="_blank">Hlavná stanica</a>
-    <a href="https://imhd.sk/ba/online-zastavkova-tabula?detectIdle=0&fullscreen=0&minDisp=0&nthDisplay=1&showClock=1&showInfoText=1&st=462&theme=darkblue&zoom=130" class="sport-button" target="_blank">Stn. P. Biskupice</a>
-    <a href="https://imhd.sk/ba/online-zastavkova-tabula?detectIdle=0&fullscreen=0&minDisp=0&nthDisplay=1&showClock=1&showInfoText=1&st=35&theme=darkblue&zoom=130" class="sport-button" target="_blank">Stn. Vrakuňa</a>
-    <a href="https://imhd.sk/ba/online-zastavkova-tabula?detectIdle=0&fullscreen=0&minDisp=0&nthDisplay=1&showClock=1&showInfoText=1&st=467&theme=darkblue&zoom=130" class="sport-button" target="_blank">Stn. Vinohrady</a>
-    <a href="https://imhd.sk/ba/online-zastavkova-tabula?detectIdle=0&fullscreen=0&minDisp=0&nthDisplay=1&showClock=1&showInfoText=1&st=3685&theme=darkblue&zoom=130" class="sport-button" target="_blank">Zemianska Olča</a>
-    <a href="https://imhd.sk/ba/online-zastavkova-tabula?detectIdle=0&fullscreen=0&minDisp=0&nthDisplay=1&showClock=1&showInfoText=1&st=3671&theme=darkblue&zoom=130" class="sport-button" target="_blank">Okoličná na ostrove</a>
-    
-  </div>
-  
+    <script>
+        // Dáta zastávok s webview URL adresami
+        const stops = [
+            { id: 1, name: 'Žitavská', st: 458 },
+            { id: 2, name: 'Stn. Vrakuňa', st: 35 },
+            { id: 3, name: 'Dudvážska', st: 62 },
+            { id: 4, name: 'Hronská', st: 94 },
+            { id: 5, name: 'Toryská', st: 391 },
+            { id: 6, name: 'Komárovská', st: 139 },
+            { id: 7, name: 'Zimný štadión', st: 443 },
+            { id: 8, name: 'Hlavná stanica', st: 82 },
+            { id: 9, name: 'Autobusová stanica', st: 4 },
+            { id: 10, name: 'Stn. P. Biskupice', st: 462 },
+            { id: 11, name: 'Prístavný most', st: 295 },
+            { id: 12, name: 'Trnavské mýto', st: 394 },
+            { id: 13, name: 'Račianske mýto', st: 299 },
+            { id: 14, name: 'Saleziáni', st: 430 },
+            { id: 15, name: 'Avion Shop. Park', st: 475 },
+            { id: 16, name: 'Stn. Vinohrady', st: 467 },
+            { id: 17, name: 'Slovnaftská', st: 331 },
+            { id: 18, name: 'OC Slovnaftská', st: 557 },
+            { id: 19, name: 'Nové SND', st: 513 },
+            { id: 20, name: 'Vinohradnícka', st: 386 },
+            { id: 21, name: 'Ovčiarska', st: 4295 },
+            { id: 22, name: 'Púchovská', st: 382 },
+            { id: 23, name: 'OC Rača', st: 571 },
+            { id: 24, name: 'Miletičova', st: 197 },
+            { id: 25, name: 'Astronomická', st: 5 },
+            { id: 26, name: 'Hodžovo nám.', st: 83 },
+            { id: 27, name: 'Zlaté piesky', st: 445 },
+            { id: 28, name: 'Shopping Palace', st: 308 },
+            { id: 29, name: 'Zemianska Olča', st: 3685 },
+            { id: 30, name: 'Okoličná na ostrove', st: 3671 },
+        ];
+
+        let selectedStop = null;
+
+        // Funkcija na vytvorenie URL s dynamickým zoomom
+        function getStopUrl(st, zoom) {
+            return `https://imhd.sk/ba/online-zastavkova-tabula?detectIdle=0&fullscreen=0&minDisp=0&nthDisplay=1&showClock=1&showInfoText=1&st=${st}&theme=darkblue&zoom=${zoom}`;
+        }
+
+        // Inicializácia - Vykresli zoznam zastávok
+        function initStops() {
+            const stopsList = document.getElementById('stopsList');
+            stopsList.innerHTML = '';
+
+            stops.forEach(stop => {
+                const isMobile = window.innerWidth <= 768;
+                const zoom = isMobile ? 130 : 65;
+                const url = getStopUrl(stop.st, zoom);
+                
+                if (isMobile) {
+                    // Na mobile - odkaz na novej karte
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.target = '_blank';
+                    link.rel = 'noopener noreferrer';
+                    link.className = 'stop-item';
+                    link.setAttribute('data-name', stop.name.toLowerCase());
+                    link.innerHTML = `<div class="stop-name">${stop.name}</div>`;
+                    stopsList.appendChild(link);
+                } else {
+                    // Na desktopu - kliknutie zobrazí webview
+                    const stopItem = document.createElement('div');
+                    stopItem.className = 'stop-item';
+                    stopItem.setAttribute('data-name', stop.name.toLowerCase());
+                    stopItem.innerHTML = `<div class="stop-name">${stop.name}</div>`;
+                    stopItem.addEventListener('click', () => selectStop(stop, url));
+                    stopsList.appendChild(stopItem);
+                }
+            });
+        }
+
+        // Vyber zastávku a zobraz jej tabuľku v webview
+        function selectStop(stop, url) {
+            selectedStop = stop;
+
+            // Aktualizuj aktivny stav
+            document.querySelectorAll('.stop-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.closest('.stop-item').classList.add('active');
+
+            // Zobraz webview tabuľku
+            displayWebView(url);
+        }
+
+        // Zobraz webview tabuľku zastávky
+        function displayWebView(url) {
+            const tableContainer = document.getElementById('tableContainer');
+            
+            const iframe = document.createElement('iframe');
+            iframe.src = url;
+            iframe.setAttribute('scrolling', 'yes');
+            
+            tableContainer.innerHTML = '';
+            tableContainer.appendChild(iframe);
+        }
+
+        // Vyhľadávanie
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const items = document.querySelectorAll('.stop-item');
+            
+            items.forEach(item => {
+                const name = item.getAttribute('data-name');
+                if (name.includes(searchTerm)) {
+                    item.classList.remove('hidden');
+                } else {
+                    item.classList.add('hidden');
+                }
+            });
+        });
+
+        // Start
+        initStops();
+    </script>
 </body>
 </html>
