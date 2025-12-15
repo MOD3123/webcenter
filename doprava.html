@@ -95,6 +95,7 @@
             transition: background-color 0.2s ease, border-color 0.2s ease;
             white-space: nowrap;
             width: auto; /* Flexibilná šírka */
+            font-family: inherit;
         }
 
         .stop-item:hover {
@@ -147,6 +148,11 @@
             background: var(--color-accent-hover);
         }
     </style>
+    <script>
+        function navigateTo(url) {
+            window.location.href = url;
+        }
+    </script>
 </head>
 <body>
     <div class="container">
@@ -157,18 +163,18 @@
         <div class="main-content">
             <div class="sidebar">
                 <div class="stops-list" id="stopsList">
-                    <a href="https://no-ship-it26.github.io/webcenter/zastavky" class="stop-item">
+                    <button onclick="navigateTo('https://no-ship-it26.github.io/webcenter/zastavky')" class="stop-item">
                         <div class="stop-name">Zastávky</div>
-                    </a>
-                    <a href="https://no-ship-it26.github.io/webcenter/vlaky" class="stop-item">
+                    </button>
+                    <button onclick="navigateTo('https://no-ship-it26.github.io/webcenter/vlaky')" class="stop-item">
                         <div class="stop-name">Vlaky</div>
-                    </a>
-                    <a href="https://no-ship-it26.github.io/webcenter/cesty" class="stop-item">
+                    </button>
+                    <button onclick="navigateTo('https://no-ship-it26.github.io/webcenter/cesty')" class="stop-item">
                         <div class="stop-name">Cesty</div>
-                    </a>
-                    <a href="https://imhd.sk" class="stop-item">
+                    </button>
+                    <button onclick="navigateTo('https://imhd.sk')" class="stop-item">
                         <div class="stop-name">Imhd.sk</div>
-                    </a>
+                    </button>
                 </div>
             </div>
         </div>
