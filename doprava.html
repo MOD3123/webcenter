@@ -1,87 +1,177 @@
 <!DOCTYPE html>
 <html lang="sk">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>Doprava</title>
-  <style>
-    body {
-      margin: 20px;
-      padding: 20px;
-      background-color: #121212;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      text-align: center;
-      color: #e0e0e0;
-      font-size: 24px;
-      touch-action: manipulation;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doprava</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    .emoji {
-      font-size: 80px;
-      margin-bottom: 20px;
-    }
+        :root {
+            --color-bg-primary: #1a1a1a;
+            --color-surface: #2a2a2a;
+            --color-border: #214f98;
+            --color-text-primary: #e0e0e0;
+            --color-text-secondary: #a0a0a0;
+            --color-accent: #00a8cc;
+            --color-accent-hover: #00d4ff;
+        }
 
-    h1 {
-      font-size: 36px;
-      margin: 10px 0 20px;
-      color: #bbdefb;
-    }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: var(--color-bg-primary);
+            color: var(--color-text-primary);
+            height: 100vh;
+            overflow: hidden;
+        }
 
-    h2 {
-      margin: 20px 0 10px;
-      font-size: 24px;
-      font-weight: bold;
-      color: #ccc;
-      border-bottom: 2px solid #90caf9;
-      display: inline-block;
-      padding-bottom: 4px;
-    }
+        .container {
+            display: flex;
+            height: 100vh;
+            flex-direction: column;
+        }
 
-    .button-container {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      max-width: 100%;
-      margin: 0 auto;
-      padding: 0 10px;
-    }
+        .header {
+            background-color: var(--color-surface);
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--color-border);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+            text-align: center;
+        }
 
-    .sport-button {
-      padding: 20px;
-      font-size: 28px;
-      font-weight: bold;
-      background-color: #1e2a38;
-      border: 2px solid #90caf9;
-      color: #90caf9;
-      border-radius: 8px;
-      cursor: pointer;
-      text-decoration: none;
-      transition: background-color 0.2s ease, transform 0.2s ease;
-    }
+        .header h1 {
+            font-size: 2rem;
+            margin: 0;
+        }
 
-    .sport-button:hover {
-      background-color: #263a4f;
-      transform: scale(1.02);
-    }
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            gap: 0;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center; /* Vycentrovanie sidebaru horizontálne */
+        }
 
-    .sport-button:active {
-      transform: scale(0.98);
-    }
-  </style>
+        .sidebar {
+            width: 100%; /* Zmenené z 100% na auto */
+            min-width: 250px; /* Minimálna šírka */
+            height: 100%;
+            background-color: #000;
+            border-right: 1px solid var(--color-border);
+            border-left: 1px solid var(--color-border); /* Pridaný aj ľavý okraj pre symetriu */
+            display: flex;
+            justify-content: center;
+            flex-direction: column; /* Aby sa obsah centroval správne */
+        }
+
+        .stops-list {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 0.5rem;
+            max-width: 100%;
+            padding: 1rem; /* Pridaný padding */
+            width: 100%;
+        }
+
+        .stop-item {
+            display: block;
+            padding: 1.25rem 2rem;
+            background-color: transparent;
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+            text-decoration: none;
+            color: inherit;
+            text-align: center;
+            font-size: 23px;
+            cursor: pointer;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+            white-space: nowrap;
+            width: auto; /* Flexibilná šírka */
+        }
+
+        .stop-item:hover {
+            background-color: rgba(0, 168, 204, 0.1);
+            border-color: var(--color-accent);
+        }
+
+        .stop-item:active {
+            background-color: rgba(0, 168, 204, 0.2);
+        }
+
+        .stop-name {
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .stop-info {
+            font-size: 2rem;
+            color: var(--color-text-secondary);
+        }
+
+        .table-container {
+            flex: 1;
+            overflow: auto;
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Scrollbar styling */
+        .stops-list::-webkit-scrollbar,
+        .table-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .stops-list::-webkit-scrollbar-track,
+        .table-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .stops-list::-webkit-scrollbar-thumb,
+        .table-container::-webkit-scrollbar-thumb {
+            background: var(--color-accent);
+            border-radius: 4px;
+        }
+
+        .stops-list::-webkit-scrollbar-thumb:hover,
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: var(--color-accent-hover);
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <div class="header">
+            <h1>Doprava</h1>
+        </div>
 
-  <div class="emoji">🚌</div>
-
-  <h1>Doprava</h1>
-
-  <div class="button-container">
-    <a href="https://no-ship-it26.github.io/webcenter/zastavky.html" class="sport-button" target="_blank">Zastávky</a>
-    <a href="https://no-ship-it26.github.io/webcenter/vlaky.html" class="sport-button" target="_blank">Vlaky</a>
-    <a href="https://no-ship-it26.github.io/webcenter/cesty.html" class="sport-button" target="_blank">Cesty</a>
-    <a href="https://imhd.sk/ba/cestovne-poriadky" class="sport-button" target="_blank">imhd.sk</a>
-
-  </div>
-
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="stops-list" id="stopsList">
+                    <a href="https://no-ship-it26.github.io/webcenter/zastavky" target="_blank" rel="noopener noreferrer" class="stop-item">
+                        <div class="stop-name">Zastávky</div>
+                    </a>
+                    <a href="https://no-ship-it26.github.io/webcenter/vlaky" target="_blank" rel="noopener noreferrer" class="stop-item">
+                        <div class="stop-name">Vlaky</div>
+                    </a>
+                    <a href="https://no-ship-it26.github.io/webcenter/cesty" target="_blank" rel="noopener noreferrer" class="stop-item">
+                        <div class="stop-name">Cesty</div>
+                    </a>
+                    <a href="https://imhd.sk" target="_blank" rel="noopener noreferrer" class="stop-item">
+                        <div class="stop-name">Imhd.sk</div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
