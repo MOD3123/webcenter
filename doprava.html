@@ -149,14 +149,8 @@
         }
     </style>
     <script>
-        function openInApp(url) {
-            // Pre Median App Builder - pokús sa otvoriť cez MedianInternal
-            if (window.MedianInternal) {
-                window.MedianInternal.openUrl(url, false);
-            } else {
-                // Fallback na window.location ak MedianInternal nie je dostupný
-                window.location.href = url;
-            }
+        function navigateTo(url) {
+            window.location.href = url;
         }
     </script>
 </head>
@@ -169,16 +163,16 @@
         <div class="main-content">
             <div class="sidebar">
                 <div class="stops-list" id="stopsList">
-                    <button onclick="openInApp('https://no-ship-it26.github.io/webcenter/zastavky')" class="stop-item">
+                    <button onclick="navigateTo('https://no-ship-it26.github.io/webcenter/zastavky.html')" class="stop-item">
                         <div class="stop-name">Zastávky</div>
                     </button>
-                    <button onclick="openInApp('https://no-ship-it26.github.io/webcenter/vlaky')" class="stop-item">
+                    <button onclick="navigateTo('https://no-ship-it26.github.io/webcenter/vlaky.html')" class="stop-item">
                         <div class="stop-name">Vlaky</div>
                     </button>
-                    <button onclick="openInApp('https://no-ship-it26.github.io/webcenter/cesty')" class="stop-item">
+                    <button onclick="navigateTo('https://no-ship-it26.github.io/webcenter/cesty.html')" class="stop-item">
                         <div class="stop-name">Cesty</div>
                     </button>
-                    <button onclick="openInApp('https://imhd.sk')" class="stop-item">
+                    <button onclick="navigateTo('https://imhd.sk')" class="stop-item">
                         <div class="stop-name">Imhd.sk</div>
                     </button>
                 </div>
