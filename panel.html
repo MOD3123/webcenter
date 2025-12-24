@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Najnovšie predpisy a aktuality - Slov-Lex</title>
+  <style>
+    html {
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    body::-webkit-scrollbar {
+      display: none;
+    }
+
+    :root {
+      --card-bg: #ffffff;
+      --text: #222;
+      --muted: #666;
+      --accent: #125945;
+      --border: #c8dcd5;
+      --radius: 12px;
+      --gap: 1rem;
+    }
+
+    body {
+      background: none !important;
+      font-family: "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 2rem 1rem;
+    }
+
+    h1 {
+      text-align: center;
+      color: var(--accent);
+      font-size: 1.8rem;
+      margin-bottom: 1.5rem;
+    }
+
+    #rss-feed {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: var(--gap);
+      max-width: 1000px;
+      margin: auto;
+    }
+
+    .item-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s, box-shadow 0.2s;
+      opacity: 0;
+      animation: fadeIn 0.3s forwards;
+    }
+
+    .item-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    }
+
+    .item-card h2 {
+      margin: 0 0 0.5rem;
+      font-size: 1.1rem;
+      color: var(--accent);
+      word-break: break-word;
+    }
+
+    .item-card h2 a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .item-card p {
+      font-size: 0.95rem;
+      color: var(--text);
+      margin-top: 0.5rem;
+    }
+
+    .end-msg {
+      text-align: center;
+      color: var(--muted);
+      margin: 2rem auto;
+    }
+
+    .loader {
+      text-align: center;
+      margin: 2rem auto;
+      font-size: 1rem;
+      color: var(--muted);
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div id="rss-feed"><div class="loader">Načítavam dáta zo Slov-Lex...</div></div>
+
+  <script>
+    // Poznámka: proxy nechávame podľa tvojho požiadavku
+    const proxy = 'https://corsproxy.io/?';
+    const feeds = [
+      {
+        url: 'https://vyhladavanie.slov-lex.sk/rss/predpisZbierky',
+        type: 'Predpis'
+      },
+      {
+        url: 'https://api-gateway.slov-lex.sk/external/evidencna-aplikacia/aktuality/rss',
+        type: 'Aktualita'
+      }
+    ];
+
+    const pageSize = 10;
+    let items = [];
+    let index = 0;
+    let loading = false;
+
+    // Sanitizácia URL: povolíme len http/https
+    function sanitizeUrl(url) {
+      try {
+        const parsed = new URL(url, window.location.href);
+        if (parsed.protocol === "http:" || parsed.protocol === "https:") {
+          return parsed.href;
+        }
+      } catch (e) {
+        // neplatná URL
+      }
+      return "#";
+    }
+
+    async function fetchFeed(feed) {
+      try {
+        const res = await fetch(proxy + encodeURIComponent(feed.url));
+        const xml = await res.text();
+        const doc = new DOMParser().parseFromString(xml, "text/xml");
+
+        return [...doc.querySelectorAll("item")].map(item => {
+          const title = item.querySelector("title")?.textContent?.trim() || "Bez názvu";
+          const link = item.querySelector("link")?.textContent?.trim() || "#";
+          const pubDateText = item.querySelector("pubDate")?.textContent;
+          const pubDate = pubDateText ? new Date(pubDateText) : null;
+          return { title, link, pubDate, type: feed.type };
+        });
+      } catch (e) {
+        console.error(`Chyba pri načítaní ${feed.type}:`, e);
+        return [];
+      }
+    }
+
+    async function loadAllFeeds() {
+      const allItems = (await Promise.all(feeds.map(fetchFeed))).flat();
+
+      // Zoradiť podľa dátumu zostupne, ak existuje pubDate; tie bez pubDate idú na koniec
+      items = allItems
+        .slice()
+        .sort((a, b) => {
+          if (a.pubDate && b.pubDate) return b.pubDate - a.pubDate;
+          if (a.pubDate) return -1;
+          if (b.pubDate) return 1;
+          return 0;
+        });
+
+      const container = document.getElementById("rss-feed");
+      container.innerHTML = ""; // vyčisti loader
+      renderNext();
+    }
+
+    // Bezpečné vytvorenie karty (bez innerHTML)
+    function createCard(item) {
+      const card = document.createElement("div");
+      card.className = "item-card";
+
+      // H2: [type] <a>title</a>
+      const h2 = document.createElement("h2");
+
+      // text node pre typ v zátvorke
+      const typeNode = document.createTextNode(`[${item.type}] `);
+      h2.appendChild(typeNode);
+
+      const safeHref = sanitizeUrl(item.link);
+      const linkEl = document.createElement("a");
+      linkEl.href = safeHref;
+      // ak je odkaz bezpečný (http/https), otvoríme v novej karte
+      if (safeHref !== "#") {
+        linkEl.target = "_blank";
+        linkEl.rel = "noopener noreferrer";
+      } else {
+        // ak nie je platný link, neotvárať novú kartu
+        linkEl.target = "";
+        linkEl.rel = "";
+      }
+      // Namiesto innerHTML použijeme textContent
+      linkEl.textContent = item.title;
+      h2.appendChild(linkEl);
+      card.appendChild(h2);
+
+      // (PUBDATE sa NEZOBRAZUJE podľa tvojej požiadavky)
+      // Ak by si chcel neskôr zobrazovať iba dátum bez času, môžeme to pridať.
+
+      // Detail link (Zobraziť detail)
+      const p = document.createElement("p");
+      const detailLink = document.createElement("a");
+      detailLink.href = safeHref;
+      detailLink.textContent = "Zobraziť detail";
+      if (safeHref !== "#") {
+        detailLink.target = "_blank";
+        detailLink.rel = "noopener noreferrer";
+      }
+      p.appendChild(detailLink);
+      card.appendChild(p);
+
+      return card;
+    }
+
+    function renderNext() {
+      if (loading) return;
+      loading = true;
+
+      const container = document.getElementById("rss-feed");
+      const slice = items.slice(index, index + pageSize);
+
+      slice.forEach(item => {
+        const card = createCard(item);
+        container.appendChild(card);
+      });
+
+      index += slice.length;
+      loading = false;
+
+      if (index >= items.length && !document.getElementById("end")) {
+        const end = document.createElement("div");
+        end.className = "end-msg";
+        end.id = "end";
+        end.textContent = "Žiadne ďalšie záznamy.";
+        container.appendChild(end);
+      }
+    }
+
+    function onScroll() {
+      if (window.innerHeight + window.scrollY + 100 >= document.body.scrollHeight) {
+        renderNext();
+      }
+    }
+
+    window.addEventListener("scroll", onScroll);
+    loadAllFeeds();
+  </script>
+</body>
+</html>
