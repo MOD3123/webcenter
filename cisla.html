@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vyhľadávanie telefónnych čísel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: linear-gradient(135deg, #66a8ea 0%, #4b76a2 100%);
+            --text-primary: #ffffff;
+            --text-secondary: #f0f0f0;
+            --card-bg: rgba(255, 255, 255, 0.98);
+            --card-text: #1e293b;
+            --card-text-secondary: #64748b;
+            --border-color: rgba(200, 200, 200, 0.3);
+            --button-bg: rgba(79, 172, 254, 0.3);
+            --button-border: rgba(79, 172, 254, 0.5);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-primary: linear-gradient(135deg, #0f0f1e 0%, #1a1a3e 100%);
+                --text-primary: #f1f5f9;
+                --text-secondary: #cbd5e1;
+                --card-bg: rgba(30, 41, 59, 0.95);
+                --card-text: #f1f5f9;
+                --card-text-secondary: #94a3b8;
+                --border-color: rgba(148, 163, 184, 0.15);
+                --button-bg: rgba(79, 172, 254, 0.2);
+                --button-border: rgba(79, 172, 254, 0.4);
+            }
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            padding: 15px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 32px;
+            text-align: center;
+            font-weight: 700;
+            color: rgb(255, 255, 255);
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            min-height: calc(100vh - 120px);
+        }
+
+        .left-panel, .right-panel {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 24px;
+            border: 2px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #4facfe;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        input[type="text"] {
+            padding: 12px 14px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--card-bg);
+            color: var(--card-text);
+            font-size: 15px;
+            margin-bottom: 16px;
+            font-family: inherit;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #4facfe;
+        }
+
+        input[type="text"]::placeholder {
+            color: var(--card-text-secondary);
+        }
+
+        button {
+            padding: 12px 24px;
+            border: 2px solid var(--button-border);
+            border-radius: 6px;
+            background: var(--button-bg);
+            color: var(--card-text);
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+            margin-bottom: 16px;
+        }
+
+        button:hover {
+            background: rgba(79, 172, 254, 0.5);
+            border-color: #4facfe;
+        }
+
+        button:active {
+            background: rgba(79, 172, 254, 0.6);
+        }
+
+        .error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 2px solid rgba(239, 68, 68, 0.5);
+            color: #ef4444;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, rgba(79, 172, 254, 0.1), rgba(0, 242, 254, 0.05));
+            border: 2px solid rgba(79, 172, 254, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            display: none;
+            margin-bottom: 16px;
+        }
+
+        .result-card.show {
+            display: block;
+        }
+
+        .flag-large {
+            font-size: 72px;
+            margin-bottom: 12px;
+            color: #4facfe;
+
+        }
+
+        .country-name-large {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--card-text);
+            margin-bottom: 6px;
+        }
+
+        .country-code-large {
+            color: #4facfe;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .details {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            flex-direction: column;
+        }
+
+        .detail-item {
+            background: rgba(255, 255, 255, 0.5);
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .detail-item {
+                background: rgba(30, 41, 59, 0.5);
+            }
+        }
+
+        .detail-label {
+            color: var(--card-text-secondary);
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .detail-value {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--card-text);
+        }
+
+        .search-services {
+            margin-top: 12px;
+        }
+
+        .service-title {
+            font-size: 11px;
+            color: var(--card-text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .service-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+        }
+
+        .service-btn {
+            padding: 10px;
+            background: white;
+            color: var(--card-text);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .service-btn {
+                background: rgba(30, 41, 59, 0.8);
+            }
+        }
+
+        .service-btn:hover {
+            border-color: #4facfe;
+            background: rgba(79, 172, 254, 0.1);
+        }
+
+        .copy-btn {
+            padding: 10px 16px;
+            background: #4facfe;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            width: 100%;
+            margin-bottom: 12px;
+        }
+
+        .copy-btn:hover {
+            background: #0098ff;
+        }
+
+        .countries-list {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .country-item {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .country-item {
+                background: rgba(30, 41, 59, 0.5);
+            }
+        }
+
+        .country-item:hover {
+            border-color: #4facfe;
+            background: rgba(79, 172, 254, 0.15);
+        }
+
+        .country-flag {
+            font-size: 27px;
+            margin-right: 10px;
+            min-width: 30px;
+            color: #4facfe;
+        }
+
+        .country-info {
+            flex: 1;
+        }
+
+        .country-code {
+            color: #4facfe;
+            font-weight: 700;
+            font-size: 12px;
+            margin-bottom: 2px;
+        }
+
+        .country-name {
+            color: var(--card-text);
+            font-weight: 600;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #4facfe;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #0098ff;
+        }
+
+        @media (max-width: 1000px) {
+            .content {
+                grid-template-columns: 1fr;
+                min-height: auto;
+            }
+
+            .left-panel, .right-panel {
+                min-height: auto;
+            }
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            .header {
+                margin-bottom: 15px;
+            }
+
+            h1 {
+                font-size: 26px;
+            }
+
+            .left-panel, .right-panel {
+                padding: 16px;
+            }
+
+            .panel-title {
+                font-size: 16px;
+                margin-bottom: 12px;
+            }
+
+            input[type="text"] {
+                font-size: 14px;
+                padding: 10px 12px;
+            }
+
+            button {
+                padding: 10px 16px;
+                font-size: 13px;
+            }
+
+            .flag-large {
+                font-size: 60px;
+            }
+
+            .country-name-large {
+                font-size: 20px;
+            }
+
+            .country-code-large {
+                font-size: 14px;
+            }
+
+            .service-buttons {
+                grid-template-columns: 1fr;
+            }
+
+            .country-item {
+                padding: 10px;
+                font-size: 12px;
+            }
+
+            .country-flag {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Vyhľadávanie telefónnych čísiel</h1>
+        </div>
+
+        <div class="content">
+            <div class="left-panel">
+                <div class="panel-title">🔍 Vyhľadávanie</div>
+
+                <input type="text" id="phoneInput" placeholder="Zadajte číslo (+421905123456)">
+                <button onclick="searchPhone()">Hľadať</button>
+
+                <div class="error" id="error"></div>
+
+                <div class="result-card" id="resultCard">
+                    <div class="flag-large" id="flag"></div>
+                    <div class="country-name-large" id="countryName"></div>
+                    <div class="country-code-large" id="countryCode"></div>
+
+                    <div class="details">
+                        <div class="detail-item">
+                            <div class="detail-label">Predvoľba</div>
+                            <div class="detail-value" id="detailCode"></div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Číslo</div>
+                            <div class="detail-value" id="detailPhone"></div>
+                        </div>
+                    </div>
+
+                    <button class="copy-btn" onclick="copyPhone()">📋 Kopírovat číslo</button>
+
+                    <div class="search-services">
+                        <div class="service-title">Vyhľadať na:</div>
+                        <div class="service-buttons">
+                            <button class="service-btn" onclick="searchNeznamecislo()">Neznáme číslo</button>
+                            <button class="service-btn" onclick="searchVyhladavanie()">Vyhľadávanie čísla</button>
+                            <button class="service-btn" onclick="searchGoogle()">Google</button>
+                            <button class="service-btn" onclick="searchReceive()">ReceiveSMS vyhľadávanie</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PRAVÝ PANEL - ZOZNAM KRAJÍN -->
+            <div class="right-panel">
+                <div class="panel-title">🌍 Zoznam telefónnych predvolieb</div>
+                <input type="text" id="searchCountries" placeholder="Hľadať krajinu..." onkeyup="filterCountries()">
+                <div class="countries-list" id="countriesList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const countries = {
+            '1': {'name': 'USA, Kanada, Bahamy', 'flag': '🇺🇸'},
+            '7': {'name': 'Rusko, Kazachstan', 'flag': '🇷🇺'},
+            '20': {'name': 'Egypt', 'flag': '🇪🇬'},
+            '27': {'name': 'Južná Afrika', 'flag': '🇿🇦'},
+            '30': {'name': 'Grécko', 'flag': '🇬🇷'},
+            '31': {'name': 'Holandsko', 'flag': '🇳🇱'},
+            '32': {'name': 'Belgicko', 'flag': '🇧🇪'},
+            '33': {'name': 'Francúzsko', 'flag': '🇫🇷'},
+            '34': {'name': 'Španielsko', 'flag': '🇪🇸'},
+            '36': {'name': 'Maďarsko', 'flag': '🇭🇺'},
+            '39': {'name': 'Taliansko', 'flag': '🇮🇹'},
+            '40': {'name': 'Rumunsko', 'flag': '🇷🇴'},
+            '41': {'name': 'Švajčiarsko', 'flag': '🇨🇭'},
+            '43': {'name': 'Rakúsko', 'flag': '🇦🇹'},
+            '44': {'name': 'Spojené kráľovstvo', 'flag': '🇬🇧'},
+            '45': {'name': 'Dánsko', 'flag': '🇩🇰'},
+            '46': {'name': 'Švédsko', 'flag': '🇸🇪'},
+            '47': {'name': 'Nórsko', 'flag': '🇳🇴'},
+            '48': {'name': 'Poľsko', 'flag': '🇵🇱'},
+            '49': {'name': 'Nemecko', 'flag': '🇩🇪'},
+            '51': {'name': 'Peru', 'flag': '🇵🇪'},
+            '52': {'name': 'Mexiko', 'flag': '🇲🇽'},
+            '53': {'name': 'Kuba', 'flag': '🇨🇺'},
+            '54': {'name': 'Argentína', 'flag': '🇦🇷'},
+            '55': {'name': 'Brazília', 'flag': '🇧🇷'},
+            '56': {'name': 'Čile', 'flag': '🇨🇱'},
+            '57': {'name': 'Kolumbia', 'flag': '🇨🇴'},
+            '58': {'name': 'Venezuéla', 'flag': '🇻🇪'},
+            '60': {'name': 'Malajzia', 'flag': '🇲🇾'},
+            '61': {'name': 'Austrália', 'flag': '🇦🇺'},
+            '62': {'name': 'Indonézia', 'flag': '🇮🇩'},
+            '63': {'name': 'Filipíny', 'flag': '🇵🇭'},
+            '64': {'name': 'Nový Zéland', 'flag': '🇳🇿'},
+            '65': {'name': 'Singapur', 'flag': '🇸🇬'},
+            '66': {'name': 'Thajsko', 'flag': '🇹🇭'},
+            '81': {'name': 'Japonsko', 'flag': '🇯🇵'},
+            '82': {'name': 'Južná Kórea', 'flag': '🇰🇷'},
+            '84': {'name': 'Vietnam', 'flag': '🇻🇳'},
+            '86': {'name': 'Čína', 'flag': '🇨🇳'},
+            '90': {'name': 'Turecko', 'flag': '🇹🇷'},
+            '91': {'name': 'India', 'flag': '🇮🇳'},
+            '92': {'name': 'Pakistan', 'flag': '🇵🇰'},
+            '93': {'name': 'Afganistan', 'flag': '🇦🇫'},
+            '94': {'name': 'Srí Lanka', 'flag': '🇱🇰'},
+            '95': {'name': 'Mjanmarsko', 'flag': '🇲🇲'},
+            '98': {'name': 'Irán', 'flag': '🇮🇷'},
+            '212': {'name': 'Maroko', 'flag': '🇲🇦'},
+            '213': {'name': 'Alžírsko', 'flag': '🇩🇿'},
+            '216': {'name': 'Tunisko', 'flag': '🇹🇳'},
+            '218': {'name': 'Líbya', 'flag': '🇱🇾'},
+            '220': {'name': 'Gambia', 'flag': '🇬🇲'},
+            '221': {'name': 'Senegal', 'flag': '🇸🇳'},
+            '222': {'name': 'Mauritánia', 'flag': '🇲🇷'},
+            '223': {'name': 'Mali', 'flag': '🇲🇱'},
+            '224': {'name': 'Guinea', 'flag': '🇬🇳'},
+            '225': {'name': 'Pobrežie Slonoviny', 'flag': '🇨🇮'},
+            '226': {'name': 'Burkina Faso', 'flag': '🇧🇫'},
+            '227': {'name': 'Niger', 'flag': '🇳🇪'},
+            '228': {'name': 'Togo', 'flag': '🇹🇬'},
+            '229': {'name': 'Benin', 'flag': '🇧🇯'},
+            '230': {'name': 'Maurícius', 'flag': '🇲🇺'},
+            '231': {'name': 'Libéria', 'flag': '🇱🇷'},
+            '232': {'name': 'Sierra Leone', 'flag': '🇸🇱'},
+            '233': {'name': 'Ghana', 'flag': '🇬🇭'},
+            '234': {'name': 'Nigéria', 'flag': '🇳🇬'},
+            '235': {'name': 'Čad', 'flag': '🇹🇩'},
+            '236': {'name': 'Stredoafrická republika', 'flag': '🇨🇫'},
+            '237': {'name': 'Kamerun', 'flag': '🇨🇲'},
+            '238': {'name': 'Kapverdské ostrovy', 'flag': '🇨🇻'},
+            '239': {'name': 'Sv. Tomáš a Princov ostrov', 'flag': '🇸🇹'},
+            '240': {'name': 'Rovníková Guinea', 'flag': '🇬🇶'},
+            '241': {'name': 'Gabon', 'flag': '🇬🇦'},
+            '242': {'name': 'Kongo', 'flag': '🇨🇬'},
+            '243': {'name': 'Dem. rep. Kongo', 'flag': '🇨🇩'},
+            '244': {'name': 'Angola', 'flag': '🇦🇴'},
+            '245': {'name': 'Guinea-Bissau', 'flag': '🇬🇼'},
+            '246': {'name': 'Diego Garcia', 'flag': '🇬🇧'},
+            '247': {'name': 'Ascension', 'flag': '🇦🇨'},
+            '248': {'name': 'Seychely', 'flag': '🇸🇨'},
+            '249': {'name': 'Sudán', 'flag': '🇸🇩'},
+            '250': {'name': 'Ruanda', 'flag': '🇷🇼'},
+            '251': {'name': 'Etiópia', 'flag': '🇪🇹'},
+            '252': {'name': 'Somálsko', 'flag': '🇸🇴'},
+            '253': {'name': 'Džibutsko', 'flag': '🇩🇯'},
+            '254': {'name': 'Keňa', 'flag': '🇰🇪'},
+            '255': {'name': 'Tanzánia', 'flag': '🇹🇿'},
+            '256': {'name': 'Uganda', 'flag': '🇺🇬'},
+            '257': {'name': 'Burundi', 'flag': '🇧🇮'},
+            '258': {'name': 'Mozambik', 'flag': '🇲🇿'},
+            '260': {'name': 'Zambia', 'flag': '🇿🇲'},
+            '261': {'name': 'Madagaskar', 'flag': '🇲🇬'},
+            '262': {'name': 'Reunion', 'flag': '🇷🇪'},
+            '263': {'name': 'Zimbabwe', 'flag': '🇿🇼'},
+            '264': {'name': 'Namíbia', 'flag': '🇳🇦'},
+            '265': {'name': 'Malawi', 'flag': '🇲🇼'},
+            '266': {'name': 'Lesoto', 'flag': '🇱🇸'},
+            '267': {'name': 'Botswana', 'flag': '🇧🇼'},
+            '268': {'name': 'Eswatini', 'flag': '🇸🇿'},
+            '269': {'name': 'Komory', 'flag': '🇰🇲'},
+            '290': {'name': 'Sv. Helena', 'flag': '🇸🇭'},
+            '291': {'name': 'Eritrea', 'flag': '🇪🇷'},
+            '297': {'name': 'Aruba', 'flag': '🇦🇼'},
+            '298': {'name': 'Faerské ostrovy', 'flag': '🇫🇴'},
+            '299': {'name': 'Grónsko', 'flag': '🇬🇱'},
+            '350': {'name': 'Gibraltár', 'flag': '🇬🇮'},
+            '351': {'name': 'Portugalsko', 'flag': '🇵🇹'},
+            '352': {'name': 'Luxembursko', 'flag': '🇱🇺'},
+            '353': {'name': 'Írsko', 'flag': '🇮🇪'},
+            '354': {'name': 'Island', 'flag': '🇮🇸'},
+            '355': {'name': 'Albánsko', 'flag': '🇦🇱'},
+            '356': {'name': 'Malta', 'flag': '🇲🇹'},
+            '357': {'name': 'Cypr', 'flag': '🇨🇾'},
+            '358': {'name': 'Fínsko', 'flag': '🇫🇮'},
+            '359': {'name': 'Bulharsko', 'flag': '🇧🇬'},
+            '370': {'name': 'Litva', 'flag': '🇱🇹'},
+            '371': {'name': 'Lotyšsko', 'flag': '🇱🇻'},
+            '372': {'name': 'Estónsko', 'flag': '🇪🇪'},
+            '373': {'name': 'Moldavsko', 'flag': '🇲🇩'},
+            '374': {'name': 'Arménsko', 'flag': '🇦🇲'},
+            '375': {'name': 'Bielorusko', 'flag': '🇧🇾'},
+            '376': {'name': 'Andorra', 'flag': '🇦🇩'},
+            '377': {'name': 'Monako', 'flag': '🇲🇨'},
+            '378': {'name': 'San Maríno', 'flag': '🇸🇲'},
+            '379': {'name': 'Vatikán', 'flag': '🇻🇦'},
+            '380': {'name': 'Ukrajina', 'flag': '🇺🇦'},
+            '381': {'name': 'Srbsko', 'flag': '🇷🇸'},
+            '382': {'name': 'Čierna Hôrka', 'flag': '🇲🇪'},
+            '383': {'name': 'Kosovo', 'flag': '🇽🇰'},
+            '385': {'name': 'Chorvátsko', 'flag': '🇭🇷'},
+            '386': {'name': 'Slovinsko', 'flag': '🇸🇮'},
+            '387': {'name': 'Bosna a Hercegovina', 'flag': '🇧🇦'},
+            '389': {'name': 'Severná Macedónia', 'flag': '🇲🇰'},
+            '420': {'name': 'Česká republika', 'flag': '🇨🇿'},
+            '421': {'name': 'Slovensko', 'flag': '🇸🇰'},
+            '423': {'name': 'Lichtenštajnsko', 'flag': '🇱🇮'},
+            '500': {'name': 'Falklandské ostrovy', 'flag': '🇫🇰'},
+            '501': {'name': 'Belize', 'flag': '🇧🇿'},
+            '502': {'name': 'Guatemela', 'flag': '🇬🇹'},
+            '503': {'name': 'Salvádor', 'flag': '🇸🇻'},
+            '504': {'name': 'Honduras', 'flag': '🇭🇳'},
+            '505': {'name': 'Nikaragua', 'flag': '🇳🇮'},
+            '506': {'name': 'Kostarika', 'flag': '🇨🇷'},
+            '507': {'name': 'Panama', 'flag': '🇵🇦'},
+            '508': {'name': 'Sv. Pierre a Miquelon', 'flag': '🇵🇲'},
+            '509': {'name': 'Haití', 'flag': '🇭🇹'},
+            '590': {'name': 'Guadeloupe', 'flag': '🇬🇵'},
+            '591': {'name': 'Bolívia', 'flag': '🇧🇴'},
+            '592': {'name': 'Guyana', 'flag': '🇬🇾'},
+            '593': {'name': 'Ekvádor', 'flag': '🇪🇨'},
+            '594': {'name': 'Francúzska Guyana', 'flag': '🇬🇫'},
+            '595': {'name': 'Paraguaj', 'flag': '🇵🇾'},
+            '596': {'name': 'Martinik', 'flag': '🇲🇶'},
+            '597': {'name': 'Surinam', 'flag': '🇸🇷'},
+            '598': {'name': 'Uruguaj', 'flag': '🇺🇾'},
+            '599': {'name': 'Curaçao, Sv. Bartolomej', 'flag': '🇨🇼'},
+            '670': {'name': 'Východný Timor', 'flag': '🇹🇱'},
+            '672': {'name': 'Norfolk, Kokosové ostrovy', 'flag': '🇳🇫'},
+            '673': {'name': 'Brunej', 'flag': '🇧🇳'},
+            '674': {'name': 'Nauru', 'flag': '🇳🇷'},
+            '675': {'name': 'Papua Nová Guinea', 'flag': '🇵🇬'},
+            '676': {'name': 'Tonga', 'flag': '🇹🇴'},
+            '677': {'name': 'Šalamúnove ostrovy', 'flag': '🇸🇧'},
+            '678': {'name': 'Vanuatu', 'flag': '🇻🇺'},
+            '679': {'name': 'Fidži', 'flag': '🇫🇯'},
+            '680': {'name': 'Palau', 'flag': '🇵🇼'},
+            '681': {'name': 'Wallis a Futuna', 'flag': '🇼🇫'},
+            '682': {'name': 'Cookove ostrovy', 'flag': '🇨🇰'},
+            '683': {'name': 'Niue', 'flag': '🇳🇺'},
+            '684': {'name': 'Americká Samoa', 'flag': '🇦🇸'},
+            '685': {'name': 'Samoa', 'flag': '🇼🇸'},
+            '686': {'name': 'Kiribati', 'flag': '🇰🇮'},
+            '687': {'name': 'Nová Kaledónia', 'flag': '🇳🇨'},
+            '688': {'name': 'Tuvalu', 'flag': '🇹🇻'},
+            '689': {'name': 'Francúzska Polynézia', 'flag': '🇵🇫'},
+            '690': {'name': 'Tokelau', 'flag': '🇹🇰'},
+            '691': {'name': 'Mikronézia', 'flag': '🇫🇲'},
+            '692': {'name': 'Marshallove ostrovy', 'flag': '🇲🇭'},
+            '850': {'name': 'Severná Kórea', 'flag': '🇰🇵'},
+            '852': {'name': 'Hongkong', 'flag': '🇭🇰'},
+            '853': {'name': 'Makao', 'flag': '🇲🇴'},
+            '855': {'name': 'Kambodža', 'flag': '🇰🇭'},
+            '856': {'name': 'Laos', 'flag': '🇱🇦'},
+            '880': {'name': 'Bangladéš', 'flag': '🇧🇩'},
+            '886': {'name': 'Taiwan', 'flag': '🇹🇼'},
+            '960': {'name': 'Maldivy', 'flag': '🇲🇻'},
+            '961': {'name': 'Libanon', 'flag': '🇱🇧'},
+            '962': {'name': 'Jordánsko', 'flag': '🇯🇴'},
+            '963': {'name': 'Sýria', 'flag': '🇸🇾'},
+            '964': {'name': 'Irak', 'flag': '🇮🇶'},
+            '965': {'name': 'Kuvajt', 'flag': '🇰🇼'},
+            '966': {'name': 'Saudská Arábia', 'flag': '🇸🇦'},
+            '967': {'name': 'Jemen', 'flag': '🇾🇪'},
+            '968': {'name': 'Omán', 'flag': '🇴🇲'},
+            '970': {'name': 'Palestína', 'flag': '🇵🇸'},
+            '971': {'name': 'SAE', 'flag': '🇦🇪'},
+            '972': {'name': 'Izrael', 'flag': '🇮🇱'},
+            '973': {'name': 'Bahrajn', 'flag': '🇧🇭'},
+            '974': {'name': 'Katar', 'flag': '🇶🇦'},
+            '975': {'name': 'Bhután', 'flag': '🇧🇹'},
+            '976': {'name': 'Mongolsko', 'flag': '🇲🇳'},
+            '977': {'name': 'Nepál', 'flag': '🇳🇵'},
+            '992': {'name': 'Tadžikistan', 'flag': '🇹🇯'},
+            '993': {'name': 'Turkménistan', 'flag': '🇹🇲'},
+            '994': {'name': 'Azerbajdžan', 'flag': '🇦🇿'},
+            '995': {'name': 'Gruzínsko', 'flag': '🇬🇪'},
+            '996': {'name': 'Kirgizsko', 'flag': '🇰🇬'},
+            '998': {'name': 'Uzbekistan', 'flag': '🇺🇿'},
+        };
+
+        let currentPhone = '';
+        let currentCode = '';
+
+        // Inicializácia - zobrazenie všetkých krajín
+        function initCountries() {
+            const list = document.getElementById('countriesList');
+            list.innerHTML = '';
+
+            Object.entries(countries).forEach(([code, country]) => {
+                const item = document.createElement('div');
+                item.className = 'country-item';
+                item.innerHTML = `
+                    <div class="country-flag">${country.flag}</div>
+                    <div class="country-info">
+                        <div class="country-code">+${code}</div>
+                        <div class="country-name">${country.name}</div>
+                    </div>
+                `;
+                item.addEventListener('click', () => {
+                    document.getElementById('phoneInput').value = '+' + code;
+                    document.getElementById('phoneInput').focus();
+                });
+                list.appendChild(item);
+            });
+        }
+
+        function filterCountries() {
+            const search = document.getElementById('searchCountries').value.toLowerCase();
+            const items = document.querySelectorAll('.country-item');
+
+            items.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                item.style.display = text.includes(search) ? 'block' : 'none';
+            });
+        }
+
+        function searchPhone() {
+            const input = document.getElementById('phoneInput').value.trim();
+            const errorEl = document.getElementById('error');
+            const resultEl = document.getElementById('resultCard');
+
+            errorEl.classList.remove('show');
+            resultEl.classList.remove('show');
+
+            if (!input) {
+                showError('Zadajte telefónne číslo');
+                return;
+            }
+
+            if (!input.startsWith('+')) {
+                showError('Číslo musí začínať na +');
+                return;
+            }
+
+            const code = findCode(input);
+            if (!code) {
+                showError('Krajina nebola nájdená');
+                return;
+            }
+
+            const country = countries[code];
+            currentPhone = input;
+            currentCode = code;
+
+            document.getElementById('flag').textContent = country.flag;
+            document.getElementById('countryName').textContent = country.name;
+            document.getElementById('countryCode').textContent = '+' + code;
+            document.getElementById('detailCode').textContent = '+' + code;
+            document.getElementById('detailPhone').textContent = input;
+
+            resultEl.classList.add('show');
+        }
+
+        function findCode(phone) {
+            phone = phone.replace(/[^0-9+]/g, '');
+            for (let i = 4; i > 0; i--) {
+                const code = phone.substring(1, i + 1);
+                if (countries[code]) {
+                    return code;
+                }
+            }
+            return null;
+        }
+
+        function showError(msg) {
+            document.getElementById('error').textContent = '❌ ' + msg;
+            document.getElementById('error').classList.add('show');
+        }
+
+        function copyPhone() {
+            navigator.clipboard.writeText(currentPhone);
+            alert('✓ Číslo skopírované!');
+        }
+
+        function searchNeznamecislo() {
+            const num = currentPhone.replace('+', '');
+            window.open('https://www.neznamecislo.sk/cislo/' + num, '_blank');
+        }
+
+        function searchVyhladavanie() {
+            const num = currentPhone.replace('+', '');
+            window.open('https://www.vyhladavaniecisla.sk/cislo/' + num, '_blank');
+        }
+
+        function searchGoogle() {
+            window.open('https://www.google.com/search?q=' + encodeURIComponent(currentPhone), '_blank');
+        }
+
+        function searchReceive() {
+            window.open('https://www.receivesms.co/who-called-me/' + currentPhone.replace('+', ''), '_blank');
+        }
+
+        document.getElementById('phoneInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') searchPhone();
+        });
+
+        // Inicializácia
+        initCountries();
+    </script>
+</body>
+</html>
