@@ -1,531 +1,460 @@
 <!DOCTYPE html>
 <html lang="sk">
 <head>
-    <meta charset="UTF-8">
-    <title>Generátor Rovníc</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        :root {
-            --color-primary: #0ea5c2;
-            --color-primary-hover: #0886a3;
-            --color-accent: #06b6d4;
-            --color-surface: #f0f9ff;
-            --color-text: #0f172a;
-            --color-text-light: #475569;
-            --color-border: #cbd5e1;
-            --color-success: #10b981;
-            --color-error: #ef4444;
-            --color-bg: linear-gradient(135deg, #e0f2fe 0, #f0f9ff 100%);
-        }
-
-        [data-theme="dark"] {
-            --color-primary: #22d3ee;
-            --color-primary-hover: #06b6d4;
-            --color-accent: #0ea5c2;
-            --color-surface: #0f172a;
-            --color-text: #e2e8f0;
-            --color-text-light: #94a3b8;
-            --color-border: #1e293b;
-            --color-success: #34d399;
-            --color-error: #f87171;
-            --color-bg: linear-gradient(135deg, #0a0e27 0, #1a1f3a 100%);
-        }
-
-        * { box-sizing: border-box; }
-
-        body {
-            margin: 0;
-            padding: 20px;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: var(--color-bg);
-            color: var(--color-text);
-            line-height: 1.6;
-            min-height: 100vh;
-            transition: background 0.3s, color 0.3s;
-        }
-
-        .container {
-            max-width: 650px;
-            margin: 0 auto;
-            background: #ffffff;
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 10px 40px rgba(15, 23, 42, 0.1);
-            border: 1px solid rgba(6, 182, 212, 0.1);
-            transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
-        }
-
-        [data-theme="dark"] .container {
-            background: #1e293b;
-            border: 1px solid rgba(34, 211, 238, 0.3);
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-        }
-
-        h1 {
-            text-align: center;
-            margin: 0 0 8px 0;
-            font-size: 32px;
-            background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .subtitle {
-            text-align: center;
-            color: var(--color-text-light);
-            margin-bottom: 20px;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .theme-toggle {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 20px;
-            gap: 8px;
-        }
-
-        .theme-btn {
-            background: var(--color-surface);
-            border: 1px solid var(--color-border);
-            color: var(--color-text);
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-
-        .theme-btn.active {
-            background: var(--color-primary);
-            color: white;
-            border-color: var(--color-primary);
-        }
-
-        .theme-btn:not(.active) {
-            opacity: 0.7;
-        }
-
-        .equation-box {
-            background: linear-gradient(135deg, var(--color-surface) 0, #cffafe 100%);
-            padding: 30px;
-            border-radius: 14px;
-            border: 2px solid var(--color-accent);
-            margin-bottom: 25px;
-            text-align: center;
-            box-shadow: 0 4px 20px rgba(6, 182, 212, 0.08);
-        }
-
-        [data-theme="dark"] .equation-box {
-            background: linear-gradient(135deg, #0f4c63 0, #1a2f4a 100%);
-            border: 2px solid #22d3ee;
-            box-shadow: 0 4px 20px rgba(34, 211, 238, 0.15);
-        }
-
-        .equation {
-            font-size: 32px;
-            font-weight: bold;
-            font-family: "Segoe UI", sans-serif;
-            color: var(--color-primary);
-            margin: 0;
-            word-break: break-word;
-            letter-spacing: 0.5px;
-        }
-
-        [data-theme="dark"] .equation {
-            color: #22d3ee;
-            text-shadow: 0 0 20px rgba(34, 211, 238, 0.3);
-        }
-
-        .input-group { margin-bottom: 18px; }
-
-        label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 6px;
-            font-size: 12px;
-            color: var(--color-text);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .checkbox-row {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            margin-top: 4px;
-        }
-
-        .checkbox-label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            font-weight: 500;
-            text-transform: none;
-            letter-spacing: 0;
-        }
-
-        .checkbox-label input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-        }
-
-        .button-group {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-bottom: 22px;
-        }
-
-        .button-group button {
-            width: 100%;
-        }
-
-        button {
-            padding: 11px 16px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            border: none;
-            transition: all 0.2s;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
-            color: #ffffff;
-            box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
-        }
-
-        .btn-primary:hover {
-            opacity: 0.9;
-            transform: translateY(-1px);
-        }
-
-        .btn-secondary {
-            background: var(--color-surface);
-            color: var(--color-text);
-            border: 1px solid var(--color-border);
-        }
-
-        .btn-secondary:hover {
-            background: #e5f3ff;
-        }
-
-        [data-theme="dark"] .btn-secondary {
-            background: #334155;
-            border-color: #475569;
-        }
-
-        [data-theme="dark"] .btn-secondary:hover {
-            background: #475569;
-        }
-
-        .numbers-row {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .numbers-btn {
-            padding: 6px 14px;
-            border-radius: 6px;
-            border: 1px solid var(--color-border);
-            background: var(--color-surface);
-            color: var(--color-text);
-            font-size: 13px;
-            cursor: pointer;
-            transition: all 0.2s;
-            white-space: nowrap;
-        }
-
-        .numbers-btn.active {
-            background: var(--color-primary);
-            color: #ffffff;
-            border-color: var(--color-primary);
-        }
-
-        .result {
-            margin-top: 20px;
-            padding: 14px;
-            border-radius: 8px;
-            text-align: center;
-            display: none;
-        }
-
-        .result.show { display: block; }
-
-        .result.correct {
-            background: rgba(34, 197, 94, 0.1);
-            border: 2px solid var(--color-success);
-            color: var(--color-success);
-        }
-
-        @media (max-width: 480px) {
-            .container { padding: 20px; }
-            h1 { font-size: 24px; }
-            .equation { font-size: 24px; }
-        }
-    </style>
+<meta charset="UTF-8">
+<title>Generátor rovníc</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+:root {
+--color-primary: #0ea5c2;
+--color-primary-hover: #0886a3;
+--color-accent: #06b6d4;
+--color-surface: #f0f9ff;
+--color-text: #0f172a;
+--color-text-light: #475569;
+--color-border: #cbd5e1;
+--color-success: #10b981;
+--color-error: #ef4444;
+--color-bg: linear-gradient(135deg, #e0f2fe 0, #f0f9ff 100%);
+}
+[data-theme="dark"] {
+--color-primary: #22d3ee;
+--color-primary-hover: #06b6d4;
+--color-accent: #0ea5c2;
+--color-surface: #0f172a;
+--color-text: #e2e8f0;
+--color-text-light: #94a3b8;
+--color-border: #1e293b;
+--color-success: #34d399;
+--color-error: #f87171;
+--color-bg: linear-gradient(135deg, #0a0e27 0, #1a1f3a 100%);
+}
+* { box-sizing: border-box; }
+body {
+margin: 0;
+padding: 20px;
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+background: var(--color-bg);
+color: var(--color-text);
+line-height: 1.6;
+min-height: 100vh;
+transition: background 0.3s, color 0.3s;
+}
+.container {
+max-width: 650px;
+margin: 0 auto;
+background: #ffffff;
+padding: 40px;
+border-radius: 16px;
+box-shadow: 0 10px 40px rgba(15, 23, 42, 0.1);
+border: 1px solid rgba(6, 182, 212, 0.1);
+transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
+}
+[data-theme="dark"] .container {
+background: #1e293b;
+border: 1px solid rgba(34, 211, 238, 0.3);
+box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+h1 {
+text-align: center;
+margin: 0 0 8px 0;
+font-size: 32px;
+background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+background-clip: text;
+}
+.subtitle {
+text-align: center;
+color: var(--color-text-light);
+margin-bottom: 20px;
+font-size: 14px;
+font-weight: 500;
+}
+.theme-toggle {
+display: flex;
+justify-content: center;
+margin-bottom: 20px;
+gap: 8px;
+}
+.theme-btn {
+background: var(--color-surface);
+border: 1px solid var(--color-border);
+color: var(--color-text);
+padding: 8px 16px;
+border-radius: 8px;
+cursor: pointer;
+font-size: 13px;
+font-weight: 600;
+transition: all 0.3s;
+}
+.theme-btn.active {
+background: var(--color-primary);
+color: white;
+border-color: var(--color-primary);
+}
+.theme-btn:not(.active) {
+opacity: 0.7;
+}
+.equation-box {
+background: linear-gradient(135deg, var(--color-surface) 0, #cffafe 100%);
+padding: 30px;
+border-radius: 14px;
+border: 2px solid var(--color-accent);
+margin-bottom: 25px;
+text-align: center;
+box-shadow: 0 4px 20px rgba(6, 182, 212, 0.08);
+}
+[data-theme="dark"] .equation-box {
+background: linear-gradient(135deg, #0f4c63 0, #1a2f4a 100%);
+border: 2px solid #22d3ee;
+box-shadow: 0 4px 20px rgba(34, 211, 238, 0.15);
+}
+.equation {
+font-size: 32px;
+font-weight: bold;
+font-family: "Segoe UI", sans-serif;
+color: var(--color-primary);
+margin: 0;
+word-break: break-word;
+letter-spacing: 0.5px;
+}
+[data-theme="dark"] .equation {
+color: #22d3ee;
+text-shadow: 0 0 20px rgba(34, 211, 238, 0.3);
+}
+.input-group { margin-bottom: 18px; }
+label {
+display: block;
+font-weight: 600;
+margin-bottom: 6px;
+font-size: 12px;
+color: var(--color-text);
+text-transform: uppercase;
+letter-spacing: 0.5px;
+}
+.checkbox-row {
+display: flex;
+flex-direction: column;
+gap: 6px;
+margin-top: 4px;
+}
+.checkbox-label {
+display: flex;
+align-items: center;
+gap: 8px;
+font-size: 14px;
+font-weight: 500;
+text-transform: none;
+letter-spacing: 0;
+}
+.checkbox-label input[type="checkbox"] {
+width: 18px;
+height: 18px;
+cursor: pointer;
+}
+.button-group {
+display: flex;
+flex-direction: column;
+gap: 12px;
+margin-bottom: 22px;
+}
+.button-group button {
+width: 100%;
+}
+button {
+padding: 11px 16px;
+border-radius: 8px;
+font-size: 14px;
+font-weight: 600;
+cursor: pointer;
+border: none;
+transition: all 0.2s;
+}
+.btn-primary {
+background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+color: #ffffff;
+box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
+}
+.btn-primary:hover {
+opacity: 0.9;
+transform: translateY(-1px);
+}
+.btn-secondary {
+background: var(--color-surface);
+color: var(--color-text);
+border: 1px solid var(--color-border);
+}
+.btn-secondary:hover {
+background: #e5f3ff;
+}
+[data-theme="dark"] .btn-secondary {
+background: #334155;
+border-color: #475569;
+}
+[data-theme="dark"] .btn-secondary:hover {
+background: #475569;
+}
+.numbers-row {
+display: flex;
+gap: 8px;
+flex-wrap: wrap;
+}
+.numbers-btn {
+padding: 6px 14px;
+border-radius: 6px;
+border: 1px solid var(--color-border);
+background: var(--color-surface);
+color: var(--color-text);
+font-size: 13px;
+cursor: pointer;
+transition: all 0.2s;
+white-space: nowrap;
+}
+.numbers-btn.active {
+background: var(--color-primary);
+color: #ffffff;
+border-color: var(--color-primary);
+}
+.result {
+margin-top: 20px;
+padding: 14px;
+border-radius: 8px;
+text-align: center;
+display: none;
+}
+.result.show { display: block; }
+.result.correct {
+background: rgba(34, 197, 94, 0.1);
+border: 2px solid var(--color-success);
+color: var(--color-success);
+}
+@media (max-width: 480px) {
+.container { padding: 20px; }
+h1 { font-size: 24px; }
+.equation { font-size: 24px; }
+}
+</style>
 </head>
 <body>
 <div class="container">
-    <h1>Generátor Rovníc</h1>
-    <div class="theme-toggle">
-        <button class="theme-btn active" onclick="setTheme('light')">☀️ Svetlý režim</button>
-        <button class="theme-btn" onclick="setTheme('dark')">🌙 Tmavý režim</button>
-    </div>
-
-    <div class="equation-box">
-        <p class="equation" id="equation">Vygenerujte rovnicu</p>
-    </div>
-
-    <div class="input-group">
-        <label>Možnosti</label>
-        <div class="checkbox-row">
-            <label class="checkbox-label">
-                <input type="checkbox" id="allowNegative" checked>
-                Povoliť záporné čísla
-            </label>
-            <label class="checkbox-label">
-                <input type="checkbox" id="allowDecimals" checked>
-                Povoliť desatinné čísla
-            </label>
-            <label class="checkbox-label">
-                <input type="checkbox" id="allowBrackets" checked>
-                Povoliť zátvorky
-            </label>
-        </div>
-    </div>
-
-    <div class="input-group">
-        <label>Dĺžka pravej strany rovnice</label>
-        <div class="numbers-row">
-            <button type="button" class="numbers-btn active" data-count="1" onclick="setNumbersCount(1)">1</button>
-            <button type="button" class="numbers-btn active" data-count="2" onclick="setNumbersCount(2)">2</button>
-            <button type="button" class="numbers-btn active" data-count="3" onclick="setNumbersCount(3)">3</button>
-            <button type="button" class="numbers-btn" data-count="4" onclick="setNumbersCount(4)">4</button>
-            <button type="button" class="numbers-btn" data-count="5" onclick="setNumbersCount(5)">5</button>
-            <button type="button" class="numbers-btn" data-count="6" onclick="setNumbersCount(6)">6</button>
-            <button type="button" class="numbers-btn" data-count="7" onclick="setNumbersCount(7)">7</button>
-        </div>
-    </div>
-
-    <div class="button-group">
-        <button class="btn-primary" onclick="generateEquation()">Vygenerovať rovnicu</button>
-        <button class="btn-secondary" onclick="showSolution()">Zobraziť riešenie</button>
-    </div>
-
-    <div id="result" class="result"></div>
+<h1>Generátor rovníc</h1>
+<div class="theme-toggle">
+<button class="theme-btn active" onclick="setTheme('light')">☀️ Svetlý režim</button>
+<button class="theme-btn" onclick="setTheme('dark')">🌙 Tmavý režim</button>
 </div>
-
+<div class="equation-box">
+<p class="equation" id="equation">Vygenerujte rovnicu</p>
+</div>
+<div class="input-group">
+<label>Možnosti</label>
+<div class="checkbox-row">
+<label class="checkbox-label">
+<input type="checkbox" id="allowNegative" checked>
+Povoliť záporné čísla
+</label>
+<label class="checkbox-label">
+<input type="checkbox" id="allowDecimals" checked>
+Povoliť desatinné čísla
+</label>
+<label class="checkbox-label">
+<input type="checkbox" id="allowBrackets" checked>
+Povoliť zátvorky
+</label>
+</div>
+</div>
+<div class="input-group">
+<label>Dĺžka pravej strany rovnice</label>
+<div class="numbers-row">
+<button type="button" class="numbers-btn" data-count="1" onclick="setNumbersCount(1)">1</button>
+<button type="button" class="numbers-btn" data-count="2" onclick="setNumbersCount(2)">2</button>
+<button type="button" class="numbers-btn active" data-count="3" onclick="setNumbersCount(3)">3</button>
+<button type="button" class="numbers-btn" data-count="4" onclick="setNumbersCount(4)">4</button>
+<button type="button" class="numbers-btn" data-count="5" onclick="setNumbersCount(5)">5</button>
+<button type="button" class="numbers-btn" data-count="6" onclick="setNumbersCount(6)">6</button>
+<button type="button" class="numbers-btn" data-count="7" onclick="setNumbersCount(7)">7</button>
+</div>
+</div>
+<div class="button-group">
+<button class="btn-primary" onclick="generateEquation()">Vygenerovať rovnicu</button>
+<button class="btn-secondary" onclick="showSolution()">Zobraziť riešenie</button>
+</div>
+<div id="result" class="result"></div>
+</div>
 <script>
-    // --- TÉMA ---
-
-    (function initTheme() {
-        const prefersDark = window.matchMedia &&
-            window.matchMedia("(prefers-color-scheme: dark)").matches;
-        const saved = localStorage.getItem("theme") || (prefersDark ? "dark" : "light");
-        document.documentElement.setAttribute("data-theme", saved);
-        updateThemeButtons(saved);
-    })();
-
-    function updateThemeButtons(theme) {
-        const btns = document.querySelectorAll(".theme-btn");
-        btns.forEach(btn => btn.classList.remove("active"));
-        if (theme === "light") btns[0].classList.add("active");
-        else btns[1].classList.add("active");
-    }
-
-    function setTheme(theme) {
-        document.documentElement.setAttribute("data-theme", theme);
-        localStorage.setItem("theme", theme);
-        updateThemeButtons(theme);
-    }
-
-    // --- STAV A UTIL FUNKCIE ---
-
-    let currentEquation = null;
-    let lastEquation = null;
-    let numbersCount = 3;
-
-    function setNumbersCount(n) {
-        numbersCount = n;
-        document.querySelectorAll(".numbers-btn").forEach(btn => {
-            btn.classList.toggle("active", Number(btn.dataset.count) === n);
-        });
-    }
-
-    function getRandomInt(min, max) {
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
-
-    function getRandomDecimal(min, max, decimals = 2) {
-        const v = Math.random() * (max - min) + min;
-        return parseFloat(v.toFixed(decimals));
-    }
-
-    function splitNumber(total, parts, useDecimals) {
-        if (parts <= 1) return [total];
-
-        const arr = [];
-        if (!useDecimals) {
-            let sum = 0;
-            for (let i = 0; i < parts - 1; i++) {
-                const val = getRandomInt(-10, 10);
-                arr.push(val);
-                sum += val;
-            }
-            arr.push(total - sum);
-        } else {
-            let sum = 0;
-            for (let i = 0; i < parts - 1; i++) {
-                const val = getRandomDecimal(-10, 10, 2);
-                arr.push(val);
-                sum += val;
-            }
-            let last = parseFloat((total - sum).toFixed(2));
-            const diff = parseFloat((total - (sum + last)).toFixed(2));
-            last = parseFloat((last + diff).toFixed(2));
-            arr.push(last);
-        }
-        return arr;
-    }
-
-    // --- FORMÁTOVANIE ROVNICE ---
-
-    function formatEquation(eq, useDecimals) {
-        const allowBrackets = document.getElementById("allowBrackets").checked;
-        const sign = (num) => (num < 0 ? " - " : " + ");
-        const absVal = (num) => Math.abs(num);
-        const formatNum = (num) => {
-            if (useDecimals && !Number.isInteger(num)) return num.toFixed(2);
-            return Number.isInteger(num) ? num : num.toFixed(2);
-        };
-        const v = eq.var;
-
-        // ľavá strana
-        let leftStr;
-        const useBrackets = allowBrackets && Math.random() < 0.5 && eq.aL !== 0;
-        if (useBrackets) {
-            const k = eq.bL / eq.aL;
-            const kStr = k === 0 ? "" : sign(k) + formatNum(absVal(k));
-            leftStr = `${formatNum(eq.aL)}(${v}${kStr})`;
-        } else {
-            let aStr;
-            if (eq.aL === 1) aStr = v;
-            else if (eq.aL === -1) aStr = "-" + v;
-            else aStr = `${formatNum(eq.aL)}${v}`;
-
-            const bStr = eq.bL === 0 ? "" : sign(eq.bL) + formatNum(absVal(eq.bL));
-            leftStr = `${aStr}${bStr}`;
-        }
-
-        // pravá strana: aR * v + konštanty
-        let rightVarStr;
-        if (eq.aR === 1) rightVarStr = v;
-        else if (eq.aR === -1) rightVarStr = "-" + v;
-        else rightVarStr = `${formatNum(eq.aR)}${v}`;
-
-        const partsRHS = Math.max(1, numbersCount - 1);
-        const pieces = splitNumber(eq.c, partsRHS, useDecimals);
-
-        let rightStr = rightVarStr;
-        for (let i = 0; i < pieces.length; i++) {
-            const p = pieces[i];
-            if (p === 0) continue;
-            rightStr += (p < 0 ? " - " : " + ") + formatNum(Math.abs(p));
-        }
-
-        return `${leftStr} = ${rightStr}`;
-    }
-
-    // --- GENEROVANIE ROVNICE (premenná na oboch stranách) ---
-
-    function generateEquation() {
-        const useNegative = document.getElementById("allowNegative").checked;
-        const useDecimals = document.getElementById("allowDecimals").checked;
-
-        const vars = ["x", "y", "z"];
-        let eq = null;
-        let attempts = 0;
-        const maxAttempts = 200;
-
-        do {
-            attempts++;
-            if (attempts > maxAttempts) break;
-
-            const v = vars[getRandomInt(0, vars.length - 1)];
-
-            const aL = useDecimals ? getRandomDecimal(0.5, 6, 1) : getRandomInt(1, 6);
-            let aR = useDecimals ? getRandomDecimal(0.5, 6, 1) : getRandomInt(1, 6);
-            if (Math.abs(aL - aR) < 0.0001) continue;
-
-            let x;
-            if (useNegative) {
-                x = useDecimals ? getRandomDecimal(-10, 10, 2) : getRandomInt(-10, 10);
-            } else {
-                x = useDecimals ? getRandomDecimal(1, 10, 2) : getRandomInt(1, 10);
-            }
-
-            let bL;
-            if (useNegative) {
-                bL = useDecimals ? getRandomDecimal(-20, 20, 1) : getRandomInt(-20, 20);
-            } else {
-                bL = useDecimals ? getRandomDecimal(0, 20, 1) : getRandomInt(0, 20);
-            }
-
-            let c = aL * x + bL - aR * x;
-            if (useDecimals) c = parseFloat(c.toFixed(2));
-            if (Math.abs(c) > 60) continue;
-
-            eq = { aL, bL, aR, c, x, var: v };
-
-            if (lastEquation && JSON.stringify(lastEquation) === JSON.stringify(eq)) {
-                eq = null;
-                continue;
-            }
-
-            break;
-        } while (true);
-
-        if (!eq) {
-            alert("Nepodarilo sa vygenerovať rovnicu. Skús znova.");
-            return;
-        }
-
-        lastEquation = JSON.parse(JSON.stringify(eq));
-        currentEquation = eq;
-
-        const resultDiv = document.getElementById("result");
-        resultDiv.className = "result";
-        resultDiv.style.display = "none";
-
-        const text = formatEquation(eq, useDecimals);
-        document.getElementById("equation").textContent = text;
-    }
-
-    // --- ZOBRAZENIE RIEŠENIA ---
-
-    function showSolution() {
-        if (!currentEquation) {
-            alert("Najprv vygeneruj rovnicu!");
-            return;
-        }
-        const resultDiv = document.getElementById("result");
-        resultDiv.className = "result show correct";
-        resultDiv.innerHTML =
-            '<div class="result-text">Riešenie</div>' +
-            '<div class="result-value">' + currentEquation.var +
-            ' = ' + currentEquation.x.toFixed(2) + '</div>';
-        resultDiv.style.display = "block";
-    }
-
-    console.log("Generátor Rovníc – bez kontroly a štatistík");
+// --- TÉMA ---
+(function initTheme() {
+const prefersDark = window.matchMedia &&
+window.matchMedia("(prefers-color-scheme: dark)").matches;
+const saved = localStorage.getItem("theme") || (prefersDark ? "dark" : "light");
+document.documentElement.setAttribute("data-theme", saved);
+updateThemeButtons(saved);
+})();
+function updateThemeButtons(theme) {
+const btns = document.querySelectorAll(".theme-btn");
+btns.forEach(btn => btn.classList.remove("active"));
+if (theme === "light") btns[0].classList.add("active");
+else btns[1].classList.add("active");
+}
+function setTheme(theme) {
+document.documentElement.setAttribute("data-theme", theme);
+localStorage.setItem("theme", theme);
+updateThemeButtons(theme);
+}
+// --- STAV A UTIL FUNKCIE ---
+let currentEquation = null;
+let lastEquation = null;
+let numbersCount = 3;
+function setNumbersCount(n) {
+numbersCount = n;
+document.querySelectorAll(".numbers-btn").forEach(btn => {
+btn.classList.toggle("active", Number(btn.dataset.count) === n);
+});
+}
+function getRandomInt(min, max) {
+return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+function getRandomDecimal(min, max, decimals = 2) {
+const v = Math.random() * (max - min) + min;
+return parseFloat(v.toFixed(decimals));
+}
+function splitNumber(total, parts, useDecimals) {
+if (parts <= 0) return [];
+if (parts === 1) return [total];
+const arr = [];
+if (!useDecimals) {
+let sum = 0;
+for (let i = 0; i < parts - 1; i++) {
+const val = getRandomInt(-10, 10);
+arr.push(val);
+sum += val;
+}
+arr.push(Math.round(total - sum));
+} else {
+let sum = 0;
+for (let i = 0; i < parts - 1; i++) {
+const val = getRandomDecimal(-10, 10, 2);
+arr.push(val);
+sum += val;
+}
+let last = parseFloat((total - sum).toFixed(2));
+const diff = parseFloat((total - (sum + last)).toFixed(2));
+last = parseFloat((last + diff).toFixed(2));
+arr.push(last);
+}
+return arr;
+}
+// --- FORMÁTOVANIE ROVNICE ---
+function formatEquation(eq, useDecimals) {
+const allowBrackets = document.getElementById("allowBrackets").checked;
+const sign = (num) => (num < 0 ? " - " : " + ");
+const absVal = (num) => Math.abs(num);
+const formatNum = (num) => {
+if (!useDecimals) return Math.round(num);
+if (!Number.isInteger(num)) return num.toFixed(2);
+return num;
+};
+const v = eq.var;
+// ľavá strana
+let leftStr;
+const useBrackets = allowBrackets && Math.random() < 0.5 && eq.aL !== 0;
+if (useBrackets) {
+const k = eq.bL / eq.aL;
+const kStr = k === 0 ? "" : sign(k) + formatNum(absVal(k));
+leftStr = `${formatNum(eq.aL)}(${v}${kStr})`;
+} else {
+let aStr;
+if (eq.aL === 1) aStr = v;
+else if (eq.aL === -1) aStr = "-" + v;
+else aStr = `${formatNum(eq.aL)}${v}`;
+const bStr = eq.bL === 0 ? "" : sign(eq.bL) + formatNum(absVal(eq.bL));
+leftStr = `${aStr}${bStr}`;
+}
+// pravá strana: aR * v + konštanty
+let rightVarStr;
+if (eq.aR === 1) rightVarStr = v;
+else if (eq.aR === -1) rightVarStr = "-" + v;
+else rightVarStr = `${formatNum(eq.aR)}${v}`;
+const partsRHS = Math.max(0, numbersCount - 1);
+const pieces = splitNumber(eq.c, partsRHS, useDecimals);
+let rightStr = rightVarStr;
+for (let i = 0; i < pieces.length; i++) {
+const p = pieces[i];
+if (p === 0) continue;
+rightStr += (p < 0 ? " - " : " + ") + formatNum(Math.abs(p));
+}
+return `${leftStr} = ${rightStr}`;
+}
+// --- GENEROVANIE ROVNICE (premenná na oboch stranách) ---
+function generateEquation() {
+const useNegative = document.getElementById("allowNegative").checked;
+const useDecimals = document.getElementById("allowDecimals").checked;
+const vars = ["x", "y", "z"];
+let eq = null;
+let attempts = 0;
+const maxAttempts = 200;
+do {
+attempts++;
+if (attempts > maxAttempts) break;
+const v = vars[getRandomInt(0, vars.length - 1)];
+const aL = useDecimals ? getRandomDecimal(0.5, 6, 1) : getRandomInt(1, 6);
+let aR = useDecimals ? getRandomDecimal(0.5, 6, 1) : getRandomInt(1, 6);
+if (Math.abs(aL - aR) < 0.0001) continue;
+let x;
+if (useNegative) {
+x = useDecimals ? getRandomDecimal(-10, 10, 2) : getRandomInt(-10, 10);
+} else {
+x = useDecimals ? getRandomDecimal(1, 10, 2) : getRandomInt(1, 10);
+}
+let bL;
+if (useNegative) {
+bL = useDecimals ? getRandomDecimal(-20, 20, 1) : getRandomInt(-20, 20);
+} else {
+bL = useDecimals ? getRandomDecimal(0, 20, 1) : getRandomInt(0, 20);
+}
+let c = aL * x + bL - aR * x;
+if (useDecimals) {
+c = parseFloat(c.toFixed(2));
+} else {
+c = Math.round(c);
+}
+if (Math.abs(c) > 60) continue;
+eq = { aL, bL, aR, c, x, var: v };
+if (lastEquation && JSON.stringify(lastEquation) === JSON.stringify(eq)) {
+eq = null;
+continue;
+}
+break;
+} while (true);
+if (!eq) {
+alert("Nepodarilo sa vygenerovať rovnicu. Skús znova.");
+return;
+}
+lastEquation = JSON.parse(JSON.stringify(eq));
+currentEquation = eq;
+const resultDiv = document.getElementById("result");
+resultDiv.className = "result";
+resultDiv.style.display = "none";
+const text = formatEquation(eq, useDecimals);
+document.getElementById("equation").textContent = text;
+}
+// --- ZOBRAZENIE RIEŠENIA ---
+function showSolution() {
+if (!currentEquation) {
+alert("Najprv vygeneruj rovnicu!");
+return;
+}
+const useDecimals = document.getElementById("allowDecimals").checked;
+const resultDiv = document.getElementById("result");
+resultDiv.className = "result show correct";
+const xValue = useDecimals ? currentEquation.x.toFixed(2) : Math.round(currentEquation.x);
+resultDiv.innerHTML =
+'<div class="result-text">Riešenie</div>' +
+'<div class="result-value">' + currentEquation.var +
+' = ' + xValue + '</div>';
+resultDiv.style.display = "block";
+}
+console.log("Generátor Rovníc – bez kontroly a štatistík");
 </script>
 </body>
 </html>
