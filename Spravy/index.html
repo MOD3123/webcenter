@@ -1,1 +1,923 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>Správy SK</title>
+<style>
+  :root {
+    --text-primary: #1a1a1a;
+    --text-secondary: #4a4a4a;
+    --text-tertiary: #6b6b6b;
+    --accent: #2563eb;
+    --accent-hover: #1d4ed8;
+    --accent-light: #dbeafe;
+    --accent-alt: #059669;
+    --accent-alt-hover: #047857;
+    --accent-alt-light: #d1fae5;
+    --border: #e2e8f0;
+    --border-light: #f1f5f9;
+    --card-bg: #ffffff;
+    --card-bg-hover: #f8fafc;
+    --bg: #f8fafc;
+    --bg-elevated: #ffffff;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+  }
 
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-tertiary: #64748b;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --accent-light: rgba(59, 130, 246, 0.2);
+      --accent-alt: #10b981;
+      --accent-alt-hover: #059669;
+      --accent-alt-light: rgba(16, 185, 129, 0.2);
+      --border: #334155;
+      --border-light: #1e293b;
+      --card-bg: #1e293b;
+      --card-bg-hover: #334155;
+      --bg: #0f172a;
+      --bg-elevated: #1e293b;
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.6);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.7);
+    }
+  }
+
+  * { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-size: 15px;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 12px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 6px; border: 3px solid var(--bg); }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-tertiary); }
+
+  header { display: none; }
+
+  /* SOURCE MENU STYLES */
+  #source-selection {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 40px);
+    padding: 40px 20px;
+  }
+
+  .source-menu {
+    background: var(--card-bg);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    max-width: 1200px;
+    width: 100%;
+    padding: 40px;
+  }
+
+  .source-menu h2 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    margin-bottom: 40px;
+    letter-spacing: -0.03em;
+    text-align: center;
+    color: var(--text-primary);
+  }
+
+  .source-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 16px;
+  }
+
+  .source-btn {
+    background: var(--bg);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 20px 10px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    text-align: center;
+    height: 100%;
+    min-height: 120px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .source-btn:hover {
+    background: var(--card-bg-hover);
+    border-color: var(--accent);
+    box-shadow: var(--shadow-md);
+  }
+
+  .source-btn:active {
+    transform: translateY(0);
+  }
+
+  .source-icon {
+    width: 90px;
+    height: 90px;
+    object-fit: contain;
+    border-radius: 16px;
+    background: transparent;
+  }
+  
+  .emoji-icon {
+    font-size: 90px;
+    line-height: 1;
+  }
+
+  .source-btn.primary-action {
+    grid-column: span 1;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(37, 99, 235, 0.1));
+    border-color: var(--accent-light);
+  }
+  
+  .source-btn.all-sources:hover {
+    background: linear-gradient(135deg, var(--accent), #1d4ed8);
+    color: white;
+    border-color: var(--accent);
+  }
+
+  .source-btn.sport:hover {
+    background: linear-gradient(135deg, #1870a8, #1870a8);
+    color: white;
+    border-color: #1a88cd;
+  }
+  
+  .source-btn.website-list:hover {
+     background: linear-gradient(135deg, var(--accent-alt), #047857);
+     color: white;
+     border-color: var(--accent-alt);
+  }
+
+  /* CONTENT VIEW & TOOLBAR */
+  #content-view { display: none; }
+  #content-view.active { display: block; }
+
+  .toolbar {
+    max-width: 1440px;
+    margin: 20px auto;
+    padding: 0 15px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: stretch;
+  }
+
+  .back-btn {
+    background: var(--card-bg);
+    color: var(--text-primary);
+    border: 2px solid var(--border);
+    padding: 10px 14px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.15s ease;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-sm);
+    flex: 0 0 auto;
+    min-width: 120px;
+  }
+
+  .back-btn:hover {
+    background: var(--card-bg-hover);
+    border-color: var(--accent);
+    color: var(--accent);
+    box-shadow: var(--shadow-md);
+  }
+
+  .search-box {
+    flex: 1;
+    min-width: 250px;
+    position: relative;
+  }
+
+  .search-box input {
+    width: 100%;
+    padding: 8px 15px 8px 36px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--card-bg);
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .search-box input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-light);
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-tertiary);
+    pointer-events: none;
+    font-size: 1rem;
+  }
+
+  .filter-buttons {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .filter-btn, .view-mode-btn {
+    background: var(--card-bg);
+    color: var(--text-primary);
+    border: 2px solid var(--border);
+    padding: 8px 14px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.15s ease;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .filter-btn:hover, .view-mode-btn:hover {
+    background: var(--card-bg-hover);
+    border-color: var(--accent);
+    box-shadow: var(--shadow-md);
+  }
+
+  .view-mode-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+
+  /* RSS FEED GRID */
+  #rss-feed {
+    max-width: 1440px;
+    margin: 0 auto 40px;
+    padding: 0 15px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 16px;
+  }
+
+  @media (max-width: 768px) {
+    header { padding: 32px 20px; }
+    .source-menu { padding: 24px 16px; }
+    .source-menu h2 { font-size: 1.5rem; margin-bottom: 24px; }
+    .source-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; }
+    .source-btn { padding: 16px 8px; min-height: 110px; font-size: 13px; }
+    .source-icon { width: 90px; height: 90px; }
+    
+    #rss-feed { grid-template-columns: 1fr; }
+    .toolbar { flex-direction: column; }
+    .back-btn, .search-box, .filter-buttons { width: 100%; }
+    .filter-buttons .view-mode-btn { flex: 1; }
+  }
+
+  /* CARDS */
+  .item-card {
+    background: var(--card-bg);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-lg);
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s ease;
+    overflow: hidden;
+  }
+
+  .item-card:hover { 
+    box-shadow: var(--shadow-lg);
+    border-color: var(--accent);
+  }
+
+  .item-thumb {
+    width: 100%;
+    height: 240px;
+    object-fit: cover;
+    background: var(--card-bg-hover);
+  }
+
+  video.item-thumb { height: 240px; }
+
+  .item-content { 
+    padding: 18px; 
+    display: flex; 
+    flex-direction: column; 
+    flex: 1; 
+  }
+
+  .item-content h2 { 
+    margin: 0 0 12px; 
+    font-size: 1.05rem; 
+    font-weight: 700;
+    line-height: 1.35;
+    letter-spacing: -0.015em;
+  }
+
+  .item-content h2 a { 
+    text-decoration: none; 
+    color: var(--text-primary); 
+    transition: color 0.2s ease;
+  }
+  .item-content h2 a:hover { color: var(--accent); }
+
+  .badges { 
+    display: flex; 
+    gap: 10px; 
+    margin-bottom: 12px; 
+    flex-wrap: wrap; 
+  }
+
+  .badge { 
+    font-size: 0.7rem; 
+    padding: 5px 10px; 
+    background: var(--accent-light); 
+    color: var(--accent); 
+    border-radius: 4px; 
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border: 1px solid var(--accent);
+  }
+
+  .badge.source { 
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  .item-content p { 
+    flex: 1; 
+    margin: 0 0 12px; 
+    font-size: 0.9rem; 
+    color: var(--text-secondary); 
+    line-height: 1.5; 
+  }
+
+  .read-more-btn { 
+    width: 100%; 
+    padding: 10px 12px; 
+    font-size: 0.9rem; 
+    background: var(--accent);
+    color: white; 
+    border-radius: var(--radius-md); 
+    text-align: center; 
+    font-weight: 700; 
+    text-decoration: none; 
+    transition: all 0.2s ease; 
+    border: none;
+    cursor: pointer;
+  }
+
+  .read-more-btn:hover { background: var(--accent-hover); box-shadow: var(--shadow-md); }
+
+  .message-box {
+    grid-column: 1 / -1;
+    text-align: center;
+    background: var(--card-bg);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 40px;
+    box-shadow: var(--shadow-sm);
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: 1rem;
+  }
+
+  .loading-msg { 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    gap: 10px; 
+    min-height: 100px; 
+  }
+
+  .dot {
+    width: 10px; height: 10px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: bounce 1.4s infinite ease-in-out both;
+  }
+  .dot:nth-child(1) { animation-delay: -0.32s; }
+  .dot:nth-child(2) { animation-delay: -0.16s; }
+  @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+
+  .stats {
+    max-width: 1440px;
+    margin: 12px auto;
+    padding: 0 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  @media (max-width: 640px) {
+    .stats { flex-direction: column; gap: 6px; text-align: center; }
+  }
+
+
+  /* Compact View */
+  #rss-feed.compact-view { grid-template-columns: 1fr; gap: 10px; }
+  #rss-feed.compact-view .item-card { flex-direction: row; align-items: stretch; }
+  #rss-feed.compact-view .item-thumb { width: 150px; height: auto; min-height: 130px; }
+  #rss-feed.compact-view .item-content { padding: 12px; }
+  #rss-feed.compact-view .item-content h2 { font-size: 1rem; margin-bottom: 8px; }
+  #rss-feed.compact-view .item-content p { font-size: 0.85rem; margin-bottom: 10px; }
+  @media (max-width: 768px) {
+    #rss-feed.compact-view .item-card { flex-direction: column; }
+    #rss-feed.compact-view .item-thumb { width: 100%; height: 150px; }
+  }
+
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Správy SK</h1>
+</header>
+
+<div id="source-selection">
+  <div class="source-menu">
+    <h2>Správy SK</h2>
+    <div class="source-grid" id="source-grid"></div>
+  </div>
+</div>
+
+<div id="content-view">
+  <div class="toolbar">
+    <button class="back-btn" id="back-btn">
+      <span>←</span>
+      <span>Ponuka</span>
+    </button>
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="search-input" placeholder="Hľadať v nadpisoch a textoch...">
+    </div>
+    <div class="filter-buttons">
+      <button class="view-mode-btn active" data-view="grid">Mriežka</button>
+      <button class="view-mode-btn" data-view="compact">Kompakt</button>
+    </div>
+  </div>
+
+  <div class="stats">
+    <span id="count-info">Načítavam...</span>
+    <span id="last-update"></span>
+  </div>
+
+  <div id="rss-feed">
+    <div class="message-box loading-msg">
+      <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+    </div>
+  </div>
+</div>
+
+<button id="back-to-top" title=""></button>
+
+<script>
+(async function(){
+  const CUSTOM_LOGOS = {
+      "TA3": "https://raw.githubusercontent.com/mod3123/Ikony_TV/refs/heads/master/1024/Ta3_new.jpg",
+      "Startitup": "https://raw.githubusercontent.com/MOD3123/Ikony_TV/refs/heads/master/Spravy/startitup.png",
+      "Aktuality.sk": "https://raw.githubusercontent.com/MOD3123/Ikony_TV/refs/heads/master/Spravy/aktuality.png",
+      "AndroidPortal": "https://raw.githubusercontent.com/MOD3123/Ikony_TV/refs/heads/master/Spravy/androidportal.png",
+      "Postoj": "https://raw.githubusercontent.com/MOD3123/Ikony_TV/refs/heads/master/Spravy/postoj.jpg",
+      "Seznam Zprávy": "https://raw.githubusercontent.com/MOD3123/Ikony_TV/refs/heads/master/Spravy/seznamzpravy.png",
+  };
+
+  const FEEDS = {
+    "Všetky správy": [
+      "https://spravy.pravda.sk/rss/xml","https://domov.sme.sk/rss","https://hnonline.sk/feed",
+      "https://touchit.sk/feed","https://www.teraz.sk/rss/vsetky-spravy.rss","https://www.startitup.sk/feed/",
+      "https://www.ta3.com/rss/5/spravy","https://www.info.sk/rss/","https://www.novinky.cz/rss",
+      "https://www.imeteo.sk/rss/news","https://spravy.pravda.sk/regiony/rss/xml/","https://sita.sk/feed/",
+      "https://www.ceskenoviny.cz/sluzby/rss/zpravy.php","https://refresher.sk/rss","https://www.bratislavak.sk/rss",
+      "https://sportweb.pravda.sk/rss/xml/","https://www.aktuality.sk/rss/","https://zive.aktuality.sk/rss/najnovsie/",
+      "https://www.zive.cz/rss","https://www.reflex.cz/rss","https://androidportal.sk/feed/","https://spravy.stvr.sk/feed/","https://www.blesk.cz/rss",
+      "https://www.newsbyte.sk/feed/","https://ereport.sk/feed","https://standard.sk/feed","https://www.postoj.sk/rss",
+      "https://cz24.news/feed/", "https://www.seznamzpravy.cz/rss"
+    ],
+    "Šport": [
+      "https://isport.blesk.cz/rss",
+      "https://sportweb.pravda.sk/rss/xml/",
+      "https://www.sport.cz/rss2",
+      "https://sport.aktuality.sk/api/rss"
+    ],
+    "CZ24.news": ["https://cz24.news/feed/"],
+    "eReport": ["https://ereport.sk/feed"],
+    "Pravda.sk": ["https://spravy.pravda.sk/rss/xml"],
+    "SME.sk": ["https://domov.sme.sk/rss"],
+    "HNonline": ["https://hnonline.sk/feed"],
+    "Teraz.sk": ["https://www.teraz.sk/rss/vsetky-spravy.rss"],
+    "Startitup": ["https://www.startitup.sk/feed/"],
+    "TA3": ["https://www.ta3.com/rss/5/spravy"],
+    "Info.sk": ["https://www.info.sk/rss/"],
+    "Aktuality.sk": ["https://www.aktuality.sk/rss/"],
+    "SITA": ["https://sita.sk/feed/"],
+    "Refresher": ["https://refresher.sk/rss"],
+    "Novinky.cz": ["https://www.novinky.cz/rss"],
+    "Seznam Zprávy": ["https://www.seznamzpravy.cz/rss"],
+    "iMeteo": ["https://www.imeteo.sk/rss/news"],
+    "České Noviny": ["https://www.ceskenoviny.cz/sluzby/rss/zpravy.php"],
+    "Bratislavák": ["https://www.bratislavak.sk/rss"],
+    "Športweb": ["https://sportweb.pravda.sk/rss/xml/"],
+    "TouchIT": ["https://touchit.sk/feed"],
+    "Živé.sk": ["https://zive.aktuality.sk/rss/najnovsie/"],
+    "Zive.cz": ["https://www.zive.cz/rss"],
+    "Reflex": ["https://www.reflex.cz/rss"],
+    "AndroidPortal": ["https://androidportal.sk/feed"],
+    "RTVS": ["https://spravy.stvr.sk/feed/"],
+    "Blesk.cz": ["https://www.blesk.cz/rss"],
+    "NewsByte": ["https://www.newsbyte.sk/feed"],
+    "Standard": ["https://standard.sk/feed"],
+    "Postoj": ["https://www.postoj.sk/rss"],
+  };
+
+  const PAGE_SIZE = 12;
+  let allItems = [], filteredItems = [], index = 0;
+  let currentFilter = 'all', searchQuery = '';
+  let selectedSource = null;
+
+  const sourceSelection = document.getElementById("source-selection");
+  const contentView = document.getElementById("content-view");
+  const sourceGrid = document.getElementById("source-grid");
+  const container = document.getElementById("rss-feed");
+  const searchInput = document.getElementById("search-input");
+  const countInfo = document.getElementById("count-info");
+  const lastUpdate = document.getElementById("last-update");
+  const backToTop = document.getElementById("back-to-top");
+  const backBtn = document.getElementById("back-btn");
+
+  function showSourceMenu() {
+    sourceSelection.style.display = "flex";
+    contentView.classList.remove("active");
+    window.scrollTo(0, 0);
+  }
+
+  function showContent() {
+    sourceSelection.style.display = "none";
+    contentView.classList.add("active");
+  }
+
+  function showWebsiteList() {
+    window.open('https://no-ship-it26.github.io/webcenter/spravodajske_weby', '_blank');
+  }
+
+  function getDomain(url) {
+      try {
+          return new URL(url).hostname;
+      } catch(e) { return ''; }
+  }
+
+  function initSourceMenu() {
+    sourceGrid.innerHTML = '';
+
+    function createButton(text, iconHtml, className, onClick) {
+        const btn = document.createElement('button');
+        btn.className = 'source-btn ' + (className || '');
+        btn.innerHTML = `${iconHtml}<span>${text}</span>`;
+        btn.onclick = onClick;
+        sourceGrid.appendChild(btn);
+    }
+
+    createButton(
+        'Všetky správy', 
+        '<span class="emoji-icon">📰</span>', 
+        'primary-action all-sources', 
+        () => selectSource('Všetky správy')
+    );
+
+    createButton(
+        'Športové správy', 
+        '<span class="emoji-icon">⚽</span>', 
+        'primary-action sport', 
+        () => selectSource('Šport')
+    );
+
+    createButton(
+        'Zoznam webov', 
+        '<span class="emoji-icon">🌐</span>', 
+        'primary-action website-list', 
+        showWebsiteList
+    );
+
+    Object.keys(FEEDS).forEach(name => {
+      if (name === 'Všetky správy' || name === 'Šport') return;
+      
+      let iconHtml = '';
+
+      // LOGIKA PRE IKONY:
+      // 1. Skontroluj, či je definované vlastné logo v CUSTOM_LOGOS
+      if (CUSTOM_LOGOS[name]) {
+          iconHtml = `<img src="${CUSTOM_LOGOS[name]}" class="source-icon" alt="${name}">`;
+      } 
+      // 2. Ak nie, skús stiahnuť favicon z domény prvého feedu
+      else {
+          const firstUrl = FEEDS[name][0];
+          const domain = getDomain(firstUrl);
+          const iconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+          iconHtml = `<img src="${iconUrl}" class="source-icon" alt="${name}" onerror="this.style.display='none'">`;
+      }
+      
+      createButton(
+          name, 
+          iconHtml, 
+          '', 
+          () => selectSource(name)
+      );
+    });
+  }
+
+  async function selectSource(sourceName) {
+    selectedSource = sourceName;
+    showContent();
+    allItems = [];
+    filteredItems = [];
+    index = 0;
+    container.innerHTML = '<div class="message-box loading-msg"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
+
+    const feeds = FEEDS[sourceName];
+    const results = await Promise.all(feeds.map(fetchXMLFeed));
+    allItems = results.flat();
+    allItems.sort((a, b) => b.pubDate - a.pubDate);
+    
+    applyFilters();
+  }
+
+  async function fetchXMLFeed(url){
+    try{
+      const res = await fetch("https://spravysk.peniaskomano.workers.dev/?url=" + encodeURIComponent(url), { timeout: 5000 });
+      const text = await res.text();
+      const xml = new DOMParser().parseFromString(text,"text/xml");
+      const channel = xml.querySelector("channel");
+      const source = channel?.querySelector("title")?.textContent || url;
+
+      const items = [...xml.querySelectorAll("item")].map(item=>{
+        let pub = new Date(
+          item.querySelector("pubDate")?.textContent ||
+          item.querySelector("updated")?.textContent ||
+          item.querySelector('[dc\:date]') || { textContent: '' }?.textContent ||
+          item.querySelector("date")?.textContent ||
+          ""
+        );
+        if (isNaN(pub)) pub = new Date();
+
+        let thumb = "", video = "";
+        const enclosure = item.querySelector("enclosure");
+        if(enclosure){
+          const type = enclosure.getAttribute("type") || "";
+          const url = enclosure.getAttribute("url") || "";
+          if(type.startsWith("image")) thumb = url;
+          else if(type.startsWith("video")) video = url;
+        }
+
+        if(!thumb){
+          const thumbnailTag = item.querySelector("thumbnail");
+          if(thumbnailTag) {
+            thumb = thumbnailTag.textContent.trim();
+          }
+        }
+
+        if(!thumb){
+          const sznImage = item.querySelector("image url, szn\\:image szn\\:url");
+          if(sznImage) {
+            thumb = sznImage.textContent.trim();
+          }
+        }
+
+        if(!thumb && !video){
+          const mediaContent = item.querySelector('media\\:content, content');
+          if(mediaContent){
+            const type = mediaContent.getAttribute("type") || "";
+            const url = mediaContent.getAttribute("url") || "";
+            if(type.startsWith("image")) thumb = url;
+            else if(type.startsWith("video")) video = url;
+          }
+        }
+
+        if(!thumb){
+          const descHTML = item.querySelector("description")?.textContent || "";
+          const imgMatch = descHTML.match(/<img[^>]+src="([^">]+)"/);
+          if(imgMatch) thumb = imgMatch[1];
+          
+          if(!video){
+            const videoMatch = descHTML.match(/<video[^>]+src="([^">]+)"/);
+            if(videoMatch) video = videoMatch[1];
+            else {
+              const iframeMatch = descHTML.match(/<iframe[^>]+src="([^">]+)"/);
+              if(iframeMatch && (iframeMatch[1].includes('youtube') || iframeMatch[1].includes('vimeo'))) {
+                video = iframeMatch[1];
+              }
+            }
+          }
+        }
+
+        let rawDesc = item.querySelector("description")?.textContent || "";
+        rawDesc = rawDesc.replace(/<[^>]*>/g, "").trim();
+
+        const descLimit = 1000;
+        let shortDesc = rawDesc.slice(0, descLimit);
+        if (rawDesc.length > descLimit) {
+          const lastSpace = shortDesc.lastIndexOf(" ");
+          if(lastSpace > 0) shortDesc = shortDesc.slice(0, lastSpace);
+        }
+
+        return {
+          title: item.querySelector("title")?.textContent || "",
+          link: item.querySelector("link")?.textContent || "",
+          desc: shortDesc,
+          pubDate: pub,
+          source,
+          thumb,
+          video
+        };
+      }).filter(it => it.title && it.link);
+      return items;
+    } catch(e){
+      console.warn("Nepodarilo sa načítať feed:", url, e);
+      return [];
+    }
+  }
+
+  const videoObserver = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        const video = entry.target;
+        video.src = video.dataset.src;
+        video.load();
+        observer.unobserve(video);
+      }
+    });
+  }, { rootMargin: "200px" });
+
+  function applyFilters(){
+    filteredItems = allItems.filter(item => {
+      let matchSearch = true;
+      if(searchQuery){
+        const q = searchQuery.toLowerCase();
+        matchSearch = item.title.toLowerCase().includes(q) || 
+                      item.desc.toLowerCase().includes(q) ||
+                      item.source.toLowerCase().includes(q);
+      }
+
+      return matchSearch;
+    });
+
+    index = 0;
+    container.innerHTML = '';
+    updateStats();
+    renderNext();
+  }
+
+  function updateStats(){
+    countInfo.textContent = `Zobrazených: ${Math.min(index + PAGE_SIZE, filteredItems.length)} z ${filteredItems.length} článkov`;
+    lastUpdate.textContent = `Zdroj: ${selectedSource} • ${new Date().toLocaleTimeString('sk-SK')}`;
+  }
+
+  function renderNext(){
+    const prevLoader = container.querySelector(".loading-msg");
+    if(prevLoader) prevLoader.remove();
+
+    if(index >= filteredItems.length){
+      if(container.children.length === 0){
+        const noResults = document.createElement("div");
+        noResults.className = "message-box";
+        noResults.textContent = "😕 Nenašli sa žiadne výsledky";
+        container.appendChild(noResults);
+      } else {
+        const end = document.createElement("div");
+        end.className = "message-box";
+        end.textContent = "✅ Všetky články načítané";
+        container.appendChild(end);
+      }
+      return;
+    }
+
+    const slice = filteredItems.slice(index, index + PAGE_SIZE);
+    slice.forEach((i, idx) => {
+      const card = document.createElement("div");
+      card.className = "item-card";
+
+      const isToday = i.pubDate.toDateString() === new Date().toDateString();
+      const badgeDate = `${i.pubDate.toLocaleDateString("sk-SK")} ${i.pubDate.toLocaleTimeString("sk-SK",{hour:"2-digit",minute:"2-digit"})}`;
+
+      card.innerHTML = `
+        ${i.video 
+          ? `<video class="item-thumb lazy-video" data-src="${i.video}" controls preload="metadata"></video>` 
+          : (i.thumb ? `<img class="item-thumb" src="${i.thumb}" alt="${i.title}" loading="lazy">` : '')
+        }
+        <div class="item-content">
+          <h2><a href="${i.link}" target="_blank" rel="noopener noreferrer">${i.title}</a></h2>
+          <div class="badges">
+            <span class="badge">${badgeDate}</span>
+            <span class="badge source">${i.source}</span>
+          </div>
+          <p>${i.desc}${i.desc.length >= 990 ? '...' : ''}</p>
+          <a class="read-more-btn" href="${i.link}" target="_blank" rel="noopener noreferrer">Čítať</a>
+        </div>
+      `;
+      container.appendChild(card);
+
+      const video = card.querySelector("video.lazy-video");
+      if(video) videoObserver.observe(video);
+    });
+
+    index += slice.length;
+    updateStats();
+
+    if(index < filteredItems.length){
+      window.addEventListener("scroll", onScroll, { passive: true });
+    }
+  }
+
+  function onScroll(){
+    if(window.innerHeight + window.scrollY + 200 >= document.body.scrollHeight){
+      window.removeEventListener("scroll", onScroll);
+      renderNext();
+    }
+
+    if(window.scrollY > 500){
+      backToTop.classList.add('visible');
+    } else {
+      backToTop.classList.remove('visible');
+    }
+  }
+
+  backToTop.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  backBtn.addEventListener('click', () => {
+    showSourceMenu();
+  });
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  document.querySelectorAll('.view-mode-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.view-mode-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const view = btn.dataset.view;
+      if(view === 'compact'){
+        container.classList.add('compact-view');
+      } else {
+        container.classList.remove('compact-view');
+      }
+    });
+  });
+
+  let searchTimeout;
+  searchInput.addEventListener('input', (e) => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+      searchQuery = e.target.value.trim();
+      applyFilters();
+    }, 300);
+  });
+
+  initSourceMenu();
+})();
+</script>
+</body>
+</html>
