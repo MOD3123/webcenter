@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "updated": "2025-01-01",
+  "apps": [
+    {
+      "id": "sk.spravy.app",
+      "name": "Správy SK",
+      "description": "Slovenské správy prehľadne na jednom mieste.",
+      "icon_url": "https://raw.githubusercontent.com/YOUR_USER/YOUR_REPO/main/icons/sk.spravy.app.png",
+      "apk_url": "https://raw.githubusercontent.com/YOUR_USER/YOUR_REPO/main/apks/sk.spravy.app-1.1.apk",
+      "version_name": "1.1",
+      "version_code": 2,
+      "package": "sk.spravy.app"
+    },
+    {
+      "id": "com.example.app2",
+      "name": "Ďalšia appka",
+      "description": "Popis druhej appky.",
+      "icon_url": "https://raw.githubusercontent.com/YOUR_USER/YOUR_REPO/main/icons/com.example.app2.png",
+      "apk_url": "https://raw.githubusercontent.com/YOUR_USER/YOUR_REPO/main/apks/com.example.app2-1.0.apk",
+      "version_name": "1.0",
+      "version_code": 1,
+      "package": "com.example.app2"
+    }
+  ]
+}
