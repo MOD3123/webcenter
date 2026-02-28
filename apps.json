@@ -8,8 +8,8 @@
       "description": "Slovenské správy prehľadne na jednom mieste.",
       "icon_url": "https://raw.githubusercontent.com/YOUR_USER/YOUR_REPO/main/icons/sk.spravy.app.png",
       "apk_url": "https://raw.githubusercontent.com/MOD3123/webcenter/main/apks/spravy.apk",
-      "version_name": "2.1",
-      "version_code": 2,
+      "version_name": "2",
+      "version_code": 2.1,
       "package": "sk.spravy.app"
     },
     {
