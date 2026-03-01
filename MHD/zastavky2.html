@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zastávky</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0d1117;
+            color: #e6edf3;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── Header ── */
+        header {
+            padding: 1.25rem 2rem;
+            border-bottom: 1px solid #21262d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #f0f6fc;
+            letter-spacing: -0.02em;
+        }
+
+        /* ── Layout ── */
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* ── Sidebar ── */
+        .sidebar {
+            width: 320px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #21262d;
+            background: #0d1117;
+            overflow: hidden;
+        }
+
+        .search-container {
+            padding: 0.875rem;
+            border-bottom: 1px solid #21262d;
+            flex-shrink: 0;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 8px;
+            color: #e6edf3;
+            font-size: 1rem;
+            font-family: inherit;
+            text-align: center;
+            transition: border-color 0.15s;
+            outline: none;
+        }
+
+        .search-input::placeholder { color: #7d8590; }
+
+        .search-input:focus {
+            border-color: #388bfd;
+        }
+
+        .stops-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .stops-list::-webkit-scrollbar { width: 4px; }
+        .stops-list::-webkit-scrollbar-track { background: transparent; }
+        .stops-list::-webkit-scrollbar-thumb { background: #21262d; border-radius: 4px; }
+
+        /* ── Stop Item ── */
+        .stop-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.1rem 1rem;
+            background: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            color: #c9d1d9;
+            font-size: 1.3rem;
+            font-weight: 700;
+            font-family: inherit;
+            transition: background 0.12s, border-color 0.12s, color 0.12s;
+            text-align: center;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .stop-item:hover {
+            background: #161b22;
+            border-color: #21262d;
+            color: #f0f6fc;
+        }
+
+        .stop-item.active {
+            background: rgba(56, 139, 253, 0.1);
+            border-color: #388bfd;
+            color: #58a6ff;
+            font-weight: 600;
+        }
+
+        .stop-item.hidden { display: none; }
+
+        /* ── Webview ── */
+        .webview-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: #0d1117;
+        }
+
+        .table-container {
+            flex: 1;
+            overflow: hidden;
+            padding: 1rem;
+        }
+
+        .table-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .no-data {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #7d8590;
+            font-size: 2.35rem;
+        }
+
+        /* ── Mobile ── */
+        @media (max-width: 768px) {
+            body { overflow: auto; height: auto; min-height: 100vh; }
+
+            .main-content { flex-direction: column; }
+
+            .sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid #21262d;
+                overflow: visible;
+                height: auto;
+            }
+
+            .stops-list {
+                overflow: visible;
+                height: auto;
+                padding: 0.75rem;
+                gap: 0.4rem;
+            }
+
+            .stop-item {
+                padding: 0.875rem 1rem;
+                border: 1px solid #21262d;
+                background: #161b22;
+            }
+
+            .webview-container { display: none; }
+        }
+
+        /* ── Light Mode ── */
+        @media (prefers-color-scheme: light) {
+            body { background: #f6f8fa; color: #1f2328; }
+            header { border-bottom-color: #d0d7de; background: #f6f8fa; }
+            header h1 { color: #1f2328; }
+            .sidebar { background: #f6f8fa; border-right-color: #d0d7de; }
+            .search-container { border-bottom-color: #d0d7de; }
+            .search-input {
+                background: #ffffff;
+                border-color: #d0d7de;
+                color: #1f2328;
+            }
+            .search-input::placeholder { color: #57606a; }
+            .search-input:focus { border-color: #0969da; }
+            .stop-item {
+                background: #ffffff;
+                border-color: #d0d7de;
+                color: #1f2328;
+            }
+            .stop-item:hover { color: #1f2328; background: #f3f6fa; border-color: #d0d7de; }
+            .stop-item.active {
+                background: rgba(9, 105, 218, 0.08);
+                border-color: #0969da;
+                color: #0969da;
+            }
+            .stops-list::-webkit-scrollbar-thumb { background: #d0d7de; }
+            .webview-container { background: #f6f8fa; }
+            .no-data { color: #57606a; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Zastávky</h1>
+</header>
+
+<div class="main-content">
+    <div class="sidebar">
+        <div class="search-container">
+            <input type="text" class="search-input" id="searchInput" placeholder="Hľadať zastávku">
+        </div>
+        <div class="stops-list" id="stopsList"></div>
+    </div>
+
+    <div class="webview-container">
+        <div class="table-container" id="tableContainer">
+            <div class="no-data">Vyberte zastávku</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const stops = [
+         { id: 1, name: '⭐ Žitavská', st: 458 },
+         { id: 2, name: '⭐ Stn. Vrakuňa', st: 35 },
+         { id: 3, name: '⭐ Dudvážska', st: 62 },
+         { id: 17, name: '⭐ Slovnaftská', st: 331 },
+         { id: 21, name: '⭐ Ovčiarska', st: 4295 },
+         { id: 256, name: '29. augusta', st: 401 },
+         { id: 25, name: 'Astronomická', st: 5 },
+         { id: 9, name: 'Autobusová stanica', st: 4 },
+         { id: 15, name: 'Avion Shop. Park', st: 475 },
+         { id: 641, name: 'Bajkalská', st: 6 },
+         { id: 61, name: 'Brodná', st: 20 },
+         { id: 60, name: 'Cintorín Vrakuňa', st: 29 },
+         { id: 62, name: 'Gagarinova', st: 71 },
+         { id: 479, name: 'Hálkova', st: 75 },
+         { id: 489, name: 'Herlianska', st: 81 },
+         { id: 8, name: 'Hlavná stanica', st: 82 },
+         { id: 26, name: 'Hodžovo nám.', st: 83 },
+         { id: 4, name: 'Hraničná', st: 91 },
+         { id: 32, name: 'Hronská', st: 94 },
+         { id: 2522, name: 'Jelačičova', st: 114 },
+         { id: 252, name: 'Karpatská', st: 129 },
+         { id: 259, name: 'Klientske centrum', st: 104 },
+         { id: 6, name: 'Komárovská', st: 139 },
+         { id: 6, name: 'Košická', st: 144 },
+         { id: 612, name: 'Líščie nivy', st: 208 },
+         { id: 489, name: 'Maximiliána Hella', st: 191 },
+         { id: 24, name: 'Miletičova', st: 197 },
+         { id: 1942, name: 'Nemocnica Antolská', st: 225 },
+         { id: 1944, name: 'Nemocnica Bory', st: 4511 },
+         { id: 1941, name: 'Nemocnica Kramáre', st: 147 },
+         { id: 1940, name: 'Nemocnica Ružinov', st: 276 },
+         { id: 194, name: 'Nevädzová', st: 227 },
+         { id: 19, name: 'Nová doba', st: 229 },
+         { id: 19, name: 'Nové SND', st: 513 },
+         { id: 55, name: 'Novohradská', st: 230 },
+         { id: 30, name: 'Okoličná na ostrove', st: 3671 },
+         { id: 18, name: 'OC Slovnaftská', st: 557 },
+         { id: 23, name: 'OC Rača', st: 571 },
+         { id: 6, name: 'Ondrejovova', st: 241 },
+         { id: 111, name: 'Pažítková', st: 255 },
+         { id: 11, name: 'Prístavný most', st: 295 },
+         { id: 115, name: 'Pod stanicou', st: 274 },
+         { id: 55, name: 'Priekopnícka', st: 288 },
+         { id: 79, name: 'Prievozská', st: 292 },
+         { id: 22, name: 'Púchovská', st: 382 },
+         { id: 31, name: 'Rajská', st: 303 },
+         { id: 13, name: 'Račianske mýto', st: 299 },
+         { id: 69, name: 'Ríbezľová', st: 305 },
+         { id: 14, name: 'Saleziáni', st: 430 },
+         { id: 28, name: 'Shopping Palace', st: 308 },
+         { id: 146, name: 'Stn. Dev. Nová Ves', st: 459 },
+         { id: 1632, name: 'Stn. Lamač', st: 433 },
+         { id: 168, name: 'Stn. Nové Mesto', st: 461 },
+         { id: 1625, name: 'Stn. Petržalka', st: 463 },
+         { id: 10, name: 'Stn. P. Biskupice', st: 462 },
+         { id: 16, name: 'Stn. Vinohrady', st: 467 },
+         { id: 15, name: 'Súhvezdná', st: 311 },
+         { id: 216, name: 'Šafárikovo nám.', st: 359 },
+         { id: 245, name: 'Tesco Lamač', st: 489 },
+         { id: 25, name: 'Trenčianska', st: 393 },
+         { id: 256, name: 'Trhovisko', st: 495 },
+         { id: 12, name: 'Trnavské mýto', st: 394 },
+         { id: 5, name: 'Toryská', st: 391 },
+         { id: 20, name: 'Vinohradnícka', st: 386 },
+         { id: 29, name: 'Zemianska Olča', st: 3685 },
+         { id: 27, name: 'Zlaté piesky', st: 445 },
+         { id: 7, name: 'Zimný štadión', st: 443 },
+         { id: 745, name: 'Zochova', st: 448 }
+    ];
+
+    function getTheme() {
+        return window.matchMedia('(prefers-color-scheme: light)').matches ? 'white' : 'darkblue';
+    }
+
+    function getStopUrl(st, zoom) {
+        return `https://imhd.sk/ba/online-zastavkova-tabula?detectIdle=0&fullscreen=0&minDisp=0&nthDisplay=1&showClock=1&showInfoText=1&st=${st}&theme=${getTheme()}&zoom=${zoom}`;
+    }
+
+    function initStops() {
+        const stopsList = document.getElementById('stopsList');
+        stopsList.innerHTML = '';
+        const isMobile = window.innerWidth <= 768;
+
+        stops.forEach(stop => {
+            const zoom = isMobile ? 130 : 65;
+            const url = getStopUrl(stop.st, zoom);
+
+            if (isMobile) {
+                const link = document.createElement('a');
+                link.href = url;
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+                link.className = 'stop-item';
+                link.setAttribute('data-name', stop.name.toLowerCase());
+                link.textContent = stop.name;
+                stopsList.appendChild(link);
+            } else {
+                const btn = document.createElement('button');
+                btn.className = 'stop-item';
+                btn.setAttribute('data-name', stop.name.toLowerCase());
+                btn.textContent = stop.name;
+                btn.addEventListener('click', (e) => selectStop(stop, url, e));
+                stopsList.appendChild(btn);
+            }
+        });
+    }
+
+    function selectStop(stop, url, e) {
+        document.querySelectorAll('.stop-item').forEach(i => i.classList.remove('active'));
+        e.currentTarget.classList.add('active');
+
+        const tableContainer = document.getElementById('tableContainer');
+        const iframe = document.createElement('iframe');
+        iframe.src = url;
+        tableContainer.innerHTML = '';
+        tableContainer.appendChild(iframe);
+    }
+
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+        const term = e.target.value.toLowerCase();
+        document.querySelectorAll('.stop-item').forEach(item => {
+            item.classList.toggle('hidden', !item.getAttribute('data-name').includes(term));
+        });
+    });
+
+    // Reload iframe and links when color scheme changes
+    window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
+        // Update mobile links
+        document.querySelectorAll('.stop-item[href]').forEach(link => {
+            const url = new URL(link.href);
+            url.searchParams.set('theme', getTheme());
+            link.href = url.toString();
+        });
+        // Reload active iframe if present
+        const iframe = document.querySelector('#tableContainer iframe');
+        if (iframe) {
+            const url = new URL(iframe.src);
+            url.searchParams.set('theme', getTheme());
+            iframe.src = url.toString();
+        }
+    });
+
+    initStops();
+</script>
+</body>
+</html>
