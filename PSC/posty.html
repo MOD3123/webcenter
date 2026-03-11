@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zoznam pôšt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=Google+Sans+Display:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ===== M3 EXPRESSIVE TOKENS ===== */
+:root {
+  --md-primary: #005AC1;
+  --md-on-primary: #FFFFFF;
+  --md-primary-container: #D8E2FF;
+  --md-on-primary-container: #001A41;
+  --md-secondary-container: #DCE1F9;
+  --md-on-secondary-container: #131C30;
+  --md-tertiary-container: #FFD9E3;
+  --md-on-tertiary-container: #31101D;
+  --md-background: #FAFBFF;
+  --md-on-background: #1A1B1F;
+  --md-surface: #FAFBFF;
+  --md-on-surface: #1A1B1F;
+  --md-surface-variant: #E1E2EC;
+  --md-on-surface-variant: #44474F;
+  --md-outline: #74777F;
+  --md-outline-variant: #C4C6D0;
+  --md-surf-low: #F5F6FF;
+  --md-surf: #ECEEF8;
+  --md-surf-high: #E6E8F2;
+  --md-surf-highest: #E1E2EC;
+  --md-surf-lowest: #FFFFFF;
+  --md-inverse-surface: #2F3038;
+  --md-inverse-on-surface: #F2F0FA;
+  --md-shape-sm: 8px;
+  --md-shape-md: 12px;
+  --md-shape-lg: 16px;
+  --md-shape-xl: 28px;
+  --md-shape-full: 100px;
+  --md-elev1: 0 1px 2px rgba(0,0,0,.3), 0 1px 3px 1px rgba(0,0,0,.15);
+  --md-elev2: 0 1px 2px rgba(0,0,0,.3), 0 2px 6px 2px rgba(0,0,0,.15);
+  --md-ease: cubic-bezier(0.2,0,0,1);
+  --md-ease-in: cubic-bezier(0.05,0.7,0.1,1.0);
+  font-family: 'Google Sans', system-ui, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --md-primary: #ADC6FF;
+    --md-on-primary: #002E6B;
+    --md-primary-container: #004496;
+    --md-on-primary-container: #D8E2FF;
+    --md-secondary-container: #3C4760;
+    --md-on-secondary-container: #D8E2FF;
+    --md-tertiary-container: #5C3040;
+    --md-on-tertiary-container: #FFD9E3;
+    --md-background: #111318;
+    --md-on-background: #E2E2E9;
+    --md-surface: #111318;
+    --md-on-surface: #E2E2E9;
+    --md-surface-variant: #44474F;
+    --md-on-surface-variant: #C4C6D0;
+    --md-outline: #8E9099;
+    --md-outline-variant: #44474F;
+    --md-surf-low: #191C22;
+    --md-surf: #1D2026;
+    --md-surf-high: #282A30;
+    --md-surf-highest: #32353B;
+    --md-surf-lowest: #0C0E13;
+    --md-inverse-surface: #E2E2E9;
+    --md-inverse-on-surface: #2F3038;
+  }
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--md-background);
+  color: var(--md-on-background);
+  min-height: 100vh;
+  transition: background 300ms var(--md-ease), color 300ms var(--md-ease);
+}
+
+/* ===== TOP APP BAR ===== */
+.top-bar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  height: 64px;
+  background: var(--md-surf);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow: 0 1px 0 var(--md-outline-variant);
+  transition: background 300ms var(--md-ease);
+}
+.top-bar-icon { font-size: 1.4rem; line-height:1; }
+.top-bar-title {
+  font-family: 'Google Sans Display', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--md-on-surface);
+  letter-spacing: -0.2px;
+}
+
+/* ===== MAIN ===== */
+.main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ===== SEARCH CARD ===== */
+.search-card {
+  background: var(--md-surf-lowest);
+  border-radius: var(--md-shape-xl);
+  padding: 20px 20px 20px;
+  box-shadow: var(--md-elev1);
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  animation: slide-up 350ms var(--md-ease-in) both;
+}
+
+@keyframes slide-up {
+  from { opacity:0; transform:translateY(20px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* pill search field */
+.search-field {
+  flex: 1;
+  position: relative;
+  height: 52px;
+  border-radius: var(--md-shape-full);
+  background: var(--md-surf-highest);
+  border: 2px solid transparent;
+  display: flex;
+  align-items: center;
+  transition: border-color 150ms var(--md-ease), box-shadow 150ms var(--md-ease), background 150ms var(--md-ease);
+  cursor: text;
+}
+.search-field:focus-within {
+  border-color: var(--md-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--md-primary) 14%, transparent);
+}
+.search-icon {
+  padding: 0 8px 0 16px;
+  font-size: 1.1rem;
+  color: var(--md-on-surface-variant);
+  flex-shrink: 0;
+  pointer-events: none;
+  transition: color 150ms var(--md-ease);
+}
+.search-field:focus-within .search-icon { color: var(--md-primary); }
+.search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 0.975rem;
+  font-family: 'Google Sans', system-ui, sans-serif;
+  color: var(--md-on-surface);
+  caret-color: var(--md-primary);
+  padding: 0 4px;
+  min-width: 0;
+}
+.search-input::placeholder { color: var(--md-on-surface-variant); opacity: 0.7; }
+.search-clear {
+  width: 36px; height: 36px;
+  border-radius: 50%; border: none; background: none;
+  cursor: pointer; color: var(--md-on-surface-variant);
+  font-size: 0.8rem; display: none; align-items: center; justify-content: center;
+  margin-right: 8px; flex-shrink: 0;
+  transition: background 150ms var(--md-ease);
+}
+.search-clear:hover { background: color-mix(in srgb, var(--md-on-surface-variant) 12%, transparent); }
+.search-field.has-value .search-clear { display: flex; }
+
+/* filter chips row */
+.chips-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 12px 0 0;
+}
+.chip {
+  height: 34px;
+  padding: 0 16px;
+  border-radius: var(--md-shape-full);
+  border: 1px solid var(--md-outline-variant);
+  background: transparent;
+  color: var(--md-on-surface-variant);
+  font-size: 0.82rem;
+  font-weight: 500;
+  font-family: 'Google Sans', system-ui, sans-serif;
+  cursor: pointer;
+  transition: all 150ms var(--md-ease);
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.chip:hover { background: color-mix(in srgb, var(--md-on-surface-variant) 8%, transparent); }
+.chip.active {
+  background: var(--md-secondary-container);
+  border-color: transparent;
+  color: var(--md-on-secondary-container);
+}
+
+/* ===== STATUS BAR ===== */
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 4px;
+  min-height: 28px;
+  animation: slide-up 350ms 50ms var(--md-ease-in) both;
+}
+.status-text {
+  font-size: 0.85rem;
+  color: var(--md-on-surface-variant);
+  font-weight: 500;
+}
+.count-badge {
+  background: var(--md-primary);
+  color: var(--md-on-primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: var(--md-shape-full);
+  letter-spacing: 0.3px;
+}
+
+/* ===== LOADING ===== */
+.loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 60px 20px;
+  color: var(--md-on-surface-variant);
+}
+.loader-spinner {
+  width: 40px; height: 40px;
+  border: 3px solid var(--md-outline-variant);
+  border-top-color: var(--md-primary);
+  border-radius: 50%;
+  animation: spin 700ms linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loader-text { font-size: 0.9rem; font-weight: 500; }
+
+/* ===== ERROR STATE ===== */
+.error-state {
+  background: var(--md-surf-lowest);
+  border-radius: var(--md-shape-xl);
+  padding: 40px 24px;
+  text-align: center;
+  box-shadow: var(--md-elev1);
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+}
+.error-icon { font-size: 2.5rem; opacity: 0.6; }
+.error-title { font-size: 1rem; font-weight: 600; color: var(--md-on-surface); }
+.error-msg { font-size: 0.85rem; color: var(--md-on-surface-variant); max-width: 360px; }
+.btn-retry {
+  margin-top: 8px;
+  height: 40px; padding: 0 24px;
+  border-radius: var(--md-shape-full);
+  background: var(--md-primary); color: var(--md-on-primary);
+  border: none; cursor: pointer;
+  font-family: 'Google Sans', system-ui, sans-serif;
+  font-size: 0.875rem; font-weight: 600;
+  transition: opacity 150ms var(--md-ease), box-shadow 150ms var(--md-ease);
+}
+.btn-retry:hover { box-shadow: var(--md-elev1); opacity: 0.92; }
+
+/* ===== LIST ===== */
+.post-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: slide-up 350ms 80ms var(--md-ease-in) both;
+}
+
+/* ===== POST CARD ===== */
+.post-card {
+  background: var(--md-surf-lowest);
+  border-radius: var(--md-shape-xl);
+  box-shadow: var(--md-elev1);
+  overflow: hidden;
+  transition: box-shadow 150ms var(--md-ease), transform 150ms var(--md-ease);
+  animation: item-in 200ms var(--md-ease-in) both;
+  cursor: pointer;
+}
+@keyframes item-in {
+  from { opacity:0; transform:translateY(8px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.post-card:hover { box-shadow: var(--md-elev2); transform: translateY(-1px); }
+.post-card.open .card-body { display: block; }
+.post-card.open .expand-icon { transform: rotate(180deg); }
+
+/* card header */
+.card-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+}
+.card-avatar {
+  width: 44px; height: 44px;
+  border-radius: var(--md-shape-md);
+  background: var(--md-primary-container);
+  color: var(--md-on-primary-container);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+.card-avatar.point {
+  background: var(--md-tertiary-container);
+  color: var(--md-on-tertiary-container);
+}
+.card-info { flex: 1; min-width: 0; }
+.card-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--md-on-surface);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  letter-spacing: -0.1px;
+}
+.card-meta {
+  display: flex;
+  gap: 8px;
+  margin-top: 3px;
+  flex-wrap: wrap;
+}
+.meta-chip {
+  font-size: 0.72rem;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: var(--md-shape-full);
+  background: var(--md-surf-high);
+  color: var(--md-on-surface-variant);
+  letter-spacing: 0.3px;
+}
+.meta-chip.psc {
+  background: var(--md-secondary-container);
+  color: var(--md-on-secondary-container);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.expand-icon {
+  font-size: 1.1rem;
+  color: var(--md-on-surface-variant);
+  flex-shrink: 0;
+  transition: transform 250ms var(--md-ease);
+}
+
+/* card body */
+.card-body {
+  display: none;
+  padding: 0 20px 20px;
+  border-top: 1px solid var(--md-outline-variant);
+  margin-top: 0;
+}
+.card-body-inner {
+  padding-top: 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 600px) { .card-body-inner { grid-template-columns: 1fr; } }
+
+.section-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--md-primary);
+  margin-bottom: 10px;
+}
+.info-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 7px 10px;
+  background: var(--md-surf);
+  border-radius: var(--md-shape-sm);
+  margin-bottom: 6px;
+}
+.info-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--md-on-surface-variant);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  min-width: 56px;
+  flex-shrink: 0;
+  line-height: 1.5;
+}
+.info-val {
+  font-size: 0.875rem;
+  color: var(--md-on-surface);
+  line-height: 1.5;
+}
+
+/* hours table */
+.hours-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.hour-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px;
+  border-radius: var(--md-shape-sm);
+  font-size: 0.82rem;
+}
+.hour-row.today {
+  background: var(--md-primary-container);
+  color: var(--md-on-primary-container);
+}
+.hour-day {
+  min-width: 64px;
+  font-weight: 600;
+  flex-shrink: 0;
+  font-size: 0.78rem;
+}
+.hour-time {
+  font-variant-numeric: tabular-nums;
+  color: var(--md-on-surface);
+  flex: 1;
+}
+.hour-row.today .hour-time { color: var(--md-on-primary-container); }
+.hour-closed { color: var(--md-on-surface-variant); font-style: italic; }
+
+/* services */
+.services-row {
+  display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px;
+}
+.service-chip {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: var(--md-shape-full);
+  background: var(--md-primary-container);
+  color: var(--md-on-primary-container);
+  letter-spacing: 0.3px;
+}
+
+/* ===== EMPTY ===== */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--md-on-surface-variant);
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+}
+.empty-icon { font-size: 2.5rem; opacity: 0.4; }
+.empty-text { font-size: 0.9rem; font-weight: 500; }
+
+
+/* ===== SHOW MORE BUTTON ===== */
+.btn-show-more {
+  height: 44px;
+  padding: 0 28px;
+  border-radius: var(--md-shape-full);
+  border: 2px solid var(--md-outline-variant);
+  background: var(--md-surf-lowest);
+  color: var(--md-primary);
+  font-family: 'Google Sans', system-ui, sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 150ms var(--md-ease), border-color 150ms var(--md-ease), box-shadow 150ms var(--md-ease);
+  letter-spacing: 0.1px;
+}
+.btn-show-more:hover {
+  background: color-mix(in srgb, var(--md-primary) 8%, var(--md-surf-lowest));
+  border-color: var(--md-primary);
+  box-shadow: var(--md-elev1);
+}
+/* ===== RESPONSIVE ===== */
+@media (max-width: 600px) {
+  .main { padding: 16px 10px 40px; gap: 14px; }
+  .search-card { padding: 14px; }
+  .card-body-inner { grid-template-columns: 1fr; gap: 14px; }
+}
+</style>
+</head>
+<body>
+
+<header class="top-bar">
+  <span class="top-bar-icon">✉️</span>
+  <span class="top-bar-title">Zoznam pôšt</span>
+</header>
+
+<main class="main">
+
+  <!-- Search & filter card -->
+  <div class="search-card" style="flex-direction:column; align-items:stretch;">
+    <div style="display:flex; gap:12px; align-items:center;">
+      <div class="search-field" id="searchField" onclick="document.getElementById('searchInput').focus()">
+        <span class="search-icon">🔍</span>
+        <input class="search-input" id="searchInput" type="text"
+               placeholder="Hľadať poštu, obec, PSČ…"
+               oninput="onSearch(this)">
+        <button class="search-clear" id="searchClear" onclick="clearSearch()">✕</button>
+      </div>
+    </div>
+    <div class="chips-row" id="chipsRow">
+      <button class="chip active" data-filter="all" onclick="setFilter('all',this)">Všetky</button>
+      <button class="chip" data-filter="normal" onclick="setFilter('normal',this)">Pošta</button>
+      <button class="chip" data-filter="point" onclick="setFilter('point',this)">PoštaPOINT</button>
+      <button class="chip" data-filter="open" onclick="setFilter('open',this)">Otvorené teraz</button>
+      <button class="chip" data-filter="weekend" onclick="setFilter('weekend',this)">Otvorené cez víkend</button>
+    </div>
+  </div>
+
+  <!-- Status -->
+  <div class="status-bar" id="statusBar" style="display:none;">
+    <span class="status-text" id="statusText"></span>
+    <span class="count-badge" id="countBadge">0</span>
+  </div>
+
+  <!-- Content area -->
+  <div id="content">
+    <div class="loader">
+      <div class="loader-spinner"></div>
+      <span class="loader-text">Načítavam zoznam pôšt…</span>
+    </div>
+  </div>
+
+</main>
+
+<script>
+const PROXY = 'https://spravysk.peniaskomano.workers.dev/?url=';
+const API   = 'https://www.posta.sk/public/forms/zoznam_post_bnp.xml';
+
+const DAYS = ['NEDELA','PONDELOK','UTOROK','STREDA','STVRTOK','PIATOK','SOBOTA'];
+const DAYS_SK = ['Ne','Po','Ut','St','Št','Pi','So'];
+const DAYS_FULL = ['Nedeľa','Pondelok','Utorok','Streda','Štvrtok','Piatok','Sobota'];
+
+let allPosts = [];
+let activeFilter = 'all';
+let searchQuery = '';
+let visibleCount = 25;
+const PAGE_SIZE = 25;
+
+// ===== LOAD =====
+async function loadData() {
+  try {
+    const url = PROXY + encodeURIComponent(API);
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const text = await res.text();
+    const parser = new DOMParser();
+    const xml = parser.parseFromString(text, 'text/xml');
+    const posty = xml.querySelectorAll('POSTA');
+    if (!posty.length) throw new Error('Žiadne dáta');
+
+    allPosts = Array.from(posty).map(parsePost);
+    render();
+  } catch(e) {
+    showError(e.message);
+  }
+}
+
+function parsePost(el) {
+  const g = (tag) => el.querySelector(tag)?.textContent?.trim() || '';
+  const hours = {};
+  DAYS.forEach(d => {
+    const node = el.querySelector(d);
+    if (!node) { hours[d] = null; return; }
+    const od = node.querySelector('OD')?.textContent?.trim();
+    const doo = node.querySelector('DO')?.textContent?.trim();
+    const p1od = node.querySelector('PRESTAVKA1_OD')?.textContent?.trim();
+    const p1do = node.querySelector('PRESTAVKA1_DO')?.textContent?.trim();
+    const p2od = node.querySelector('PRESTAVKA2_OD')?.textContent?.trim();
+    const p2do = node.querySelector('PRESTAVKA2_DO')?.textContent?.trim();
+    hours[d] = { od, do: doo, p1od, p1do, p2od, p2do };
+  });
+  const services = Array.from(el.querySelectorAll('SLUZBA')).map(s => ({
+    kod: s.querySelector('KOD')?.textContent?.trim(),
+    nazov: s.querySelector('NAZOV')?.textContent?.trim()
+  }));
+  return {
+    id: g('ID'), nazov: g('NAZOV'), psc: g('PSC'),
+    telefon: g('TELEFON'), poznamka: g('POZNAMKA'),
+    ulica: g('ULICA'), cislo: g('CISLO'), obec: g('OBEC'),
+    lat: g('LATITUDE'), lng: g('LONGITUDE'),
+    hours, services,
+    isPoint: g('NAZOV').toLowerCase().includes('poštapoint') || g('NAZOV').toLowerCase().includes('postapoint')
+  };
+}
+
+// ===== FILTER =====
+function isOpenNow(post) {
+  const now = new Date();
+  const day = DAYS[now.getDay()];
+  const h = post.hours[day];
+  if (!h?.od) return false;
+  const cur = now.getHours() * 60 + now.getMinutes();
+  const od = timeToMin(h.od), doo = timeToMin(h.do);
+  if (cur < od || cur >= doo) return false;
+  if (h.p1od && h.p1do) {
+    const p1od = timeToMin(h.p1od), p1do = timeToMin(h.p1do);
+    if (cur >= p1od && cur < p1do) return false;
+  }
+  if (h.p2od && h.p2do) {
+    const p2od = timeToMin(h.p2od), p2do = timeToMin(h.p2do);
+    if (cur >= p2od && cur < p2do) return false;
+  }
+  return true;
+}
+
+function hasWeekend(post) {
+  return !!(post.hours['SOBOTA']?.od || post.hours['NEDELA']?.od);
+}
+
+function timeToMin(t) {
+  if (!t) return 0;
+  const [h,m] = t.split(':').map(Number);
+  return h*60 + (m||0);
+}
+
+function formatHours(h) {
+  if (!h?.od) return null;
+  let s = `${h.od}–${h.do}`;
+  if (h.p1od) s += ` (prest. ${h.p1od}–${h.p1do})`;
+  if (h.p2od) s += `, (${h.p2od}–${h.p2do})`;
+  return s;
+}
+
+function norm(s) {
+  return (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+}
+
+function getFiltered() {
+  let list = allPosts;
+  if (activeFilter === 'normal') list = list.filter(p => !p.isPoint);
+  if (activeFilter === 'point') list = list.filter(p => p.isPoint);
+  if (activeFilter === 'open') list = list.filter(p => isOpenNow(p));
+  if (activeFilter === 'weekend') list = list.filter(p => hasWeekend(p));
+  if (searchQuery) {
+    const q = norm(searchQuery);
+    list = list.filter(p =>
+      norm(p.nazov).includes(q) ||
+      norm(p.obec).includes(q) ||
+      p.psc.includes(q) ||
+      norm(p.ulica).includes(q)
+    );
+  }
+  return list;
+}
+
+// ===== SEARCH =====
+function onSearch(inp) {
+  searchQuery = inp.value.trim();
+  visibleCount = PAGE_SIZE;
+  document.getElementById('searchField').classList.toggle('has-value', searchQuery.length > 0);
+  render();
+}
+function clearSearch() {
+  document.getElementById('searchInput').value = '';
+  searchQuery = '';
+  visibleCount = PAGE_SIZE;
+  document.getElementById('searchField').classList.remove('has-value');
+  render();
+}
+
+// ===== FILTER CHIPS =====
+function setFilter(f, btn) {
+  activeFilter = f;
+  visibleCount = PAGE_SIZE;
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+// ===== RENDER =====
+function render() {
+  const filtered = getFiltered();
+  const content = document.getElementById('content');
+  const statusBar = document.getElementById('statusBar');
+
+  statusBar.style.display = 'flex';
+  document.getElementById('statusText').textContent =
+    searchQuery ? `Výsledky pre „${searchQuery}"` : 'Pošty na Slovensku';
+  const badge = document.getElementById('countBadge');
+  badge.textContent = filtered.length;
+
+  if (filtered.length === 0) {
+    content.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">📭</div>
+      <div class="empty-text">Žiadne pošty nezodpovedajú filtru</div>
+    </div>`;
+    return;
+  }
+
+  const todayIdx = new Date().getDay();
+
+  const listEl = document.createElement('div');
+  listEl.className = 'post-list';
+
+  const toShow = filtered.slice(0, visibleCount);
+  toShow.forEach((p, i) => {
+    const card = document.createElement('div');
+    card.className = 'post-card';
+    card.style.animationDelay = `${Math.min(i * 18, 300)}ms`;
+
+    const pscFmt = p.psc.length === 5 ? `${p.psc.slice(0,3)} ${p.psc.slice(3)}` : p.psc;
+
+    // Build hours HTML
+    let hoursHtml = '<div class="hours-grid">';
+    DAYS.forEach((d, idx) => {
+      const h = p.hours[d];
+      const isToday = idx === todayIdx;
+      const fmt = formatHours(h);
+      hoursHtml += `<div class="hour-row${isToday ? ' today' : ''}">
+        <span class="hour-day">${DAYS_FULL[idx].slice(0,2)}.</span>
+        <span class="hour-time">${fmt ? fmt : '<span class="hour-closed">Zatvorené</span>'}</span>
+      </div>`;
+    });
+    hoursHtml += '</div>';
+
+    // Services
+    const svcHtml = p.services.length
+      ? `<div class="services-row">${p.services.map(s => `<span class="service-chip">${s.nazov}</span>`).join('')}</div>`
+      : '<span style="font-size:0.8rem;color:var(--md-on-surface-variant)">—</span>';
+
+    const mapsUrl = (p.lat && p.lng)
+      ? `https://www.google.com/maps?q=${p.lat.trim()},${p.lng.trim()}`
+      : `https://www.google.com/maps/search/${encodeURIComponent(p.nazov + ' ' + p.obec)}`;
+
+    card.innerHTML = `
+      <div class="card-head" onclick="toggleCard(this.closest('.post-card'))">
+        <div class="card-avatar ${p.isPoint ? 'point' : ''}">${p.isPoint ? '⚡' : '📮'}</div>
+        <div class="card-info">
+          <div class="card-name">${p.nazov}</div>
+          <div class="card-meta">
+            <span class="meta-chip">${p.obec}</span>
+            ${p.ulica ? `<span class="meta-chip">${p.ulica} ${p.cislo}</span>` : ''}
+          </div>
+        </div>
+        <span class="expand-icon">⌄</span>
+      </div>
+      <div class="card-body">
+        <div class="card-body-inner">
+          <div>
+            <div class="section-label">Kontakt & adresa</div>
+            ${p.telefon ? `<div class="info-row"><span class="info-label">Tel</span><span class="info-val"><a href="tel:${p.telefon}" style="color:var(--md-primary);text-decoration:none;">${p.telefon}</a></span></div>` : ''}
+            ${p.ulica ? `<div class="info-row"><span class="info-label">Adresa</span><span class="info-val">${p.ulica} ${p.cislo}, ${p.obec}</span></div>` : ''}
+            <div class="info-row"><span class="info-label">PSČ</span><span class="info-val">${pscFmt}</span></div>
+            ${p.poznamka ? `<div class="info-row"><span class="info-label">Pozn.</span><span class="info-val">${p.poznamka}</span></div>` : ''}
+            <div class="section-label" style="margin-top:16px;">Služby</div>
+            ${svcHtml}
+            ${p.lat && p.lng ? `<div style="margin-top:12px;"><a href="${mapsUrl}" target="_blank" style="font-size:0.82rem;color:var(--md-primary);font-weight:600;text-decoration:none;">📍 Zobraziť na mape →</a></div>` : ''}
+          </div>
+          <div>
+            <div class="section-label">Otváracie hodiny</div>
+            ${hoursHtml}
+          </div>
+        </div>
+      </div>
+    `;
+    listEl.appendChild(card);
+  });
+
+  // Show more button
+  if (filtered.length > visibleCount) {
+    const remaining = filtered.length - visibleCount;
+    const btnWrap = document.createElement('div');
+    btnWrap.style.cssText = 'display:flex;justify-content:center;padding:8px 0 4px;';
+    btnWrap.innerHTML = `<button class="btn-show-more" onclick="showMore()">Zobraziť ďalších ${Math.min(remaining, PAGE_SIZE)} z ${remaining} zostávajúcich</button>`;
+    listEl.appendChild(btnWrap);
+  }
+
+  content.innerHTML = '';
+  content.appendChild(listEl);
+}
+
+function showMore() {
+  visibleCount += PAGE_SIZE;
+  render();
+  // scroll to last loaded card smoothly
+}
+
+function toggleCard(card) {
+  card.classList.toggle('open');
+}
+
+function showError(msg) {
+  document.getElementById('content').innerHTML = `
+    <div class="error-state">
+      <div class="error-icon">📡</div>
+      <div class="error-title">Nepodarilo sa načítať dáta</div>
+      <div class="error-msg">${msg}</div>
+      <button class="btn-retry" onclick="retryLoad()">Skúsiť znova</button>
+    </div>`;
+}
+
+function retryLoad() {
+  document.getElementById('content').innerHTML = `
+    <div class="loader">
+      <div class="loader-spinner"></div>
+      <span class="loader-text">Načítavam…</span>
+    </div>`;
+  loadData();
+}
+
+// ===== INIT =====
+loadData();
+</script>
+</body>
+</html>
