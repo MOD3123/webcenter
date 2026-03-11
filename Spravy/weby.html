@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>Spravodajské weby</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Roboto+Flex:opsz,wdth,wght@8..144,75..125,100..900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --md-primary: #0061A4;
+    --md-on-primary: #FFFFFF;
+    --md-primary-container: #D1E4FF;
+    --md-on-primary-container: #001D36;
+    --md-secondary-container: #D6E3F7;
+    --md-on-secondary-container: #111C2B;
+    --md-surface: #F8FAFE;
+    --md-on-surface: #181C20;
+    --md-on-surface-variant: #3A4450;
+    --md-surface-container-low: #EFF3F8;
+    --md-surface-container: #E9EEF4;
+    --md-surface-container-high: #E2E8EF;
+    --md-surface-container-highest: #DCE2EA;
+    --md-outline-variant: #BCC5CF;
+    --md-outline: #6E7A87;
+
+    --elev-1: 0 1px 2px rgba(0,0,0,.06), 0 1px 3px rgba(0,0,0,.1);
+    --elev-2: 0 1px 2px rgba(0,0,0,.05), 0 2px 6px rgba(0,0,0,.12);
+    --elev-3: 0 4px 8px rgba(0,0,0,.08), 0 1px 3px rgba(0,0,0,.1);
+
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    --radius-xl: 28px;
+    --radius-full: 50px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --md-primary: #9ECAFF;
+      --md-on-primary: #003258;
+      --md-primary-container: #00497D;
+      --md-on-primary-container: #D1E4FF;
+      --md-secondary-container: #2E3E50;
+      --md-on-secondary-container: #D6E3F7;
+      --md-surface: #101418;
+      --md-on-surface: #DCE2EA;
+      --md-on-surface-variant: #BCC5CF;
+      --md-surface-container-low: #181C20;
+      --md-surface-container: #1C2026;
+      --md-surface-container-high: #262B30;
+      --md-surface-container-highest: #31363B;
+      --md-outline-variant: #3A4450;
+      --md-outline: #8A9299;
+    }
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--md-surface);
+    color: var(--md-on-surface);
+    font-family: 'Nunito', -apple-system, sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    padding: 32px 16px 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  button, a {
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+    -webkit-appearance: none;
+  }
+
+  ::-webkit-scrollbar { width: 10px; }
+  ::-webkit-scrollbar-track { background: var(--md-surface-container-low); }
+  ::-webkit-scrollbar-thumb { background: var(--md-outline-variant); border-radius: 5px; border: 2px solid var(--md-surface-container-low); }
+  ::-webkit-scrollbar-thumb:hover { background: var(--md-outline); }
+
+  /* ── Header ── */
+  .app-header {
+    width: 100%;
+    max-width: 900px;
+    margin-bottom: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    animation: fadeUp .5s cubic-bezier(.34,1.56,.64,1) both;
+  }
+
+  .app-logo {
+    width: 72px;
+    height: 72px;
+    background: var(--md-primary-container);
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    box-shadow: var(--elev-2);
+    animation: popIn .6s cubic-bezier(.34,1.56,.64,1) .1s both;
+  }
+
+  .app-title {
+    font-family: 'Roboto Flex', sans-serif;
+    font-size: 3rem;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    color: var(--md-on-surface);
+    animation: fadeUp .5s ease .2s both;
+  }
+
+  /* ── Grid ── */
+  .source-grid-wrap {
+    width: 100%;
+    max-width: 900px;
+  }
+
+  .source-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+  }
+
+  /* ── Cards ── */
+  .source-btn {
+    background: var(--md-surface-container-low);
+    border: 1.5px solid var(--md-outline-variant);
+    border-radius: var(--radius-lg);
+    padding: 18px 10px 14px;
+    cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+    font-size: .8rem;
+    font-weight: 700;
+    color: var(--md-on-surface);
+    transition: background .18s ease, border-color .18s ease, box-shadow .18s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 110px;
+    text-align: center;
+    text-decoration: none;
+    box-shadow: var(--elev-1);
+  }
+
+  .source-btn:hover {
+    border-color: var(--md-primary);
+    background: var(--md-primary-container);
+    color: var(--md-on-primary-container);
+    box-shadow: var(--elev-2);
+  }
+
+  .source-btn:active { filter: brightness(.93); }
+
+  .source-icon {
+    width: 52px;
+    height: 52px;
+    object-fit: contain;
+    border-radius: 12px;
+    background: var(--md-surface-container);
+    padding: 2px;
+  }
+
+  /* ── Animations ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(.6); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+
+  @media (max-width: 480px) {
+    .app-title { font-size: 2.2rem; }
+    .source-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .source-btn { min-height: 100px; padding: 14px 8px; font-size: .75rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="app-logo">🌐</div>
+  <h1 class="app-title">Spravodajské weby</h1>
+</div>
+
+<div class="source-grid-wrap">
+  <div class="source-grid" id="source-grid"></div>
+</div>
+
+<script>
+  /* ── Custom logos (name → image URL) ── */
+  const CUSTOM_LOGOS = {
+    "TA3":                  "https://raw.githubusercontent.com/mod3123/Ikony_TV/refs/heads/master/1024/Ta3_new.jpg",
+    "Startitup":            "https://raw.githubusercontent.com/MOD3123/Ikony_TV/refs/heads/master/Spravy/startitup.png",
+    "Aktuality.sk":         "https://raw.githubusercontent.com/MOD3123/Ikony_TV/refs/heads/master/Spravy/aktuality.png",
+    "AndroidPortal":        "https://raw.githubusercontent.com/MOD3123/Ikony_TV/refs/heads/master/Spravy/androidportal.png",
+    "Postoj":               "https://raw.githubusercontent.com/MOD3123/Ikony_TV/refs/heads/master/Spravy/postoj.jpg",
+    "Seznam Zprávy":        "https://raw.githubusercontent.com/MOD3123/Ikony_TV/refs/heads/master/Spravy/seznamzpravy.png",
+    "Topky.sk":             "https://raw.githubusercontent.com/MOD3123/Ikony_TV/refs/heads/master/Spravy/topky.png",
+    "Bleskovky.sk":         "https://raw.githubusercontent.com/MOD3123/Ikony_TV/refs/heads/master/Spravy/bleskovky.png",
+    "Bratislavské Noviny":  "https://raw.githubusercontent.com/MOD3123/Ikony_TV/refs/heads/master/Spravy/ba2noviny.png",
+    "Noviny.sk":            "https://raw.githubusercontent.com/MOD3123/Ikony_TV/refs/heads/master/640/tvjojhd.png",
+    "TVNOVINY.sk":          "https://raw.githubusercontent.com/MOD3123/Ikony_TV/refs/heads/master/tvnoviny.png",
+    "Nový Čas":             "https://raw.githubusercontent.com/MOD3123/Ikony_TV/refs/heads/master/Spravy/novycas.png",
+    "Dnes24.sk":            "https://raw.githubusercontent.com/MOD3123/Ikony_TV/refs/heads/master/Spravy/dnes24.jpg",
+    "Satelitná TV":         "https://raw.githubusercontent.com/MOD3123/Ikony_TV/refs/heads/master/Spravy/satelitnatv.png",
+    "ČT 24":                "https://raw.githubusercontent.com/MOD3123/Ikony_TV/refs/heads/master/640/ct24.png",
+    "Záhrada.sk":           "https://raw.githubusercontent.com/MOD3123/Ikony_TV/refs/heads/master/Spravy/zahrada.png",
+    "iMHD.sk BA":           "https://play-lh.googleusercontent.com/ukVu08RF7pU27pOYKEhZecMRyqi7kr-Gs9sqXK4QoUKkkWuoRfcI6uTG3UjnoyT_qw",
+    "Bratislavský večerník":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRI9_iNVkHJOcbIojMHNE5b664v0RUO2ITK0A&s"
+  };
+
+  /* ── Feeds: name (from JS JSON) → URL ── */
+  const FEEDS = {
+    "CZ24.news":            "https://cz24.news",
+    "eReport":              "https://ereport.sk",
+    "Pravda.sk":            "https://spravy.pravda.sk",
+    "SME.sk":               "https://domov.sme.sk",
+    "Noviny.sk":            "https://www.noviny.sk",
+    "TVNOVINY.sk":          "https://tvnoviny.sk",
+    "HNonline":             "https://hnonline.sk",
+    "Teraz.sk":             "https://www.teraz.sk",
+    "Topky.sk":             "https://www.topky.sk",
+    "Bleskovky.sk":         "https://bleskovky.zoznam.sk",
+    "Dnes24.sk":            "https://www.dnes24.sk",
+    "Startitup":            "https://www.startitup.sk",
+    "TA3":                  "https://www.ta3.com",
+    "Info.sk":              "https://www.info.sk/",
+    "Aktuality.sk":         "https://www.aktuality.sk/",
+    "SITA":                 "https://sita.sk",
+    "Refresher":            "https://refresher.sk",
+    "Nový Čas":             "https://www.cas.sk",
+    "iMeteo":               "https://www.imeteo.sk",
+    "Novinky.cz":           "https://www.novinky.cz",
+    "Seznam Zprávy":        "https://www.seznamzpravy.cz",
+    "České Noviny":         "https://www.ceskenoviny.cz",
+    "TN.cz":                "https://tn.nova.cz",
+    "ČT 24":                "https://ct24.ceskatelevize.cz",
+    "Bratislavské Noviny":  "https://www.bratislavskenoviny.sk",
+    "Bratislavák":          "https://www.bratislavak.sk",
+    "Bratislavský večerník":"https://www.bratislavskyvecernik.sk",
+    "Športweb":             "https://sportweb.pravda.sk",
+    "TouchIT":              "https://touchit.sk",
+    "Živé.sk":              "https://zive.aktuality.sk",
+    "Zive.cz":              "https://www.zive.cz",
+    "MôjAndroid.sk":        "https://www.mojandroid.sk",
+    "VoSveteIT":            "https://vosveteit.zoznam.sk",
+    "Reflex":               "https://www.reflex.cz",
+    "AndroidPortal":        "https://androidportal.sk",
+    "iStream.sk":           "https://www.istream.sk",
+    "Marker.sk":            "https://marker.sk",
+    "RTVS":                 "https://spravy.stvr.sk",
+    "Blesk.cz":             "https://www.blesk.cz",
+    "NewsByte":             "https://www.newsbyte.sk",
+    "Štandard":             "https://standard.sk",
+    "Plus JEDEN DEŇ":       "https://pluska.sk",
+    "Postoj":               "https://www.postoj.sk",
+    "Satelitná TV":         "https://www.satelitnatv.sk",
+    "iMHD.sk BA":           "https://imhd.sk/ba",
+    "Záhradkár.sk":         "https://zahradkar.pluska.sk",
+    "Záhrada.sk":           "https://www.zahrada.sk",
+    "Denník N":             "https://dennikn.sk"
+  };
+
+  function initSourceMenu() {
+    const grid = document.getElementById("source-grid");
+
+    Object.entries(FEEDS).forEach(([name, url]) => {
+      let domain;
+      try { domain = new URL(url).hostname; } catch(e) { domain = ''; }
+
+      const iconUrl = CUSTOM_LOGOS[name] || `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+
+      const card = document.createElement('a');
+      card.className = 'source-btn';
+      card.href = url;
+      card.target = '_blank';
+      card.rel = 'noopener noreferrer';
+      card.innerHTML = `
+        <img src="${iconUrl}" class="source-icon" alt="${name}"
+          onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2270%22>📰</text></svg>'">
+        <span>${name}</span>
+      `;
+      grid.appendChild(card);
+    });
+  }
+
+  initSourceMenu();
+</script>
+</body>
+</html>
