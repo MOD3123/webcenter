@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zber odpadu – Trávnik 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&family=Nunito+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --md-sys-color-primary: #1B6F3A;
+    --md-sys-color-on-primary: #ffffff;
+    --md-sys-color-primary-container: #B7F1C9;
+    --md-sys-color-on-primary-container: #002111;
+    --md-sys-color-secondary: #4E6355;
+    --md-sys-color-secondary-container: #D1E8D8;
+    --md-sys-color-surface: #F6FBF4;
+    --md-sys-color-surface-container: #ECF3EA;
+    --md-sys-color-surface-container-high: #E1EBE0;
+    --md-sys-color-on-surface: #1A1C1A;
+    --md-sys-color-on-surface-variant: #3F4F42;
+    --md-sys-color-outline: #6F7F6E;
+    --md-sys-color-outline-variant: #BDC9BB;
+    --md-sys-color-error: #BA1A1A;
+    --bio: #6D3B00;
+    --bio-container: #FFDCBE;
+    --papier: #0054A2;
+    --papier-container: #D4E3FF;
+    --plasty: #815600;
+    --plasty-container: #FFDDB3;
+    --komunalny: #3D3D3D;
+    --komunalny-container: #E6E6E6;
+    --shadow: 0 2px 8px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.13), 0 2px 4px rgba(0,0,0,0.07);
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --md-sys-color-primary: #8DD9A6;
+      --md-sys-color-on-primary: #003919;
+      --md-sys-color-primary-container: #00532A;
+      --md-sys-color-on-primary-container: #B7F1C9;
+      --md-sys-color-secondary: #B5CCBA;
+      --md-sys-color-secondary-container: #384B3E;
+      --md-sys-color-surface: #1A1C1A;
+      --md-sys-color-surface-container: #1E201E;
+      --md-sys-color-surface-container-high: #282B28;
+      --md-sys-color-on-surface: #E2E3DF;
+      --md-sys-color-on-surface-variant: #BEC9BC;
+      --md-sys-color-outline: #889587;
+      --md-sys-color-outline-variant: #3F4F42;
+      --bio: #FFBA7A;
+      --bio-container: #3D2000;
+      --papier: #A6C8FF;
+      --papier-container: #003060;
+      --plasty: #FFB870;
+      --plasty-container: #3E2900;
+      --komunalny: #C6C6C6;
+      --komunalny-container: #282828;
+      --shadow: 0 2px 8px rgba(0,0,0,0.5), 0 1px 2px rgba(0,0,0,0.4);
+      --shadow-md: 0 4px 16px rgba(0,0,0,0.6), 0 2px 4px rgba(0,0,0,0.4);
+    }
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito Sans', sans-serif;
+    background-color: var(--md-sys-color-surface);
+    color: var(--md-sys-color-on-surface);
+    min-height: 100vh;
+    padding: 0 0 60px;
+    transition: background-color 0.3s, color 0.3s;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary);
+    padding: 28px 24px 24px;
+    border-radius: 0 0 28px 28px;
+    margin-bottom: 32px;
+    box-shadow: var(--shadow-md);
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '🗑';
+    position: absolute;
+    left: -14px; bottom: -18px;
+    font-size: 110px;
+    opacity: 0.10;
+    line-height: 1;
+    pointer-events: none;
+  }
+  header::after {
+    content: '♻';
+    position: absolute;
+    right: -10px; top: -20px;
+    font-size: 120px;
+    opacity: 0.10;
+    line-height: 1;
+    pointer-events: none;
+  }
+  header h1 {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: clamp(1.5rem, 5vw, 2.4rem);
+    line-height: 1.1;
+    letter-spacing: -0.5px;
+    text-align: center;
+  }
+  header p {
+    margin-top: 6px;
+    font-size: 0.95rem;
+    opacity: 0.85;
+    font-weight: 600;
+    text-align: center;
+  }
+
+  /* LEGEND */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0 16px;
+    margin-bottom: 28px;
+    justify-content: center;
+  }
+  .legend-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 100px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    font-family: 'Nunito', sans-serif;
+    box-shadow: var(--shadow);
+  }
+  .legend-chip.komunalny { background: var(--komunalny-container); color: var(--komunalny); }
+  .legend-chip.plasty    { background: var(--plasty-container); color: var(--plasty); }
+  .legend-chip.papier    { background: var(--papier-container); color: var(--papier); }
+  .legend-chip.bio       { background: var(--bio-container); color: var(--bio); }
+
+  /* CALENDAR GRID */
+  .calendar {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+    gap: 14px;
+    padding: 0 12px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .month-card {
+    background: var(--md-sys-color-surface-container);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: box-shadow 0.2s;
+    min-width: 0;
+  }
+  .month-card:hover { box-shadow: var(--shadow-md); }
+  .month-card h2 {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 1rem;
+    background: var(--md-sys-color-primary-container);
+    color: var(--md-sys-color-on-primary-container);
+    padding: 12px 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .month-card ul { list-style: none; padding: 6px 0; }
+  .month-card li {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--md-sys-color-outline-variant);
+    font-size: 0.88rem;
+    transition: background 0.15s;
+  }
+  .month-card li:last-child { border-bottom: none; }
+  .month-card li:hover { background: var(--md-sys-color-surface-container-high); }
+  .month-card li.today-item {
+    background: var(--md-sys-color-primary-container);
+    font-weight: 700;
+  }
+
+  .date-badge {
+    background: var(--md-sys-color-surface-container-high);
+    border-radius: 8px;
+    padding: 3px 8px;
+    font-weight: 700;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.82rem;
+    min-width: 60px;
+    text-align: center;
+    color: var(--md-sys-color-on-surface);
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  .type-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    border-radius: 8px;
+    padding: 3px 10px;
+    font-weight: 700;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.78rem;
+    white-space: nowrap;
+  }
+  .type-chip.komunalny { background: var(--komunalny-container); color: var(--komunalny); }
+  .type-chip.plasty    { background: var(--plasty-container); color: var(--plasty); }
+  .type-chip.papier    { background: var(--papier-container); color: var(--papier); }
+  .type-chip.bio       { background: var(--bio-container); color: var(--bio); }
+
+  /* INFO SECTION */
+  .info-section {
+    max-width: 1100px;
+    margin: 40px auto 0;
+    padding: 0 12px;
+  }
+  .info-section > h2 {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 1.4rem;
+    color: var(--md-sys-color-primary);
+    margin-bottom: 16px;
+    padding-left: 4px;
+  }
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+    gap: 14px;
+  }
+  .info-card {
+    background: var(--md-sys-color-surface-container);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+  .info-card:hover { box-shadow: var(--shadow-md); }
+  .info-card-header {
+    padding: 14px 16px 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .info-card-header .icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+  .info-card-header h3 {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 0.95rem;
+    letter-spacing: 0.3px;
+  }
+  .info-card.komunalny .info-card-header { background: var(--komunalny-container); color: var(--komunalny); }
+  .info-card.plasty    .info-card-header { background: var(--plasty-container); color: var(--plasty); }
+  .info-card.papier    .info-card-header { background: var(--papier-container); color: var(--papier); }
+  .info-card.bio       .info-card-header { background: var(--bio-container); color: var(--bio); }
+
+  .info-card-body { padding: 14px 16px; font-size: 0.83rem; line-height: 1.55; }
+  .info-card-body strong { font-weight: 700; color: var(--md-sys-color-primary); }
+  .info-card-body .no { color: var(--md-sys-color-error); font-weight: 600; }
+  .info-card-body .yes { color: var(--md-sys-color-primary); font-weight: 600; }
+
+  .separator { margin: 10px 0 6px; border-top: 1px solid var(--md-sys-color-outline-variant); padding-top: 8px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Zber odpadu<br>Trávnik</h1>
+  <p>Harmonogram zberu odpadov</p>
+</header>
+
+<div class="legend">
+  <span class="legend-chip komunalny">🗑 Komunálny odpad</span>
+  <span class="legend-chip plasty">🧴 Plasty a kovy</span>
+  <span class="legend-chip papier">📄 Papier</span>
+  <span class="legend-chip bio">🌿 Bioodpad</span>
+</div>
+
+<div class="calendar" id="calendar"></div>
+
+<div class="info-section">
+  <h2>Ako správne separovať?</h2>
+  <div class="info-grid" id="infoGrid"></div>
+</div>
+
+<script>
+const schedule = [
+  // JANUÁR
+  { date: '2026-01-05', type: 'Komunálny odpad', cls: 'komunalny' },
+  { date: '2026-01-06', type: 'Plasty a kovy', cls: 'plasty' },
+  { date: '2026-01-07', type: 'Papier', cls: 'papier' },
+  { date: '2026-01-19', type: 'Komunálny odpad', cls: 'komunalny' },
+  // FEBRUÁR
+  { date: '2026-02-02', type: 'Komunálny odpad', cls: 'komunalny' },
+  { date: '2026-02-03', type: 'Plasty a kovy', cls: 'plasty' },
+  { date: '2026-02-12', type: 'Papier', cls: 'papier' },
+  { date: '2026-02-16', type: 'Komunálny odpad', cls: 'komunalny' },
+  // MAREC
+  { date: '2026-03-02', type: 'Komunálny odpad', cls: 'komunalny' },
+  { date: '2026-03-03', type: 'Plasty a kovy', cls: 'plasty' },
+  { date: '2026-03-04', type: 'Bioodpad', cls: 'bio' },
+  { date: '2026-03-12', type: 'Papier', cls: 'papier' },
+  { date: '2026-03-16', type: 'Komunálny odpad', cls: 'komunalny' },
+  { date: '2026-03-30', type: 'Komunálny odpad', cls: 'komunalny' },
+  // APRÍL
+  { date: '2026-04-01', type: 'Bioodpad', cls: 'bio' },
+  { date: '2026-04-09', type: 'Papier', cls: 'papier' },
+  { date: '2026-04-13', type: 'Komunálny odpad', cls: 'komunalny' },
+  { date: '2026-04-14', type: 'Plasty a kovy', cls: 'plasty' },
+  { date: '2026-04-15', type: 'Bioodpad', cls: 'bio' },
+  { date: '2026-04-27', type: 'Komunálny odpad', cls: 'komunalny' },
+  { date: '2026-04-29', type: 'Bioodpad', cls: 'bio' },
+  // MÁJ
+  { date: '2026-05-07', type: 'Papier', cls: 'papier' },
+  { date: '2026-05-11', type: 'Komunálny odpad', cls: 'komunalny' },
+  { date: '2026-05-12', type: 'Plasty a kovy', cls: 'plasty' },
+  { date: '2026-05-13', type: 'Bioodpad', cls: 'bio' },
+  { date: '2026-05-25', type: 'Komunálny odpad', cls: 'komunalny' },
+  { date: '2026-05-27', type: 'Bioodpad', cls: 'bio' },
+  // JÚN
+  { date: '2026-06-04', type: 'Papier', cls: 'papier' },
+  { date: '2026-06-08', type: 'Komunálny odpad', cls: 'komunalny' },
+  { date: '2026-06-09', type: 'Plasty a kovy', cls: 'plasty' },
+  { date: '2026-06-10', type: 'Bioodpad', cls: 'bio' },
+  { date: '2026-06-22', type: 'Komunálny odpad', cls: 'komunalny' },
+  { date: '2026-06-24', type: 'Bioodpad', cls: 'bio' },
+  // JÚL
+  { date: '2026-07-02', type: 'Papier', cls: 'papier' },
+  { date: '2026-07-06', type: 'Komunálny odpad', cls: 'komunalny' },
+  { date: '2026-07-07', type: 'Plasty a kovy', cls: 'plasty' },
+  { date: '2026-07-08', type: 'Bioodpad', cls: 'bio' },
+  { date: '2026-07-20', type: 'Komunálny odpad', cls: 'komunalny' },
+  { date: '2026-07-22', type: 'Bioodpad', cls: 'bio' },
+  // AUGUST
+  { date: '2026-08-03', type: 'Komunálny odpad', cls: 'komunalny' },
+  { date: '2026-08-04', type: 'Plasty a kovy', cls: 'plasty' },
+  { date: '2026-08-05', type: 'Bioodpad', cls: 'bio' },
+  { date: '2026-08-13', type: 'Papier', cls: 'papier' },
+  { date: '2026-08-17', type: 'Komunálny odpad', cls: 'komunalny' },
+  { date: '2026-08-19', type: 'Bioodpad', cls: 'bio' },
+  { date: '2026-08-31', type: 'Komunálny odpad', cls: 'komunalny' },
+  // SEPTEMBER
+  { date: '2026-09-01', type: 'Plasty a kovy', cls: 'plasty' },
+  { date: '2026-09-02', type: 'Bioodpad', cls: 'bio' },
+  { date: '2026-09-10', type: 'Papier', cls: 'papier' },
+  { date: '2026-09-14', type: 'Komunálny odpad', cls: 'komunalny' },
+  { date: '2026-09-16', type: 'Bioodpad', cls: 'bio' },
+  { date: '2026-09-28', type: 'Komunálny odpad', cls: 'komunalny' },
+  { date: '2026-09-30', type: 'Bioodpad', cls: 'bio' },
+  // OKTÓBER
+  { date: '2026-10-08', type: 'Papier', cls: 'papier' },
+  { date: '2026-10-12', type: 'Komunálny odpad', cls: 'komunalny' },
+  { date: '2026-10-13', type: 'Plasty a kovy', cls: 'plasty' },
+  { date: '2026-10-14', type: 'Bioodpad', cls: 'bio' },
+  { date: '2026-10-26', type: 'Komunálny odpad', cls: 'komunalny' },
+  { date: '2026-10-28', type: 'Bioodpad', cls: 'bio' },
+  // NOVEMBER
+  { date: '2026-11-05', type: 'Papier', cls: 'papier' },
+  { date: '2026-11-09', type: 'Komunálny odpad', cls: 'komunalny' },
+  { date: '2026-11-10', type: 'Plasty a kovy', cls: 'plasty' },
+  { date: '2026-11-11', type: 'Bioodpad', cls: 'bio' },
+  { date: '2026-11-23', type: 'Komunálny odpad', cls: 'komunalny' },
+  // DECEMBER
+  { date: '2026-12-03', type: 'Papier', cls: 'papier' },
+  { date: '2026-12-07', type: 'Komunálny odpad', cls: 'komunalny' },
+  { date: '2026-12-08', type: 'Plasty a kovy', cls: 'plasty' },
+  { date: '2026-12-09', type: 'Bioodpad', cls: 'bio' },
+  { date: '2026-12-21', type: 'Komunálny odpad', cls: 'komunalny' },
+];
+
+const monthNames = ['Január','Február','Marec','Apríl','Máj','Jún','Júl','August','September','Október','November','December'];
+const dayNames = ['Ne','Po','Ut','St','Št','Pi','So'];
+
+function renderCalendar() {
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  const months = {};
+  schedule.forEach(e => {
+    const d = new Date(e.date);
+    const key = `${d.getFullYear()}-${d.getMonth()}`;
+    if (!months[key]) months[key] = { year: d.getFullYear(), month: d.getMonth(), items: [] };
+    months[key].items.push(e);
+  });
+
+  const cal = document.getElementById('calendar');
+  Object.values(months).forEach(m => {
+    // Filter out past dates
+    const visibleItems = m.items.filter(e => new Date(e.date) >= today);
+    if (visibleItems.length === 0) return; // skip fully past months
+
+    const items = visibleItems.map(e => {
+      const d = new Date(e.date);
+      const isToday = d.getTime() === today.getTime();
+      const day = dayNames[d.getDay()];
+      const dd = String(d.getDate()).padStart(2,'0');
+      return `<li class="${isToday ? 'today-item' : ''}">
+        <span class="date-badge">${day} ${dd}.</span>
+        <span class="type-chip ${e.cls}">${e.cls === 'komunalny' ? '🗑' : e.cls === 'plasty' ? '🧴' : e.cls === 'papier' ? '📄' : '🌿'} ${e.type}</span>
+        ${isToday ? '<span style="margin-left:auto;font-size:0.75rem;font-weight:900;color:var(--md-sys-color-primary)">DNES</span>' : ''}
+      </li>`;
+    }).join('');
+    const card = document.createElement('div');
+    card.className = 'month-card';
+    card.innerHTML = `<h2>${monthNames[m.month]} ${m.year}</h2><ul>${items}</ul>`;
+    cal.appendChild(card);
+  });
+}
+
+const infoData = [
+  {
+    id: 'komunalny',
+    icon: '🗑',
+    title: 'Komunálny odpad',
+    yes: 'Odpad po vytriedení triedeného zberu, použité plienky a hygienické potreby, obaly znečistené potravinami, znečistený textil, keramika, porcelán, zrkadlá, kopírovací papier, celofán a voskovaný papier, vata, obaly zo sladkostí, guma, molitan, poškodené kabelky, obuv, vodoinštalačný materiál.',
+    no: 'Materiály triedeného zberu, elektroodpad, nebezpečný odpad, biologicky rozložiteľný odpad (kuchynský bio-odpad, tráva, lístie), kamene, zemina, drobný stavebný odpad, uhynuté zvieratá, objemný odpad (nábytok, dvere), žiarovky, batérie, tlejúci odpad.'
+  },
+  {
+    id: 'plasty',
+    icon: '🧴',
+    title: 'Plasty a kovy',
+    yes: 'Nevratné stlačené plastové fľaše, fólie, tašky, igelitové vrecká, plastové obaly z domácností, obaly od kozmetiky a drogérie, tégliky a viečka od jogurtov, nevratné plechovky od nápojov, konzervy bez zvyškov potravín, kovové obaly, hliníkové fólie od zaváranín, nápojové kartóny (od mlieka, džúsov…)',
+    no: 'Znečistené fólie, obaly so zvyškami potravín, obaly od chemikálií, olejov a farieb, podlahové krytiny, molitan, guma, koženka, textil, plexisklo, stavebné rúrky a izolácie, stavebný polystyrén, kovový šrot.'
+  },
+  {
+    id: 'papier',
+    icon: '📄',
+    title: 'Papier',
+    yes: 'Noviny, časopisy, reklamné letáky, katalógy, papierové tašky, papierové a kartónové obaly, kancelársky papier, obálky, pohľadnice, listy, zošity, kartóny (porezané na menšie kusy), rolky od toaletného papiera, papierové obaly od vajec.',
+    no: 'Znečistený, mokrý alebo mastný papier, papierové servítky, použité plienky a hygienické potreby, obaly z nápojových kartónov (mlieko, džúsy), alobal, celofán, drevené obaly, knihy.'
+  },
+  {
+    id: 'bio',
+    icon: '🌿',
+    title: 'Bioodpad',
+    yes: 'Zvyšky vareného jedla, bioodpad z kuchyne (šupky z ovocia a zeleniny), mäso a mliečne výrobky, staré pečivo a chlieb, potraviny po dátume spotreby bez obalov, čajové vrecká, kávová usadenina, kosti z hydiny a rýb.',
+    no: 'Vrecúška a sáčky (ani kompostovateľné!), zvyšky jedla v obaloch, tekuté potraviny (mlieko, riedke polievky), bravčové a hovädzie kosti, zmesový komunálny odpad, zelený odpad zo záhrad (tráva, lístie), papier, plasty, sklo, kovy.'
+  }
+];
+
+function renderInfo() {
+  const grid = document.getElementById('infoGrid');
+  infoData.forEach(d => {
+    const card = document.createElement('div');
+    card.className = `info-card ${d.id}`;
+    card.innerHTML = `
+      <div class="info-card-header">
+        <div class="icon">${d.icon}</div>
+        <h3>${d.title}</h3>
+      </div>
+      <div class="info-card-body">
+        <p><span class="yes">✔ Patrí sem:</span> ${d.yes}</p>
+        <div class="separator"></div>
+        <p><span class="no">✘ Nepatrí sem:</span> ${d.no}</p>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+renderCalendar();
+renderInfo();
+</script>
+</body>
+</html>
