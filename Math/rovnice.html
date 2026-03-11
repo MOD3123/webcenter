@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8">
+<title>Rovnice</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Google+Sans+Display:wght@400;700&family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ─── M3 EXPRESSIVE TOKENS ─────────────────────────────── */
+:root {
+  --md-primary:           #4F46E5;
+  --md-on-primary:        #FFFFFF;
+  --md-primary-container: #E0E7FF;
+  --md-on-primary-container: #1E1B4B;
+  --md-secondary:           #0D9488;
+  --md-on-secondary:        #FFFFFF;
+  --md-secondary-container: #CCFBF1;
+  --md-on-secondary-container: #042F2E;
+  --md-tertiary:           #D97706;
+  --md-on-tertiary:        #FFFFFF;
+  --md-tertiary-container: #FEF3C7;
+  --md-on-tertiary-container: #451A03;
+  --md-error:           #DC2626;
+  --md-error-container: #FEE2E2;
+  --md-on-error-container: #450A0A;
+  --md-surface:           #FAFAFA;
+  --md-surface-dim:       #E5E7EB;
+  --md-surface-bright:    #FFFFFF;
+  --md-surface-variant:   #E8E6F0;
+  --md-on-surface:        #1A1A2E;
+  --md-on-surface-variant:#4B5563;
+  --md-outline:           #9CA3AF;
+  --md-outline-variant:   #D1D5DB;
+  --md-elev1: rgba(79,70,229,.05);
+  --md-elev2: rgba(79,70,229,.08);
+  --md-elev3: rgba(79,70,229,.11);
+  --shape-xs:  8px;
+  --shape-sm:  12px;
+  --shape-md:  16px;
+  --shape-lg:  24px;
+  --shape-xl:  28px;
+  --shape-full:9999px;
+  --motion-std:  cubic-bezier(.2,0,0,1);
+  --motion-dec:  cubic-bezier(0,0,0,1);
+  --motion-acc:  cubic-bezier(.3,0,1,1);
+  --dur-short:  200ms;
+  --dur-med:    350ms;
+  --dur-long:   500ms;
+  --md-success:           #059669;
+  --md-success-container: #D1FAE5;
+  --md-on-success-container: #022C22;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --md-primary:           #818CF8;
+    --md-on-primary:        #1E1B4B;
+    --md-primary-container: #312E81;
+    --md-on-primary-container: #C7D2FE;
+    --md-secondary:           #2DD4BF;
+    --md-on-secondary:        #042F2E;
+    --md-secondary-container: #0F766E;
+    --md-on-secondary-container: #99F6E4;
+    --md-tertiary:           #FCD34D;
+    --md-on-tertiary:        #451A03;
+    --md-tertiary-container: #92400E;
+    --md-on-tertiary-container: #FEF3C7;
+    --md-error:           #FCA5A5;
+    --md-error-container: #7F1D1D;
+    --md-on-error-container: #FEE2E2;
+    --md-surface:           #0F0F1A;
+    --md-surface-dim:       #0A0A14;
+    --md-surface-bright:    #1A1A2E;
+    --md-surface-variant:   #1E1B3A;
+    --md-on-surface:        #E8E8F5;
+    --md-on-surface-variant:#A5B4FC;
+    --md-outline:           #6366F1;
+    --md-outline-variant:   #312E81;
+    --md-elev1: rgba(129,140,248,.06);
+    --md-elev2: rgba(129,140,248,.10);
+    --md-elev3: rgba(129,140,248,.14);
+    --md-success:           #34D399;
+    --md-success-container: #064E3B;
+    --md-on-success-container: #A7F3D0;
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Google Sans', system-ui, sans-serif;
+  background: var(--md-surface);
+  color: var(--md-on-surface);
+  min-height: 100vh;
+  padding: 0 0 80px;
+  transition: background var(--dur-med) var(--motion-std),
+              color var(--dur-med) var(--motion-std);
+  -webkit-font-smoothing: antialiased;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-bottom: 1px solid var(--md-outline-variant);
+  padding: 0 20px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: color-mix(in srgb, var(--md-surface) 85%, transparent);
+  transition: background var(--dur-med);
+}
+.topbar-icon {
+  width: 36px; height: 36px;
+  border-radius: var(--shape-full);
+  background: var(--md-primary-container);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.topbar-title {
+  font-family: 'Google Sans Display', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--md-on-surface);
+  letter-spacing: -0.3px;
+  white-space: nowrap;
+}
+
+.content {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.eq-hero {
+  background: var(--md-primary-container);
+  border-radius: var(--shape-xl);
+  padding: 36px 28px 28px;
+  position: relative;
+  overflow: hidden;
+  min-height: 148px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  transition: background var(--dur-med) var(--motion-std);
+  box-shadow:
+    0 1px 3px rgba(0,0,0,.08),
+    0 4px 16px rgba(0,0,0,.06);
+}
+.eq-hero::before {
+  content: '';
+  position: absolute;
+  inset: -40px;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 30%, rgba(129,140,248,.25), transparent),
+    radial-gradient(ellipse 50% 60% at 80% 70%, rgba(45,212,191,.15), transparent);
+  pointer-events: none;
+}
+
+
+.eq-text {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--md-on-primary-container);
+  text-align: center;
+  line-height: 1.5;
+  word-break: break-word;
+  transition: opacity var(--dur-short) var(--motion-acc);
+}
+.eq-text.placeholder {
+  font-family: 'Google Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  opacity: .6;
+}
+.eq-text.pop {
+  animation: pop var(--dur-med) var(--motion-dec);
+}
+@keyframes pop {
+  0%   { transform: scale(.92); opacity: 0; }
+  60%  { transform: scale(1.03); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.frac {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: middle;
+  font-size: .72em;
+  line-height: 1.1;
+  margin: 0 2px;
+}
+.frac .num {
+  border-bottom: 2.5px solid currentColor;
+  padding: 1px 4px 2px;
+  min-width: 16px;
+  text-align: center;
+}
+.frac .den {
+  padding: 2px 4px 0;
+  min-width: 16px;
+  text-align: center;
+}
+
+.card {
+  background: var(--md-surface-bright);
+  border-radius: var(--shape-lg);
+  padding: 20px;
+  box-shadow: 0 1px 2px rgba(0,0,0,.06), 0 2px 8px rgba(0,0,0,.04);
+  border: 1px solid var(--md-outline-variant);
+  transition: background var(--dur-med), border-color var(--dur-med);
+}
+.card-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--md-primary);
+  margin-bottom: 14px;
+}
+
+
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: var(--shape-full);
+  border: 1.5px solid var(--md-outline-variant);
+  background: transparent;
+  color: var(--md-on-surface-variant);
+  font-family: 'Google Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background var(--dur-short) var(--motion-std),
+    color var(--dur-short) var(--motion-std),
+    border-color var(--dur-short) var(--motion-std),
+    transform var(--dur-short) var(--motion-dec);
+  user-select: none;
+}
+.chip:active { transform: scale(.95); }
+.chip.on {
+  background: var(--md-secondary-container);
+  border-color: var(--md-secondary);
+  color: var(--md-on-secondary-container);
+}
+.chip .chip-check {
+  width: 16px; height: 16px;
+  border-radius: 4px;
+  border: 2px solid currentColor;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px;
+  transition: background var(--dur-short), border-color var(--dur-short);
+}
+.chip.on .chip-check { background: var(--md-secondary); border-color: var(--md-secondary); color: #fff; }
+
+.len-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.len-btn {
+  padding: 8px 18px;
+  border-radius: var(--shape-full);
+  border: 1.5px solid var(--md-outline-variant);
+  background: transparent;
+  color: var(--md-on-surface-variant);
+  font-family: 'Google Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--dur-short) var(--motion-std);
+}
+.len-btn:active { transform: scale(.93); }
+.len-btn.active {
+  background: var(--md-primary-container);
+  border-color: var(--md-primary);
+  color: var(--md-on-primary-container);
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+}
+.fab {
+  flex: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px 24px;
+  border-radius: var(--shape-xl);
+  border: none;
+  background: var(--md-primary);
+  color: var(--md-on-primary);
+  font-family: 'Google Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow:
+    0 3px 8px rgba(79,70,229,.30),
+    0 1px 3px rgba(0,0,0,.15);
+  transition:
+    background var(--dur-short) var(--motion-std),
+    box-shadow var(--dur-short) var(--motion-std),
+    transform var(--dur-short) var(--motion-dec);
+  letter-spacing: .2px;
+}
+.fab:hover {
+  box-shadow:
+    0 6px 20px rgba(79,70,229,.40),
+    0 2px 6px rgba(0,0,0,.20);
+}
+.fab:active {
+  transform: scale(.97);
+  box-shadow: 0 2px 6px rgba(79,70,229,.25);
+}
+.fab-icon { font-size: 20px; }
+
+.btn-tonal {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px 16px;
+  border-radius: var(--shape-xl);
+  border: none;
+  background: var(--md-surface-variant);
+  color: var(--md-on-surface);
+  font-family: 'Google Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background var(--dur-short) var(--motion-std),
+    transform var(--dur-short) var(--motion-dec);
+}
+.btn-tonal:hover { background: var(--md-outline-variant); }
+.btn-tonal:active { transform: scale(.96); }
+
+.sol-card {
+  background: var(--md-success-container);
+  border-radius: var(--shape-lg);
+  padding: 20px;
+  border: 1.5px solid var(--md-success);
+  display: none;
+  animation: slideIn var(--dur-med) var(--motion-dec);
+  overflow: hidden;
+}
+.sol-card.show { display: block; }
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.sol-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.sol-icon {
+  width: 32px; height: 32px;
+  border-radius: var(--shape-full);
+  background: var(--md-success);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.sol-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--md-on-success-container);
+  opacity: .7;
+}
+.sol-value {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--md-on-success-container);
+  line-height: 1.3;
+}
+
+.steps-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 0 0;
+  background: none;
+  border: none;
+  color: var(--md-on-success-container);
+  font-family: 'Google Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  opacity: .8;
+  transition: opacity var(--dur-short);
+}
+.steps-toggle:hover { opacity: 1; }
+.steps-toggle .arrow { transition: transform var(--dur-short) var(--motion-std); }
+.steps-toggle.open .arrow { transform: rotate(90deg); }
+
+.steps-body {
+  display: none;
+  margin-top: 12px;
+  border-top: 1px solid rgba(0,0,0,.1);
+  padding-top: 12px;
+}
+.steps-body.show { display: block; }
+
+.step-row {
+  display: grid;
+  grid-template-columns: 20px 1fr;
+  gap: 8px 12px;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(0,0,0,.06);
+  align-items: start;
+}
+.step-row:last-child { border-bottom: none; }
+.step-num {
+  width: 20px; height: 20px;
+  border-radius: var(--shape-full);
+  background: var(--md-success);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+.step-expr {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--md-on-success-container);
+  line-height: 1.5;
+}
+.step-note {
+  font-size: 11px;
+  color: var(--md-on-success-container);
+  opacity: .6;
+  margin-top: 1px;
+  font-style: italic;
+}
+
+@media (max-width: 420px) {
+  .eq-text { font-size: 22px; }
+  .fab { font-size: 14px; padding: 14px 16px; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-icon">📐</div>
+  <div class="topbar-title">Generátor rovníc</div>
+</div>
+
+<div class="content">
+
+  <div class="eq-hero">
+    <div class="eq-text placeholder" id="eqEl">Vygenerujte rovnicu</div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Možnosti</div>
+    <div class="chips">
+      <button class="chip on" id="chipFrac" onclick="toggleChip('chipFrac')">
+        <span class="chip-check">✓</span> Zlomky
+      </button>
+      <button class="chip on" id="chipBr" onclick="toggleChip('chipBr')">
+        <span class="chip-check">✓</span> Zátvorky
+      </button>
+      <button class="chip on" id="chipNeg" onclick="toggleChip('chipNeg')">
+        <span class="chip-check">✓</span> Záporné čísla
+      </button>
+      <button class="chip" id="chipExpert" onclick="toggleChip('chipExpert')">
+        <span class="chip-check"></span> Komplexné zlomky
+      </button>
+      <button class="chip" id="chipDec" onclick="toggleChip('chipDec')">
+        <span class="chip-check"></span> Desatinné čísla
+      </button>
+      <button class="chip" id="chipSameDen" onclick="toggleChip('chipSameDen')">
+        <span class="chip-check"></span> Rovnaký menovateľ
+      </button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Počet členov na pravej strane</div>
+    <div class="len-row">
+      <button class="len-btn" data-n="2" onclick="setLen(2)">2</button>
+      <button class="len-btn active" data-n="3" onclick="setLen(3)">3</button>
+      <button class="len-btn" data-n="4" onclick="setLen(4)">4</button>
+      <button class="len-btn" data-n="5" onclick="setLen(5)">5</button>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="fab" onclick="generate()">
+      <span class="fab-icon">Vygenerovať
+    </button>
+    <button class="btn-tonal" onclick="showSol()">
+      <span>Riešenie</span>
+    </button>
+  </div>
+
+  <div class="sol-card" id="solCard">
+    <div class="sol-header">
+      <div class="sol-icon">✓</div>
+      <div>
+        <div class="sol-label">Riešenie</div>
+        <div class="sol-value" id="solVal"></div>
+      </div>
+    </div>
+    <button class="steps-toggle" id="stepsToggle" onclick="toggleSteps()">
+      <span class="arrow">▶</span> Postup riešenia
+    </button>
+    <div class="steps-body" id="stepsBody"></div>
+  </div>
+
+</div>
+
+<script>
+// ─── STATE ───────────────────────────────────────────────────
+let len = 3, currentEq = null;
+
+// ─── CHIP TOGGLES ────────────────────────────────────────────
+function toggleChip(id) {
+  const el = document.getElementById(id);
+  const on = el.classList.toggle('on');
+  el.querySelector('.chip-check').textContent = on ? '✓' : '';
+  // "Rovnaký menovateľ" requires fractions to be on
+  if (id === 'chipSameDen' && on) {
+    const fracEl = document.getElementById('chipFrac');
+    if (!fracEl.classList.contains('on')) {
+      fracEl.classList.add('on');
+      fracEl.querySelector('.chip-check').textContent = '✓';
+    }
+  }
+}
+function chipOn(id) { return document.getElementById(id).classList.contains('on'); }
+
+// ─── LENGTH ─────────────────────────────────────────────────
+function setLen(n) {
+  len = n;
+  document.querySelectorAll('.len-btn').forEach(b =>
+    b.classList.toggle('active', +b.dataset.n === n));
+}
+
+// ─── AUTO DIFFICULTY from options ────────────────────────────
+function pickGenerator() {
+  const hasFrac   = chipOn('chipFrac');
+  const hasBr     = chipOn('chipBr');
+  const hasExpert = chipOn('chipExpert');
+
+  if (hasExpert && hasFrac) return tryGenExpert;
+  if (hasFrac && hasBr)     return tryGenHard;
+  if (hasBr || hasFrac)     return tryGenMedium;
+  return                           tryGenEasy;
+}
+
+// ─── MATH UTILS ─────────────────────────────────────────────
+function ri(a, b) { return Math.floor(Math.random() * (b - a + 1)) + a; }
+
+function gcd(a, b) {
+  a = Math.abs(Math.round(a)); b = Math.abs(Math.round(b));
+  while (b) { let t = b; b = a % b; a = t; }
+  return a || 1;
+}
+function mkF(n, d = 1) {
+  n = Math.round(n); d = Math.round(d);
+  if (d === 0) d = 1;
+  const s = d < 0 ? -1 : 1; n *= s; d *= s;
+  const g = gcd(Math.abs(n), Math.abs(d));
+  return { n: n / g, d: d / g };
+}
+function fAdd(a, b) { return mkF(a.n * b.d + b.n * a.d, a.d * b.d); }
+function fSub(a, b) { return fAdd(a, { n: -b.n, d: b.d }); }
+function fMul(a, b) { return mkF(a.n * b.n, a.d * b.d); }
+function fDiv(a, b) { return mkF(a.n * b.d, a.d * b.n); }
+function fNum(f)    { return f.n / f.d; }
+function f1(n)      { return { n: Math.round(n), d: 1 }; }
+function fEq(a, b)  { return a.n === b.n && a.d === b.d; }
+
+// ─── RENDERING ───────────────────────────────────────────────
+function renderF(f) {
+  if (f.n === 0) return '0';
+  // Show as decimal when chipDec is on AND the value has a finite 2dp representation
+  if (chipOn('chipDec') && f.d !== 1) {
+    const val = f.n / f.d;
+    const str = parseFloat(val.toFixed(2)).toString();
+    // Only use decimal if it's exact (no rounding error) and fits in 2dp
+    if (Math.abs(parseFloat(str) - val) < 1e-9) return str;
+  }
+  if (f.d === 1) return `${f.n}`;
+  const neg = f.n < 0;
+  const an = Math.abs(f.n);
+  return `${neg ? '-' : ''}<span class="frac"><span class="num">${an}</span><span class="den">${f.d}</span></span>`;
+}
+
+function renderCoeff(f, v) {
+  const val = fNum(f);
+  if (val === 1)  return v;
+  if (val === -1) return '-' + v;
+  return renderF(f) + v;
+}
+
+function renderTerm(f) { return renderF(f); }
+
+function buildExprVarFirst(aCoeff, constParts, v) {
+  let s = renderCoeff(aCoeff, v);
+  for (const p of constParts) {
+    const val = fNum(p);
+    if (val === 0) continue;
+    const absF = mkF(Math.abs(p.n), p.d);
+    s += val > 0 ? ` + ${renderTerm(absF)}` : ` - ${renderTerm(absF)}`;
+  }
+  return s;
+}
+
+function buildExprNoVar(parts) {
+  let s = '';
+  for (const p of parts) {
+    const val = fNum(p);
+    if (val === 0) continue;
+    const absF = mkF(Math.abs(p.n), p.d);
+    if (s === '') s = val < 0 ? `-${renderTerm(absF)}` : renderTerm(absF);
+    else s += val > 0 ? ` + ${renderTerm(absF)}` : ` - ${renderTerm(absF)}`;
+  }
+  return s || '0';
+}
+
+// ─── SHARED DENOMINATOR helper ───────────────────────────────
+// Returns a denominator to use for ALL fractions when chipSameDen is on.
+// Called once per equation generation and stored in currentDen.
+let currentDen = null;
+
+function pickSharedDen() {
+  return ri(2, 8);
+}
+
+// Force fraction to use a specific denominator (keep value exact by scaling numerator)
+function mkForceDen(f, den) {
+  // f has value f.n/f.d — express as ?.n/den (round to nearest integer numerator)
+  const newN = Math.round(f.n * den / f.d);
+  return mkF(newN, den);
+}
+
+// ─── SPLIT CONSTANT into `parts` fractions summing to total ──
+function splitConst(total, numParts) {
+  if (numParts <= 0) return [];
+  if (numParts === 1) return [total];
+  const useDec     = chipOn('chipDec');
+  const useFrac    = chipOn('chipFrac');
+  const useNeg     = chipOn('chipNeg');
+  const useSameDen = chipOn('chipSameDen') && useFrac;
+  const arr = [];
+  let running = f1(0);
+  for (let i = 0; i < numParts - 1; i++) {
+    let val;
+    if (useSameDen && currentDen) {
+      const hi = 6 * currentDen;
+      val = mkF(useNeg ? ri(-hi, hi) : ri(0, hi), currentDen);
+    } else if (useDec && Math.random() < 0.5) {
+      const d = Math.random() < 0.5 ? 10 : 2;
+      const hi = 8 * d;
+      const n = useNeg ? ri(-hi, hi) : ri(0, hi);
+      val = mkF(n, d);
+    } else if (useFrac && Math.random() < 0.5) {
+      const d = ri(2, 6);
+      const hi = 5 * d;
+      val = mkF(useNeg ? ri(-hi, hi) : ri(0, hi), d);
+    } else {
+      val = f1(useNeg ? ri(-8, 8) : ri(0, 8));
+    }
+    arr.push(val);
+    running = fAdd(running, val);
+  }
+  let last = fSub(total, running);
+  // Force last part to same den if needed
+  if (useSameDen && currentDen) last = mkForceDen(last, currentDen);
+  arr.push(last);
+  return arr;
+}
+
+// ─── GENERATORS ──────────────────────────────────────────────
+// Each generator returns null on failure — NO internal recursion.
+// The outer loop in generate() handles retries safely.
+
+function tryGenEasy() {
+  const neg     = chipOn('chipNeg');
+  const useFrac = chipOn('chipFrac');
+  const useDec  = chipOn('chipDec');
+  const useSameDen = chipOn('chipSameDen') && useFrac;
+  const v = 'xyz'[ri(0, 2)];
+
+  // Pick shared denominator once for the whole equation
+  currentDen = useSameDen ? pickSharedDen() : null;
+
+  let aL, aR;
+  if (useSameDen && currentDen) {
+    aL = mkF(ri(1, currentDen * 3), currentDen);
+    aR = mkF(ri(1, currentDen * 3), currentDen);
+  } else if (useDec && Math.random() < 0.5) {
+    aL = mkF(ri(1, 8), 2);
+    aR = mkF(ri(1, 8), 2);
+  } else if (useFrac && Math.random() < 0.5) {
+    aL = mkF(ri(1, 4), ri(2, 5));
+    aR = mkF(ri(1, 4), ri(2, 5));
+  } else {
+    aL = f1(ri(1, 5));
+    aR = f1(ri(1, 5));
+  }
+  if (Math.abs(fNum(aL) - fNum(aR)) < 0.05) return null;
+
+  const x  = neg ? f1(ri(-8, 8)) : f1(ri(1, 8));
+  const bL = neg ? f1(ri(-10, 10)) : f1(ri(0, 10));
+
+  const lhs = fAdd(fMul(aL, x), bL);
+  const c   = fSub(lhs, fMul(aR, x));
+
+  const constParts = splitConst(c, Math.max(1, len - 1));
+  const leftStr    = buildExprVarFirst(aL, [bL], v);
+  const rightStr   = buildExprVarFirst(aR, constParts, v);
+
+  const diffCoeff = fSub(aL, aR);
+  const xSol      = fDiv(fSub(c, bL), diffCoeff);
+
+  const steps = [
+    { e: `${leftStr} = ${rightStr}`,                                   n: 'Pôvodná rovnica' },
+    { e: `${renderCoeff(diffCoeff, v)} = ${renderF(fSub(c, bL))}`,    n: 'Prenesieme členy' },
+    { e: `${v} = ${renderF(xSol)}`,                                    n: 'Delíme koeficientom' },
+  ];
+  return { html: `${leftStr} = ${rightStr}`, sol: xSol, var: v, steps };
+}
+
+function tryGenMedium() {
+  const neg     = chipOn('chipNeg');
+  const useFrac = chipOn('chipFrac');
+  const useSameDen = chipOn('chipSameDen') && useFrac;
+  const v = 'xyz'[ri(0, 2)];
+
+  currentDen = useSameDen ? pickSharedDen() : null;
+
+  const aL = useSameDen && currentDen ? mkF(ri(2, currentDen * 4), currentDen) : f1(ri(2, 5));
+  const bL = neg ? f1(ri(-6, 6)) : f1(ri(0, 6));
+  const aR = useSameDen && currentDen ? mkF(ri(1, currentDen * 3), currentDen) : f1(ri(1, 4));
+  if (Math.abs(fNum(aL) - fNum(aR)) < 0.05) return null;
+
+  const x = neg ? f1(ri(-6, 6)) : f1(ri(1, 6));
+
+  const lhsExpanded = fAdd(fMul(aL, x), fMul(aL, bL));
+  const c = fSub(lhsExpanded, fMul(aR, x));
+
+  let leftHtml;
+  if (chipOn('chipBr')) {
+    const bLs = fNum(bL) >= 0
+      ? `${v} + ${renderF(bL)}`
+      : `${v} - ${renderF(mkF(Math.abs(bL.n), bL.d))}`;
+    leftHtml = `${renderF(aL)}(${bLs})`;
+  } else {
+    leftHtml = buildExprVarFirst(aL, [fMul(aL, bL)], v);
+  }
+
+  const constParts      = splitConst(c, Math.max(1, len - 1));
+  const rightHtml       = buildExprVarFirst(aR, constParts, v);
+  const diffCoeff       = fSub(aL, aR);
+  const diffConst       = fSub(c, fMul(aL, bL));
+  const xSol            = fDiv(diffConst, diffCoeff);
+  const lhsExpandedHtml = buildExprVarFirst(aL, [fMul(aL, bL)], v);
+
+  const steps = [{ e: `${leftHtml} = ${rightHtml}`, n: 'Pôvodná rovnica' }];
+  if (chipOn('chipBr')) {
+    steps.push({ e: `${lhsExpandedHtml} = ${rightHtml}`, n: 'Roznásob zátvorku' });
+  }
+  steps.push({ e: `${renderCoeff(diffCoeff, v)} = ${renderF(diffConst)}`, n: 'Prenesieme členy' });
+  steps.push({ e: `${v} = ${renderF(xSol)}`, n: 'Delíme koeficientom' });
+
+  return { html: `${leftHtml} = ${rightHtml}`, sol: xSol, var: v, steps };
+}
+
+function tryGenHard() {
+  const neg     = chipOn('chipNeg');
+  const useFrac = chipOn('chipFrac');
+  const useDec  = chipOn('chipDec');
+  const useSameDen = chipOn('chipSameDen') && useFrac;
+  const v = 'xyz'[ri(0, 2)];
+
+  currentDen = useSameDen ? pickSharedDen() : null;
+
+  let aL, aR;
+  if (useSameDen && currentDen) {
+    aL = mkF(ri(1, currentDen * 3), currentDen);
+    aR = mkF(ri(1, currentDen * 3), currentDen);
+  } else if (useFrac) {
+    aL = mkF(ri(1, 4), ri(2, 6));
+    aR = mkF(ri(1, 4), ri(2, 6));
+  } else if (useDec && Math.random() < 0.5) {
+    aL = mkF(ri(1, 9), 10);
+    aR = mkF(ri(1, 9), 10);
+  } else {
+    aL = f1(ri(1, 5));
+    aR = f1(ri(1, 5));
+  }
+  if (Math.abs(fNum(aL) - fNum(aR)) < 0.05) return null;
+
+  const x = neg ? f1(ri(-6, 6)) : f1(ri(1, 6));
+
+  let leftHtml, bL;
+  if (chipOn('chipBr') && useFrac && Math.random() < 0.6) {
+    const bLraw = neg ? mkF(ri(-4, 4), ri(2, 4)) : mkF(ri(0, 4), ri(2, 4));
+    const bLs = fNum(bLraw) >= 0
+      ? `${v} + ${renderF(bLraw)}`
+      : `${v} - ${renderF(mkF(Math.abs(bLraw.n), bLraw.d))}`;
+    leftHtml = `${renderF(aL)}(${bLs})`;
+    bL = fMul(aL, bLraw);
+  } else if (useSameDen && currentDen) {
+    const hi = 6 * currentDen;
+    bL = mkF(neg ? ri(-hi, hi) : ri(0, hi), currentDen);
+    leftHtml = buildExprVarFirst(aL, [bL], v);
+  } else if (useFrac) {
+    // fractional constant only when fractions are on
+    bL = neg ? mkF(ri(-6, 6), ri(2, 4)) : mkF(ri(0, 6), ri(2, 4));
+    leftHtml = buildExprVarFirst(aL, [bL], v);
+  } else {
+    bL = neg ? f1(ri(-8, 8)) : f1(ri(0, 8));
+    leftHtml = buildExprVarFirst(aL, [bL], v);
+  }
+
+  const lhs = fAdd(fMul(aL, x), bL);
+  const c   = fSub(lhs, fMul(aR, x));
+
+  const constParts = splitConst(c, Math.max(1, len - 1));
+  const rightHtml  = buildExprVarFirst(aR, constParts, v);
+
+  const diffCoeff = fSub(aL, aR);
+  const diffConst = fSub(c, bL);
+  const xSol      = fDiv(diffConst, diffCoeff);
+
+  const LCD = useSameDen && currentDen ? currentDen : aL.d * aR.d;
+  const steps = [
+    { e: `${leftHtml} = ${rightHtml}`,                                                          n: 'Pôvodná rovnica' },
+    { e: `Spoločný menovateľ = ${LCD}`,                                                          n: useSameDen ? 'Všetky zlomky majú rovnaký menovateľ' : 'Najmenší spoločný menovateľ koeficientov' },
+    { e: `${renderCoeff(fMul(f1(LCD), fSub(aL, aR)), v)} = ${renderF(fMul(f1(LCD), diffConst))}`, n: `Násobíme obe strany číslom ${LCD}` },
+    { e: `${v} = ${renderF(xSol)}`,                                                             n: 'Vyriešime' },
+  ];
+
+  return { html: `${leftHtml} = ${rightHtml}`, sol: xSol, var: v, steps };
+}
+
+function tryGenExpert() {
+  const neg     = chipOn('chipNeg');
+  const useFrac = chipOn('chipFrac');
+
+  // Expert requires fractions; fall back to hard generator if disabled
+  if (!useFrac) return tryGenHard();
+
+  currentDen = null; // Expert uses its own denominator scheme
+  const v = 'xyz'[ri(0, 2)];
+  const b = ri(2, 5), d = ri(2, 5);
+  const a = neg ? ri(-6, 6) : ri(0, 6);
+  const e = neg ? ri(-3, 3) : ri(0, 3);
+  const x = neg ? ri(-6, 6) : ri(1, 6);
+
+  // (x+a)/b = (x+c)/d + e  →  c = d*((x+a)/b - e) - x
+  const cRaw = d * ((x + a) / b - e) - x;
+  const c = Math.round(cRaw);
+
+  // Verify c produces a consistent equation
+  if (Math.abs(((x + a) / b) - ((x + c) / d + e)) > 0.05) return null;
+
+  const aS = a >= 0 ? `${v} + ${a}` : `${v} - ${Math.abs(a)}`;
+  const cS = c >= 0 ? `${v} + ${c}` : `${v} - ${Math.abs(c)}`;
+
+  const leftHtml = `<span class="frac"><span class="num">${aS}</span><span class="den">${b}</span></span>`;
+  const rFrac    = `<span class="frac"><span class="num">${cS}</span><span class="den">${d}</span></span>`;
+  const eS = e === 0 ? '' : (e > 0 ? ` + ${e}` : ` - ${Math.abs(e)}`);
+  const rightHtml = `${rFrac}${eS}`;
+
+  const LCD    = b * d;
+  const lCoeff = d, rCoeff = b;
+  const lConst = d * a, rConst = b * c + e * LCD;
+  const diff   = lCoeff - rCoeff;
+  const rhs    = rConst - lConst;
+
+  // Must be solvable
+  if (diff === 0) return null;
+
+  const steps = [
+    { e: `${leftHtml} = ${rightHtml}`,                                           n: 'Pôvodná rovnica' },
+    { e: `LCD = ${b} · ${d} = ${LCD}`,                                           n: 'Najmenší spoločný menovateľ' },
+    { e: `${lCoeff}(${aS}) = ${rCoeff}(${cS})${e !== 0 ? (e > 0 ? ` + ${e * LCD}` : ` - ${Math.abs(e * LCD)}`) : ''}`, n: `Násobíme obe strany číslom ${LCD}` },
+    { e: `${lCoeff}${v} + ${lConst} = ${rCoeff}${v} + ${rConst}`,               n: 'Roznásob' },
+    { e: `${diff}${v} = ${rhs}`,                                                 n: 'Prenesieme' },
+    { e: `${v} = ${x}`,                                                          n: 'Delíme koeficientom' },
+  ];
+  return { html: `${leftHtml} = ${rightHtml}`, sol: mkF(rhs, diff), var: v, steps };
+}
+
+// ─── MAIN GENERATE ───────────────────────────────────────────
+function generate() {
+  const genFn = pickGenerator();
+
+  let eq = null;
+  const MAX_TRIES = 50;
+  for (let i = 0; i < MAX_TRIES; i++) {
+    try {
+      eq = genFn();
+      if (eq) break;
+    } catch (err) {
+      console.warn('Generator error:', err);
+    }
+  }
+
+  if (!eq) {
+    const eqEl = document.getElementById('eqEl');
+    eqEl.textContent = 'Skús iné nastavenia 🤔';
+    eqEl.className = 'eq-text placeholder';
+    return;
+  }
+
+  currentEq = eq;
+
+  const eqEl = document.getElementById('eqEl');
+  eqEl.innerHTML = eq.html;
+  eqEl.className = 'eq-text';
+  void eqEl.offsetWidth;
+  eqEl.classList.add('pop');
+
+  document.getElementById('solCard').className = 'sol-card';
+  document.getElementById('stepsBody').className = 'steps-body';
+  document.getElementById('stepsToggle').className = 'steps-toggle';
+}
+
+// ─── SOLUTION ────────────────────────────────────────────────
+function showSol() {
+  if (!currentEq) { alert('Najprv vygeneruj rovnicu!'); return; }
+  const sv = document.getElementById('solVal');
+  sv.innerHTML = `${currentEq.var} = ${renderF(currentEq.sol)}`;
+
+  const body = document.getElementById('stepsBody');
+  body.innerHTML = '';
+  (currentEq.steps || []).forEach((s, i) => {
+    const row = document.createElement('div');
+    row.className = 'step-row';
+    row.innerHTML = `
+      <div class="step-num">${i + 1}</div>
+      <div class="step-content">
+        <div class="step-expr">${s.e}</div>
+        ${s.n ? `<div class="step-note">${s.n}</div>` : ''}
+      </div>`;
+    body.appendChild(row);
+  });
+
+  document.getElementById('solCard').className = 'sol-card show';
+}
+
+function toggleSteps() {
+  const toggle = document.getElementById('stepsToggle');
+  const body   = document.getElementById('stepsBody');
+  const isOpen = body.classList.toggle('show');
+  toggle.classList.toggle('open', isOpen);
+}
+</script>
+</body>
+</html>
