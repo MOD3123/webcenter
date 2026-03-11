@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Počasie</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root {
+  --primary:          #1A6FD4;
+  --on-primary:       #FFFFFF;
+  --primary-container:#D6E4FF;
+  --on-primary-container:#001C47;
+  --secondary:        #555F71;
+  --secondary-container:#D9E3F8;
+  --tertiary:         #6F5574;
+  --tertiary-container:#F9D8FF;
+  --surface:          #F7F9FF;
+  --surface-var:      #DDE3F0;
+  --surf-low:         #F1F4FB;
+  --surf-mid:         #EBEEf5;
+  --surf-high:        #E5E8F0;
+  --surf-highest:     #DFDFE7;
+  --on-surface:       #191C20;
+  --on-surface-var:   #42474E;
+  --outline:          #72787E;
+  --outline-var:      #C1C7CE;
+  --error:            #B3261E;
+  --error-container:  #F9DEDC;
+  --warning:          #7D5700;
+  --warning-container:#FFDEA8;
+  --shadow:           rgba(25,28,32,0.12);
+  --r-sm:   8px;
+  --r-md:   12px;
+  --r-lg:   16px;
+  --r-xl:   28px;
+  --r-full: 100px;
+  --font-brand: 'Nunito', sans-serif;
+  --font-plain: 'Nunito Sans', sans-serif;
+  --bg: linear-gradient(160deg, #C8DCFF 0%, #E9F0FF 40%, #F7F0FF 100%);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primary:          #A8C8FF;
+    --on-primary:       #003064;
+    --primary-container:#004A96;
+    --on-primary-container:#D6E4FF;
+    --secondary:        #BBC7DC;
+    --secondary-container:#3D4758;
+    --tertiary:         #DEBDE2;
+    --tertiary-container:#56405B;
+    --surface:          #111318;
+    --surface-var:      #42474E;
+    --surf-low:         #191C20;
+    --surf-mid:         #1D2026;
+    --surf-high:        #282A2F;
+    --surf-highest:     #32353A;
+    --on-surface:       #E2E2E9;
+    --on-surface-var:   #C4CAD0;
+    --outline:          #8C9198;
+    --outline-var:      #42474E;
+    --error:            #F2B8B5;
+    --error-container:  #8C1D18;
+    --warning:          #FFB955;
+    --warning-container:#5C3F00;
+    --shadow:           rgba(0,0,0,0.35);
+    --bg: linear-gradient(160deg, #0C1828 0%, #151B2E 50%, #1A1228 100%);
+  }
+}
+
+/* ── FIX: background on html prevents mobile scroll blink ── */
+html {
+  min-height: 100%;
+  background: var(--bg);
+  scroll-behavior: smooth;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{
+  min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;
+  gap:0;
+  background: transparent; /* gradient is on html now */
+  color:var(--on-surface);
+  font-family:var(--font-plain);font-size:14px;
+  scrollbar-width:thin;
+  scrollbar-color:var(--outline-var) transparent;
+  transition:color .3s;
+  overscroll-behavior-y: none; /* prevent overscroll bounce blink */
+}
+
+/* ── Decorative blobs — own compositor layer prevents repaints ── */
+body::before,body::after{
+  content:'';position:fixed;pointer-events:none;z-index:0;
+  border-radius:50%;filter:blur(80px);opacity:.25;
+  transition:opacity .4s;
+  transform: translateZ(0); /* force GPU layer */
+  will-change: transform;
+}
+body::before{width:600px;height:600px;top:-150px;right:-150px;background:radial-gradient(circle,#80A8FF,#C06CFF)}
+body::after{width:500px;height:500px;bottom:0;left:-100px;background:radial-gradient(circle,#56B4FF,#3DF5C0)}
+@media(prefers-color-scheme:dark){body::before{opacity:.12}body::after{opacity:.08}}
+/* hide blobs on mobile to prevent any residual blink */
+@media(max-width:600px){body::before,body::after{display:none}}
+
+/* ── Header ── */
+header{
+  width:100%;
+  display:flex;justify-content:space-between;align-items:center;
+  flex-wrap:nowrap;gap:10px;
+  padding:0 clamp(14px,4vw,48px);
+  height:54px;
+  background:linear-gradient(100deg,
+    color-mix(in srgb,var(--primary-container) 55%,transparent),
+    color-mix(in srgb,var(--surf-low) 90%,transparent));
+  backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);
+  position:sticky;top:0;z-index:100;
+  border-bottom:1px solid color-mix(in srgb,var(--primary) 20%,transparent);
+  box-shadow:0 2px 16px color-mix(in srgb,var(--primary) 10%,transparent);
+  transition:background .3s;
+}
+header h1{
+  font-family:var(--font-brand);font-size:18px;font-weight:900;letter-spacing:-.3px;
+  color:var(--primary);display:flex;align-items:center;gap:8px;line-height:1;
+  flex-shrink:0;
+}
+.logo-icon{width:22px;height:22px;flex-shrink:0}
+.header-right{display:flex;gap:8px;align-items:center;flex-shrink:0}
+.city-label{
+  background:color-mix(in srgb,var(--primary-container) 80%,transparent);
+  color:var(--primary);
+  padding:5px 13px;border-radius:var(--r-full);
+  font-family:var(--font-brand);font-weight:800;font-size:13px;letter-spacing:.2px;
+  border:1.5px solid color-mix(in srgb,var(--primary) 25%,transparent);
+  max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.hdr-btn{
+  padding:7px 14px;border-radius:var(--r-full);border:1.5px solid color-mix(in srgb,var(--primary) 40%,transparent);
+  background:color-mix(in srgb,var(--primary-container) 60%,transparent);
+  color:var(--primary);
+  cursor:pointer;font-family:var(--font-brand);font-weight:800;font-size:13px;letter-spacing:.3px;
+  backdrop-filter:blur(8px);
+  transition:all .2s;
+  display:flex;align-items:center;gap:6px;white-space:nowrap;
+}
+.hdr-btn:hover{background:var(--primary);color:var(--on-primary);border-color:transparent;box-shadow:0 2px 12px color-mix(in srgb,var(--primary) 40%,transparent)}
+.hdr-btn:active{opacity:.85}
+.hdr-btn-emoji{font-size:15px;line-height:1}
+@media(max-width:480px){
+  .hdr-btn-text{display:none}
+  .hdr-btn{padding:7px 10px}
+  header h1{font-size:14px}
+  .logo-icon{width:18px;height:18px}
+  .city-label{max-width:100px;font-size:12px}
+}
+
+/* ── Sections ── */
+section{
+  width:min(92%,1200px);max-width:1200px;
+  background:color-mix(in srgb,var(--surf-low) 80%,transparent);
+  border-radius:var(--r-xl);padding:12px 16px;margin:10px 0 5px;
+  box-shadow:0 2px 8px var(--shadow);
+  border:1px solid color-mix(in srgb,var(--outline-var) 50%,transparent);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  position:relative;z-index:1;
+  transition:background .3s;
+  animation:slideUp .4s ease-out both;
+}
+@keyframes slideUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+section:nth-child(2){animation-delay:.05s}
+section:nth-child(3){animation-delay:.10s}
+section:nth-child(4){animation-delay:.15s}
+section:nth-child(5){animation-delay:.20s}
+section:nth-child(6){animation-delay:.25s}
+section:nth-child(7){animation-delay:.30s}
+section:nth-child(8){animation-delay:.35s}
+
+section h2{
+  margin-bottom:10px;font-family:var(--font-brand);
+  font-size:15px;font-weight:800;color:var(--on-surface);
+  display:flex;align-items:center;gap:8px;
+}
+.section-icon{
+  width:26px;height:26px;border-radius:var(--r-sm);
+  background:color-mix(in srgb,var(--primary-container) 70%,transparent);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  font-size:15px;line-height:1;
+}
+
+/* ── Current weather ── */
+#currentCard{
+  display:flex;flex-direction:column;align-items:center;text-align:center;
+  background:linear-gradient(135deg,
+    color-mix(in srgb,var(--primary-container) 90%,transparent),
+    color-mix(in srgb,var(--tertiary-container) 60%,transparent));
+  border-radius:var(--r-xl);padding:28px 20px 24px;
+  box-shadow:0 4px 20px color-mix(in srgb,var(--primary) 18%,transparent);
+  border:1px solid color-mix(in srgb,var(--primary) 15%,transparent);
+  gap:4px;
+}
+#curIcon{
+  width:110px;height:110px;margin-bottom:14px;
+  display:flex;align-items:center;justify-content:center;
+}
+#curTemp{
+  font-family:var(--font-brand);font-size:52px;font-weight:900;
+  color:var(--on-primary-container);line-height:1;margin-bottom:4px;letter-spacing:-2px;
+}
+#curFeels{
+  font-size:14px;font-weight:700;
+  color:color-mix(in srgb,var(--on-primary-container) 80%,transparent);margin-bottom:16px;
+}
+.meta{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;justify-content:center}
+.meta>div{
+  background:color-mix(in srgb,var(--surface) 70%,transparent);
+  border:1px solid color-mix(in srgb,var(--outline-var) 40%,transparent);
+  border-radius:var(--r-full);padding:5px 11px;
+  font-weight:700;font-size:12px;backdrop-filter:blur(4px);
+  display:flex;align-items:center;gap:5px;
+}
+.meta .meta-emoji{font-size:14px;line-height:1}
+.extra,.sun{
+  margin-top:14px;font-weight:600;font-size:13px;
+  color:color-mix(in srgb,var(--on-primary-container) 85%,transparent);
+  display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:center;
+}
+.extra-item{display:flex;align-items:center;gap:4px}
+.extra-item .ei-emoji{font-size:15px;line-height:1}
+
+/* ── Hourly ── */
+#hourlyGrid{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+@media(max-width:600px){#hourlyGrid{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;padding-bottom:6px;scrollbar-width:thin;scrollbar-color:var(--outline-var) transparent;-webkit-overflow-scrolling:touch}}
+.hourlyPanel{display:none;overflow-x:auto;gap:6px;padding-bottom:6px;scrollbar-width:thin;scrollbar-color:var(--outline-var) transparent}
+.hourlyPanel.active{display:flex;flex-wrap:wrap;justify-content:center}
+.hourCard{
+  background:color-mix(in srgb,var(--surf-mid) 80%,transparent);
+  border:1px solid color-mix(in srgb,var(--outline-var) 50%,transparent);
+  border-radius:var(--r-md);padding:7px 5px;text-align:center;font-weight:700;
+  box-shadow:0 1px 4px var(--shadow);
+  transition:box-shadow .2s,background .2s;cursor:default;
+  width:72px;flex-shrink:0;
+}
+.hourCard:hover{box-shadow:0 3px 10px var(--shadow);background:color-mix(in srgb,var(--primary-container) 40%,transparent)}
+.hourCard .hc-time{font-size:11px;color:var(--on-surface-var);margin-bottom:4px}
+.hourCard .hc-icon{width:28px;height:28px;margin:0 auto 3px}
+.hourCard .hc-temp{font-size:15px;font-weight:900;color:var(--on-surface)}
+.hourCard .hc-rain{font-size:11px;color:var(--primary);margin-top:3px;display:flex;align-items:center;justify-content:center;gap:3px}
+
+/* ── Daily ── */
+.day{
+  display:flex;justify-content:space-between;align-items:center;
+  flex-wrap:wrap;padding:8px 12px;margin-bottom:4px;
+  background:color-mix(in srgb,var(--surf-mid) 70%,transparent);
+  border:1px solid color-mix(in srgb,var(--outline-var) 40%,transparent);
+  border-radius:var(--r-lg);cursor:pointer;font-weight:700;font-size:13px;
+  transition:all .25s cubic-bezier(.34,1.56,.64,1);
+  gap:8px;
+}
+.day:hover{background:color-mix(in srgb,var(--primary-container) 60%,transparent);box-shadow:0 2px 8px var(--shadow)}
+.day.expanded{background:color-mix(in srgb,var(--primary-container) 70%,transparent);border-color:color-mix(in srgb,var(--primary) 30%,transparent)}
+.day .day-icon{width:26px;height:26px}
+.day .day-temps{display:flex;align-items:center;gap:4px}
+.day .day-temps .temp-max{color:var(--error);font-size:14px}
+.day .day-temps .temp-min{color:var(--primary);font-size:12px}
+.day .day-rain{display:flex;align-items:center;gap:4px;color:var(--primary);font-size:12px}
+.hourlyPanel{display:none;margin:4px 0 8px;padding-bottom:4px}
+.hourlyPanel.active{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+
+/* ── Alerts ── */
+.alert{
+  padding:13px 16px;border-radius:var(--r-lg);font-weight:700;font-size:13px;
+  display:flex;align-items:center;gap:10px;
+  background:color-mix(in srgb,var(--surf-high) 90%,transparent);
+  color:var(--on-surface);border:1px solid color-mix(in srgb,var(--outline-var) 60%,transparent);
+}
+.alert-emoji{font-size:20px;line-height:1;flex-shrink:0}
+.alert.warn{background:var(--warning-container);color:var(--warning);border-color:color-mix(in srgb,var(--warning) 30%,transparent)}
+.alert.danger{background:var(--error-container);color:var(--error);border-color:color-mix(in srgb,var(--error) 30%,transparent)}
+
+/* ── Map grid — DESKTOP ── */
+.map-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:800px){.map-grid{grid-template-columns:1fr 1fr;gap:7px}}
+
+/* ── Map thumbnail ── */
+.map-thumb{
+  position:relative;border-radius:var(--r-lg);overflow:hidden;
+  background:color-mix(in srgb,var(--surf-high) 80%,transparent);
+  border:1px solid color-mix(in srgb,var(--outline-var) 50%,transparent);
+  cursor:pointer;
+}
+.map-thumb iframe{
+  width:100%;height:160px;border:0;pointer-events:none;
+  display:block;
+}
+.map-thumb-overlay{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  background:color-mix(in srgb,var(--on-primary-container) 0%,transparent);
+  transition:background .2s;border-radius:var(--r-lg);
+}
+.map-thumb:hover .map-thumb-overlay{background:color-mix(in srgb,var(--primary) 12%,transparent)}
+.map-expand-btn{
+  background:color-mix(in srgb,var(--surf-low) 90%,transparent);
+  backdrop-filter:blur(8px);
+  border:1px solid color-mix(in srgb,var(--outline-var) 60%,transparent);
+  border-radius:var(--r-full);
+  padding:7px 14px;display:flex;align-items:center;gap:6px;
+  font-family:var(--font-brand);font-weight:800;font-size:12px;
+  color:var(--primary);cursor:pointer;
+  box-shadow:0 2px 8px var(--shadow);
+  transition:background .2s;
+}
+.map-thumb-label{
+  position:absolute;top:8px;left:10px;
+  background:color-mix(in srgb,var(--surf-low) 90%,transparent);
+  backdrop-filter:blur(8px);
+  border-radius:var(--r-full);padding:3px 10px;
+  font-family:var(--font-brand);font-weight:800;font-size:11px;
+  color:var(--on-surface);
+  border:1px solid color-mix(in srgb,var(--outline-var) 40%,transparent);
+}
+
+/* ── Map mobile: no iframes, pure M3 buttons ── */
+@media(max-width:600px){
+  .map-grid{grid-template-columns:1fr 1fr;gap:8px}
+  .map-thumb{
+    overflow:visible;
+    min-height:54px;
+    height:54px;
+    background:color-mix(in srgb,var(--primary-container) 55%,transparent);
+    border:1.5px solid color-mix(in srgb,var(--primary) 20%,transparent);
+    border-radius:var(--r-lg);
+    display:flex;align-items:center;justify-content:center;
+    transition:background .2s, box-shadow .2s;
+  }
+  .map-thumb:active{background:color-mix(in srgb,var(--primary-container) 85%,transparent);box-shadow:0 2px 8px var(--shadow)}
+  .map-thumb iframe{display:none !important}
+  .map-thumb-overlay{display:none}
+  .map-thumb-label{
+    position:static;
+    background:transparent;
+    border:none;
+    backdrop-filter:none;
+    -webkit-backdrop-filter:none;
+    padding:0;
+    font-size:14px;
+    font-weight:800;
+    color:var(--primary);
+    width:100%;
+    text-align:center;
+    letter-spacing:.2px;
+  }
+}
+
+/* ── Map Modal ── */
+#mapModal{
+  position:fixed;left:0;top:0;width:100%;height:100%;
+  display:none;align-items:center;justify-content:center;
+  background:color-mix(in srgb,var(--surface) 50%,transparent);
+  backdrop-filter:blur(12px) saturate(130%);-webkit-backdrop-filter:blur(12px) saturate(130%);
+  z-index:998;
+}
+#mapModal.open{display:flex}
+.map-modal-inner{
+  background:var(--surf-low);
+  border:1px solid color-mix(in srgb,var(--outline-var) 70%,transparent);
+  border-radius:28px;
+  width:min(900px,95vw);
+  box-shadow:0 12px 48px color-mix(in srgb,var(--on-surface) 30%,transparent);
+  padding:16px;
+  animation:modalIn .3s cubic-bezier(.34,1.56,.64,1) both;
+  display:flex;flex-direction:column;gap:10px;
+}
+.map-modal-header{display:flex;justify-content:space-between;align-items:center}
+.map-modal-title{font-family:var(--font-brand);font-size:16px;font-weight:900;color:var(--on-surface);display:flex;align-items:center;gap:8px}
+.map-close-btn{
+  width:34px;height:34px;border-radius:var(--r-full);border:none;
+  background:var(--surf-high);color:var(--on-surface);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:18px;font-weight:700;transition:background .2s;
+}
+.map-close-btn:hover{background:var(--outline-var)}
+#mapModalFrame{width:100%;height:min(70vh,520px);border:0;border-radius:var(--r-lg);display:block}
+
+/* ── Links ── */
+.link-card{display:flex;flex-direction:column;gap:5px}
+.weather-button{
+  display:flex;align-items:center;gap:10px;padding:10px 14px;
+  background:color-mix(in srgb,var(--secondary-container) 90%,transparent);
+  color:var(--on-primary-container);
+  border:1px solid color-mix(in srgb,var(--outline-var) 50%,transparent);
+  border-radius:var(--r-lg);
+  font-family:var(--font-brand);font-weight:800;text-decoration:none;font-size:14px;
+  transition:all .2s cubic-bezier(.34,1.56,.64,1);
+  box-shadow:0 2px 6px var(--shadow);
+}
+.weather-button:hover{background:var(--primary);color:var(--on-primary);box-shadow:0 2px 10px color-mix(in srgb,var(--primary) 30%,transparent)}
+.weather-button .wb-emoji{font-size:18px;line-height:1;flex-shrink:0;width:24px;text-align:center}
+
+/* ── Chart ── */
+#bigChart{width:100%;height:240px}
+
+/* ── Footer ── */
+footer{
+  text-align:center;color:var(--on-surface-var);
+  margin:8px 0 14px;font-size:12px;position:relative;z-index:1;
+}
+
+/* ── Modal scroll lock ── */
+body.modal-open{overflow:hidden}
+
+/* ── Responsive ── */
+@media(max-width:600px){
+  #hourly{padding:10px 8px}
+  section{width:98%;border-radius:var(--r-lg);padding:10px 10px}
+  #currentCard{padding:18px 10px 16px}
+  #curTemp{font-size:42px}
+  #curIcon{width:86px;height:86px}
+  .meta{gap:5px}
+  .meta>div{padding:5px 10px;font-size:12px}
+  .hourCard{width:64px}
+  .hourCard .hc-temp{font-size:13px}
+  .day{font-size:12px;padding:9px 10px;gap:6px}
+  .day-rain{display:none!important} /* hide rain on mobile daily row, shown in expand */
+  #bigChart{height:200px}
+  section h2{font-size:14px}
+  .weather-button{font-size:13px;padding:10px 12px}
+  footer{font-size:11px;padding:0 16px}
+}
+
+/* ══════════════════════════════════════════════
+   CITY MODAL
+   ══════════════════════════════════════════════ */
+@keyframes modalInDesktop{from{opacity:0;transform:scale(.92) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes modalInMobile{from{transform:translateY(100%)}to{transform:translateY(0)}}
+
+/* Overlay */
+#cityModal{
+  position:fixed;inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,.45);
+  backdrop-filter:blur(10px) saturate(140%);
+  -webkit-backdrop-filter:blur(10px) saturate(140%);
+  z-index:999;
+  padding:16px;
+}
+#cityModal.open{display:flex}
+
+/* Dialog box — flex child, no position:fixed */
+.modal{
+  background:var(--surf-low);
+  border:1px solid color-mix(in srgb,var(--outline-var) 70%,transparent);
+  border-radius:28px;
+  width:min(620px,100%);
+  max-height:min(80vh,680px);
+  height:min(80vh,680px);
+  box-shadow:0 16px 56px rgba(0,0,0,.35);
+  animation:modalInDesktop .28s cubic-bezier(.25,1.2,.5,1) both;
+  display:flex;flex-direction:column;
+  overflow:hidden;
+  flex-shrink:0;
+}
+
+/* Header */
+.modal-header{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:18px 20px 14px;flex-shrink:0;
+}
+.modal-header h2{
+  font-family:var(--font-brand);font-size:18px;font-weight:900;
+  color:var(--on-surface);margin:0;
+}
+.modal-close-btn{
+  width:34px;height:34px;border-radius:var(--r-full);border:none;
+  background:var(--surf-high);color:var(--on-surface-var);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:16px;transition:background .18s,color .18s;flex-shrink:0;
+}
+.modal-close-btn:hover{background:var(--outline-var);color:var(--on-surface)}
+
+/* Body = left + right */
+.modal-body{
+  display:flex;flex:1;overflow:hidden;min-height:0;
+}
+
+/* ── Left: country tabs ── */
+.modal-left{
+  width:176px;flex-shrink:0;
+  display:flex;flex-direction:column;gap:4px;
+  overflow-y:auto;
+  padding:10px 8px 16px 10px;
+  border-right:1px solid color-mix(in srgb,var(--outline-var) 40%,transparent);
+  scrollbar-width:thin;scrollbar-color:var(--outline-var) transparent;
+}
+.modal-left-title{
+  font-family:var(--font-brand);font-size:10px;font-weight:800;
+  text-transform:uppercase;letter-spacing:1.2px;
+  color:var(--on-surface-var);padding:2px 4px 8px;flex-shrink:0;
+}
+.country-tab-btn{
+  padding:11px 12px;border-radius:var(--r-md);border:none;
+  background:transparent;
+  font-family:var(--font-brand);font-weight:700;font-size:13px;
+  color:var(--on-surface);cursor:pointer;text-align:left;
+  transition:background .15s,color .15s;
+  display:flex;align-items:center;gap:8px;
+  flex-shrink:0;min-height:46px;width:100%;
+}
+.country-tab-btn:hover{background:color-mix(in srgb,var(--primary-container) 55%,transparent)}
+.country-tab-btn.active{
+  background:color-mix(in srgb,var(--primary-container) 90%,transparent);
+  color:var(--primary);font-weight:800;
+}
+.ctb-flag{font-size:20px;line-height:1;flex-shrink:0}
+
+/* ── Right: search + list ── */
+.modal-right{
+  flex:1;display:flex;flex-direction:column;
+  overflow:hidden;padding:10px 12px 12px;gap:8px;
+  min-width:0;
+}
+.modal-search{
+  width:100%;padding:11px 16px;border-radius:var(--r-full);
+  border:1.5px solid var(--outline-var);
+  background:var(--surf-mid);color:var(--on-surface);
+  font-family:var(--font-brand);font-size:15px;font-weight:700;
+  outline:none;flex-shrink:0;
+  transition:border-color .2s,box-shadow .2s;
+}
+.modal-search:focus{
+  border-color:var(--primary);
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--primary) 18%,transparent);
+}
+.country-header{
+  font-family:var(--font-brand);font-size:10px;font-weight:800;letter-spacing:1.2px;
+  text-transform:uppercase;color:var(--primary);padding:4px 2px 2px;flex-shrink:0;
+}
+.city-list{
+  display:flex;flex-direction:column;gap:6px;
+  overflow-y:auto;flex:1;min-height:0;
+  padding-right:2px;
+  scrollbar-width:thin;scrollbar-color:var(--outline-var) transparent;
+}
+.city-btn{
+  padding:12px 16px;border-radius:var(--r-lg);
+  background:var(--surf-high);
+  border:1px solid color-mix(in srgb,var(--outline-var) 45%,transparent);
+  font-family:var(--font-brand);font-weight:700;color:var(--on-surface);
+  cursor:pointer;text-align:left;font-size:14px;
+  transition:background .15s,color .15s,transform .1s;
+  flex-shrink:0;min-height:46px;
+  display:flex;align-items:center;
+}
+.city-btn:hover{
+  background:color-mix(in srgb,var(--primary-container) 75%,transparent);
+  color:var(--on-primary-container);
+}
+.city-btn:active{transform:scale(.98)}
+.city-btn.hidden{display:none}
+
+/* ── Country select (mobile only) ── */
+.country-select{display:none}
+
+/* ══ MOBILE: bottom sheet ══ */
+@media(max-width:768px){
+  #cityModal{
+    padding:0;
+    align-items:flex-end;
+    justify-content:center;
+    backdrop-filter:none;
+    -webkit-backdrop-filter:none;
+    background:rgba(0,0,0,.55);
+  }
+  .modal{
+    width:100%;
+    max-width:100%;
+    height:auto;
+    max-height:92dvh;
+    min-height:55vh;
+    border-radius:22px 22px 0 0;
+    border-bottom:none;
+    border-left:none;
+    border-right:none;
+    align-self:flex-end;
+    animation:modalInMobile .3s cubic-bezier(.2,.9,.3,1) both;
+  }
+  /* drag handle */
+  .modal-header{
+    position:relative;
+    padding:20px 18px 12px;
+  }
+  .modal-header::before{
+    content:'';
+    position:absolute;top:8px;left:50%;transform:translateX(-50%);
+    width:36px;height:4px;border-radius:2px;
+    background:var(--outline-var);
+  }
+  /* on mobile: column layout, no left sidebar */
+  .modal-body{flex-direction:column}
+  .modal-left{
+    width:100%;height:auto;
+    flex-direction:column;
+    flex-shrink:0;
+    padding:0 14px 0;
+    border-right:none;
+    border-bottom:1px solid color-mix(in srgb,var(--outline-var) 40%,transparent);
+    gap:0;
+    scrollbar-width:none;
+    overflow:visible;
+    padding-bottom:12px;
+  }
+  .modal-left-title{display:none}
+  /* hide desktop tabs on mobile */
+  #countryTabs{display:none}
+  /* show native select on mobile */
+  .country-select{
+    display:block;
+    width:100%;
+    padding:11px 40px 11px 16px;
+    border-radius:var(--r-lg);
+    border:1.5px solid color-mix(in srgb,var(--outline-var) 60%,transparent);
+    background:var(--surf-high);
+    color:var(--on-surface);
+    font-family:var(--font-brand);font-weight:700;font-size:16px;
+    outline:none;
+    cursor:pointer;
+    appearance:none;
+    -webkit-appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2372787E' stroke-width='2.5' stroke-linecap='round'%3E%3Cpolyline points='6,9 12,15 18,9'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;
+    background-position:right 14px center;
+    background-size:18px;
+    min-height:48px;
+  }
+  .modal-right{
+    padding:10px 14px 20px;
+    gap:10px;
+    flex:1;
+    overflow:hidden;
+    min-height:0;
+  }
+  .modal-search{font-size:16px}
+  .city-btn{font-size:15px;padding:14px 16px;min-height:52px}
+  .city-list{gap:8px}
+}
+
+/* ── Loading ── */
+#loading{
+  position:fixed;left:0;top:0;width:100%;height:100%;
+  background:color-mix(in srgb,var(--surface) 88%,transparent);
+  backdrop-filter:blur(8px);
+  display:none;flex-direction:column;align-items:center;justify-content:center;
+  z-index:2000;font-family:var(--font-brand);font-weight:800;color:var(--on-surface);font-size:16px;
+}
+.spinner{width:48px;height:48px;margin-bottom:14px;position:relative}
+.spinner::before,.spinner::after{content:'';position:absolute;inset:0;border-radius:50%}
+.spinner::before{border:5px solid color-mix(in srgb,var(--primary) 20%,transparent)}
+.spinner::after{border:5px solid transparent;border-top-color:var(--primary);animation:spin 1s cubic-bezier(.4,0,.2,1) infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── Sun info ── */
+.sun-info{display:flex;gap:16px;align-items:center;justify-content:center;flex-wrap:wrap}
+.sun-item{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700}
+.sun-item .si-emoji{font-size:18px;line-height:1}
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="spinner"></div>
+  <p>Načítavam počasie</p>
+</div>
+
+<header>
+  <h1>
+    <svg class="logo-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="lg" cx="40%" cy="35%" r="60%">
+          <stop offset="0%" stop-color="#FFF9C4"/>
+          <stop offset="100%" stop-color="#F59E0B"/>
+        </radialGradient>
+        <linearGradient id="lc" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#DBEAFE"/>
+          <stop offset="100%" stop-color="#93C5FD"/>
+        </linearGradient>
+      </defs>
+      <circle cx="13" cy="13" r="6" fill="url(#lg)"/>
+      <g stroke="#F59E0B" stroke-width="1.6" stroke-linecap="round">
+        <line x1="13" y1="3" x2="13" y2="5.5"/>
+        <line x1="13" y1="20.5" x2="13" y2="23" opacity=".4"/>
+        <line x1="3" y1="13" x2="5.5" y2="13"/>
+        <line x1="20.5" y1="13" x2="23" y2="13"/>
+        <line x1="5.9" y1="5.9" x2="7.7" y2="7.7"/>
+        <line x1="18.3" y1="18.3" x2="20.1" y2="20.1" opacity=".4"/>
+        <line x1="20.1" y1="5.9" x2="18.3" y2="7.7"/>
+        <line x1="7.7" y1="18.3" x2="5.9" y2="20.1" opacity=".4"/>
+      </g>
+      <path d="M26 22.5a5.5 5.5 0 0 0-9-4.3A4.5 4.5 0 1 0 17.5 28H26a3.5 3.5 0 0 0 0-5.5z" fill="url(#lc)"/>
+    </svg>
+    <span class="h1-text">Počasie SK</span>
+  </h1>
+  <div class="header-right">
+    <div class="city-label" id="cityLabelPill" style="display:none">—</div>
+    <button class="hdr-btn" id="openModal">
+      <span class="hdr-btn-emoji">📍</span>
+      <span class="hdr-btn-text">Zmeniť mesto</span>
+    </button>
+  </div>
+</header>
+
+<section id="current" style="padding-bottom:20px">
+  <h2>
+    <div class="section-icon">☀️</div>
+    Aktuálne počasie
+  </h2>
+  <div id="currentCard">
+    <div id="curIcon"></div>
+    <div id="curTemp">--°C</div>
+    <div id="curFeels">Pocitová teplota: --°C</div>
+    <div class="meta">
+      <div>
+        <span class="meta-emoji">💨</span>
+        <span id="curWind">-- km/h</span>
+      </div>
+      <div>
+        <span class="meta-emoji">💧</span>
+        <span id="curHum">--%</span>
+      </div>
+      <div>
+        <span class="meta-emoji">🌧️</span>
+        <span id="curRain">-- mm</span>
+      </div>
+    </div>
+    <div class="extra" id="extraData"></div>
+    <div class="sun" id="sunData"></div>
+  </div>
+</section>
+
+<section id="links">
+  <h2>
+    <div class="section-icon">🔗</div>
+    Odkazy
+  </h2>
+  <div class="link-card">
+    <a href="https://no-ship-it26.github.io/Spravy/spravy_pocasie" class="weather-button" target="_blank">
+      <span class="wb-emoji">📰</span>
+      Správy o počasí
+    </a>
+    <a href="https://www.shmu.sk/popups/meteo/vystrahy.php?region=BA" class="weather-button" target="_blank">
+      <span class="wb-emoji">⚠️</span>
+      Výstrahy SHMÚ – Bratislava
+    </a>
+    <a href="https://www.shmu.sk/popups/meteo/vystrahy.php?region=KN" class="weather-button" target="_blank">
+      <span class="wb-emoji">⚠️</span>
+      Výstrahy SHMÚ – Komárno
+    </a>
+    <a href="https://www.shmu.sk/" class="weather-button" target="_blank">
+      <span class="wb-emoji">🌐</span>
+      SHMÚ.sk
+    </a>
+    <a href="https://www.imeteo.sk/" class="weather-button" target="_blank">
+      <span class="wb-emoji">☁️</span>
+      iMeteo.sk
+    </a>
+  </div>
+</section>
+
+<section id="hourly">
+  <h2>
+    <div class="section-icon">🕐</div>
+    Hodinová predpoveď na dnes
+  </h2>
+  <div id="hourlyGrid"></div>
+</section>
+
+<section id="daily">
+  <h2>
+    <div class="section-icon">📅</div>
+    Dlhodobá predpoveď
+  </h2>
+  <div id="dailyGrid"></div>
+</section>
+
+<section id="alerts">
+  <h2>
+    <div class="section-icon">⚠️</div>
+    Výstrahy
+  </h2>
+</section>
+
+<section id="charts">
+  <h2>
+    <div class="section-icon">📈</div>
+    Graf vývoja teplôt
+  </h2>
+  <canvas id="bigChart"></canvas>
+</section>
+
+<section id="mapCard">
+  <h2>
+    <div class="section-icon">🗺️</div>
+    Mapy
+  </h2>
+  <div class="map-grid">
+    <div class="map-thumb" onclick="openMapModal('imeteo')">
+      <iframe src="https://www.imeteo.sk/iframe/pocasie" frameborder="0" tabindex="-1" loading="lazy"></iframe>
+      <div class="map-thumb-label">🌤️ iMeteo</div>
+      <div class="map-thumb-overlay"><div class="map-expand-btn">⤢ Otvoriť</div></div>
+    </div>
+    <div class="map-thumb" onclick="openMapModal('wind')">
+      <iframe id="windyMap" frameborder="0" tabindex="-1" loading="lazy"></iframe>
+      <div class="map-thumb-label">🌬️ Vietor</div>
+      <div class="map-thumb-overlay"><div class="map-expand-btn">⤢ Otvoriť</div></div>
+    </div>
+    <div class="map-thumb" onclick="openMapModal('rain')">
+      <iframe id="windyMapRain" frameborder="0" tabindex="-1" loading="lazy"></iframe>
+      <div class="map-thumb-label">🌧️ Zrážky</div>
+      <div class="map-thumb-overlay"><div class="map-expand-btn">⤢ Otvoriť</div></div>
+    </div>
+    <div class="map-thumb" onclick="openMapModal('temp')">
+      <iframe id="windyMapTemp" frameborder="0" tabindex="-1" loading="lazy"></iframe>
+      <div class="map-thumb-label">🌡️ Teplota</div>
+      <div class="map-thumb-overlay"><div class="map-expand-btn">⤢ Otvoriť</div></div>
+    </div>
+    <div class="map-thumb" onclick="openMapModal('clouds')">
+      <iframe id="windyMapClouds" frameborder="0" tabindex="-1" loading="lazy"></iframe>
+      <div class="map-thumb-label">☁️ Oblačnosť</div>
+      <div class="map-thumb-overlay"><div class="map-expand-btn">⤢ Otvoriť</div></div>
+    </div>
+    <div class="map-thumb" onclick="openMapModal('snowcover')">
+      <iframe id="windyMapSnow" frameborder="0" tabindex="-1" loading="lazy"></iframe>
+      <div class="map-thumb-label">❄️ Sneh</div>
+      <div class="map-thumb-overlay"><div class="map-expand-btn">⤢ Otvoriť</div></div>
+    </div>
+    <div class="map-thumb" onclick="openMapModal('thunder')">
+      <iframe id="windyMapThunder" frameborder="0" tabindex="-1" loading="lazy"></iframe>
+      <div class="map-thumb-label">⛈️ Búrky</div>
+      <div class="map-thumb-overlay"><div class="map-expand-btn">⤢ Otvoriť</div></div>
+    </div>
+    <div class="map-thumb" onclick="openMapModal('waves')">
+      <iframe id="windyMapWaves" frameborder="0" tabindex="-1" loading="lazy"></iframe>
+      <div class="map-thumb-label">🌊 Vlny</div>
+      <div class="map-thumb-overlay"><div class="map-expand-btn">⤢ Otvoriť</div></div>
+    </div>
+  </div>
+</section>
+
+<div id="mapModal">
+  <div class="map-modal-inner">
+    <div class="map-modal-header">
+      <div class="map-modal-title">
+        <div class="section-icon">🗺️</div>
+        <span id="mapModalTitle">Mapa</span>
+      </div>
+      <button class="map-close-btn" onclick="closeMapModal()">✕</button>
+    </div>
+    <iframe id="mapModalFrame" frameborder="0"></iframe>
+  </div>
+</div>
+
+<footer>Používa Open-Meteo.com · Windy.com · iMeteo.sk</footer>
+
+<!-- ══════════════════════════════════════════════
+     CITY MODAL — two-panel layout
+     ══════════════════════════════════════════════ -->
+<div id="cityModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Vyberte mesto</h2>
+      <button class="modal-close-btn" id="closeCityModalBtn">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- Left: country tabs (desktop) / dropdown (mobile) -->
+      <div class="modal-left">
+        <div class="modal-left-title">Krajina</div>
+        <!-- Mobile select dropdown -->
+        <select class="country-select" id="countrySelect"></select>
+        <!-- Desktop tabs -->
+        <div id="countryTabs"></div>
+      </div>
+      <!-- Right: search + city list -->
+      <div class="modal-right">
+        <input class="modal-search" id="citySearch" type="search" placeholder="🔍 Hľadať mesto…" autocomplete="off">
+        <div class="city-list" id="cityList"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══ Emoji Weather Icons ══════════════════════════════════════ */
+const WI = {
+  0:'☀️', 1:'🌤️', 2:'⛅', 3:'☁️',
+  45:'🌫️', 48:'🌫️',
+  51:'🌦️', 53:'🌦️', 55:'🌧️',
+  61:'🌧️', 63:'🌧️', 65:'🌧️',
+  71:'🌨️', 73:'🌨️', 75:'❄️', 77:'❄️',
+  80:'🌦️', 81:'🌧️', 82:'🌧️',
+  85:'🌨️', 86:'❄️',
+  95:'⛈️', 96:'⛈️', 99:'⛈️',
+};
+
+function getWI(code) {
+  return WI[code] || '🌡️';
+}
+
+/* ══ Cities ══════════════════════════════════════════════ */
+const CITIES = [
+  {c:"Slovensko", flag:"🇸🇰", cities:[
+    {name:"Bratislava",lat:48.1486,lon:17.1077},{name:"Košice",lat:48.7164,lon:21.2611},
+    {name:"Prešov",lat:49.0014,lon:21.2392},{name:"Žilina",lat:49.2231,lon:18.7394},
+    {name:"Banská Bystrica",lat:48.7363,lon:19.1462},{name:"Nitra",lat:48.3069,lon:18.0869},
+    {name:"Trnava",lat:48.3772,lon:17.5867},{name:"Trenčín",lat:48.8944,lon:18.0431},
+    {name:"Martin",lat:49.0639,lon:18.9231},{name:"Poprad",lat:49.0628,lon:20.2978},
+    {name:"Zvolen",lat:48.5747,lon:19.1347},{name:"Komárno",lat:47.7636,lon:18.1261},
+    {name:"Prievidza",lat:48.7714,lon:18.6281},{name:"Liptovský Mikuláš",lat:49.0847,lon:19.6211},
+    {name:"Levice",lat:48.2175,lon:18.6092},{name:"Nové Zámky",lat:47.9861,lon:18.1664},
+    {name:"Michalovce",lat:48.7547,lon:21.9175},{name:"Spišská Nová Ves",lat:48.9458,lon:20.5636},
+    {name:"Považská Bystrica",lat:49.1236,lon:18.4469},{name:"Ružomberok",lat:49.0819,lon:19.3061},
+    {name:"Dunajská Streda",lat:47.9964,lon:17.6172},{name:"Bardejov",lat:49.2958,lon:21.2753},
+    {name:"Piešťany",lat:48.5886,lon:17.8331},{name:"Dolný Kubín",lat:49.2094,lon:19.2961},
+    {name:"Čadca",lat:49.4381,lon:18.7925},{name:"Rožňava",lat:48.6592,lon:20.5303},
+    {name:"Senica",lat:48.6808,lon:17.3656},{name:"Hlohovec",lat:48.4339,lon:17.7958},
+    {name:"Skalica",lat:48.8453,lon:17.2264},{name:"Humenné",lat:48.9356,lon:21.9097},
+    {name:"Vranov nad Topľou",lat:48.8817,lon:21.6836},{name:"Zlaté Moravce",lat:48.3819,lon:18.3961},
+    {name:"Námestovo",lat:49.4075,lon:19.48},{name:"Topoľčany",lat:48.5583,lon:18.1667},
+  ]},
+  {c:"Maďarsko", flag:"🇭🇺", cities:[
+    {name:"Budapest",lat:47.4979,lon:19.0402},{name:"Debrecen",lat:47.5316,lon:21.6273},
+    {name:"Miskolc",lat:48.1035,lon:20.7784},{name:"Pécs",lat:46.0727,lon:18.2323},
+    {name:"Győr",lat:47.6875,lon:17.6504},{name:"Nyíregyháza",lat:47.9561,lon:21.7167},
+    {name:"Kecskemét",lat:46.9069,lon:19.6914},{name:"Székesfehérvár",lat:47.1865,lon:18.4233},
+    {name:"Szombathely",lat:47.2306,lon:16.6219},{name:"Sopron",lat:47.685,lon:16.5902},
+    {name:"Eger",lat:47.9025,lon:20.3772},{name:"Szeged",lat:46.253,lon:20.1414},
+    {name:"Esztergom",lat:47.7926,lon:18.7402},{name:"Komárom",lat:47.7431,lon:18.1264},
+  ]},
+  {c:"Česko", flag:"🇨🇿", cities:[
+    {name:"Praha",lat:50.0755,lon:14.4378},{name:"Brno",lat:49.1951,lon:16.6068},
+    {name:"Ostrava",lat:49.8209,lon:18.2625},{name:"Plzeň",lat:49.7384,lon:13.3736},
+    {name:"Liberec",lat:50.7663,lon:15.0543},{name:"Olomouc",lat:49.5938,lon:17.2509},
+    {name:"České Budějovice",lat:48.9745,lon:14.4747},{name:"Hradec Králové",lat:50.2092,lon:15.8328},
+    {name:"Pardubice",lat:50.0343,lon:15.7812},{name:"Zlín",lat:49.2237,lon:17.6602},
+    {name:"Karlovy Vary",lat:50.2314,lon:12.8717},{name:"Jihlava",lat:49.3961,lon:15.5875},
+    {name:"Znojmo",lat:48.8556,lon:16.0489},{name:"Přerov",lat:49.4558,lon:17.4509},
+  ]},
+];
+
+/* ══ State ═══════════════════════════════════════════════ */
+let LAT=null, LON=null, CITY='—', bigChart=null, lastHourlyData=null, lastDailyData=null;
+let selectedGroupIndex = 0;
+
+/* ══ City modal — two-panel ═══════════════════════════════ */
+function openCityModal() {
+  document.getElementById('cityModal').classList.add('open');
+  document.body.classList.add('modal-open');
+  buildCountryTabs();
+  buildCityList('', selectedGroupIndex);
+}
+
+function closeCityModal() {
+  document.getElementById('cityModal').classList.remove('open');
+  document.body.classList.remove('modal-open');
+  document.getElementById('citySearch').value = '';
+}
+
+function buildCountryTabs() {
+  const tabs = document.getElementById('countryTabs');
+  const sel = document.getElementById('countrySelect');
+  tabs.innerHTML = '';
+  sel.innerHTML = '';
+  CITIES.forEach((group, idx) => {
+    // Desktop tab button
+    const btn = document.createElement('button');
+    btn.className = 'country-tab-btn' + (idx === selectedGroupIndex ? ' active' : '');
+    btn.innerHTML = `<span class="ctb-flag">${group.flag}</span><span>${group.c}</span>`;
+    btn.onclick = () => selectCountry(idx);
+    tabs.appendChild(btn);
+    // Mobile select option
+    const opt = document.createElement('option');
+    opt.value = idx;
+    opt.textContent = group.flag + ' ' + group.c;
+    if (idx === selectedGroupIndex) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+
+function selectCountry(idx) {
+  selectedGroupIndex = idx;
+  document.querySelectorAll('.country-tab-btn').forEach((b,i) =>
+    b.classList.toggle('active', i === idx));
+  document.getElementById('countrySelect').value = idx;
+  document.getElementById('citySearch').value = '';
+  buildCityList('', idx);
+}
+
+document.getElementById('countrySelect').addEventListener('change', e => {
+  selectCountry(parseInt(e.target.value));
+});
+
+function buildCityList(filter='', groupIndex=selectedGroupIndex) {
+  const list = document.getElementById('cityList');
+  list.innerHTML = '';
+  const f = filter.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+
+  // If filter is set, search across ALL groups
+  const groupsToSearch = f ? CITIES : [CITIES[groupIndex]];
+
+  groupsToSearch.forEach(group => {
+    let anyVisible = false;
+    const btns = [];
+
+    group.cities.forEach(city => {
+      const norm = city.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+      if (f && !norm.includes(f)) return;
+      anyVisible = true;
+      const btn = document.createElement('button');
+      btn.className = 'city-btn';
+      btn.textContent = city.name;
+      btn.onclick = () => {
+        LAT = city.lat; LON = city.lon; CITY = city.name;
+        const pill = document.getElementById('cityLabelPill');
+        if (pill) { pill.textContent = CITY; pill.style.display = 'block'; }
+        closeCityModal();
+        buildCityList('', selectedGroupIndex);
+        fetchAndRender();
+      };
+      btns.push(btn);
+    });
+
+    if (anyVisible) {
+      if (f) {
+        // show group header when searching across all
+        const hdr = document.createElement('div');
+        hdr.className = 'country-header';
+        hdr.textContent = group.flag + ' ' + group.c;
+        list.appendChild(hdr);
+      }
+      btns.forEach(b => list.appendChild(b));
+    }
+  });
+}
+
+document.getElementById('citySearch').addEventListener('input', e => {
+  buildCityList(e.target.value);
+});
+document.getElementById('openModal').onclick = openCityModal;
+document.getElementById('closeCityModalBtn').onclick = closeCityModal;
+document.getElementById('cityModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('cityModal')) closeCityModal();
+});
+
+buildCountryTabs();
+buildCityList('', 0);
+
+// Auto-open city modal immediately when DOM is ready
+document.addEventListener('DOMContentLoaded', () => { openCityModal(); });
+
+/* ══ Fetch ═══════════════════════════════════════════════ */
+const isMobile = () => window.innerWidth <= 600;
+
+async function fetchAndRender() {
+  const loader = document.getElementById('loading');
+  loader.style.display='flex';
+  try {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}`
+      +`&current_weather=true`
+      +`&hourly=temperature_2m,apparent_temperature,weathercode,precipitation,relative_humidity_2m,windspeed_10m,pressure_msl,cloudcover,uv_index`
+      +`&daily=temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,weathercode,precipitation_sum,sunrise,sunset,uv_index_max`
+      +`&timezone=Europe/Bratislava&forecast_days=16`;
+    const res  = await fetch(url);
+    const data = await res.json();
+    lastHourlyData = data.hourly;
+    lastDailyData  = data.daily;
+    renderAll(data);
+  } catch(e) { console.error(e); }
+  finally { loader.style.display='none'; }
+}
+
+/* ══ Render ══════════════════════════════════════════════ */
+function renderAll(data) {
+  const cw=data.current_weather||{}, h=data.hourly||{}, d=data.daily||{};
+
+  const iconEl = document.getElementById('curIcon');
+  iconEl.innerHTML = `<span style="font-size:90px;line-height:1;display:block;text-align:center">${getWI(cw.weathercode)}</span>`;
+  iconEl.classList.remove('sunny');
+
+  document.getElementById('curTemp').textContent  = (cw.temperature!=null?Math.round(cw.temperature):'--')+'°C';
+  document.getElementById('curFeels').textContent = `Pocitová teplota: ${Math.round(h.apparent_temperature?.[0]??cw.temperature??0)}°C`;
+  document.getElementById('curWind').textContent  = (cw.windspeed||'--')+' km/h';
+  document.getElementById('curHum').textContent   = (h.relative_humidity_2m?.[0]||'--')+'%';
+  document.getElementById('curRain').textContent  = ((h.precipitation?.[0]||0).toFixed(1))+' mm';
+
+  document.getElementById('extraData').innerHTML =
+    `<span class="extra-item"><span class="ei-emoji">☁️</span> Oblačnosť: ${h.cloudcover?.[0]||0}%</span>
+     <span style="opacity:.4">|</span>
+     <span class="extra-item"><span class="ei-emoji">🧭</span> Tlak: ${Math.round(h.pressure_msl?.[0]||0)} hPa</span>
+     <span style="opacity:.4">|</span>
+     <span class="extra-item"><span class="ei-emoji">🔆</span> UV: ${h.uv_index?.[0]||0}</span>`;
+
+  if (d.sunrise&&d.sunset) {
+    const sr = new Date(d.sunrise[0]).toLocaleTimeString('sk-SK',{hour:'2-digit',minute:'2-digit'});
+    const ss = new Date(d.sunset[0]).toLocaleTimeString('sk-SK',{hour:'2-digit',minute:'2-digit'});
+    document.getElementById('sunData').innerHTML =
+      `<span class="sun-item"><span class="si-emoji">🌅</span> ${sr}</span>
+       <span style="opacity:.4">·</span>
+       <span class="sun-item"><span class="si-emoji">🌇</span> ${ss}</span>`;
+  }
+
+  renderHourly(h); renderDaily(d); renderBigChart(d); renderAlerts(null);
+  // Only load Windy iframes on non-mobile
+  if (!isMobile()) updateWindy();
+}
+
+function renderHourly(h) {
+  const g = document.getElementById('hourlyGrid');
+  g.innerHTML = '';
+  const today = new Date().toISOString().split('T')[0];
+  for (let i=0; i<h.time?.length; i++) {
+    if (!h.time[i].startsWith(today)) continue;
+    const card = document.createElement('div');
+    card.className = 'hourCard';
+    card.innerHTML = `
+      <div class="hc-time">${new Date(h.time[i]).getHours()}:00</div>
+      <div class="hc-icon" style="font-size:26px;line-height:1.2;text-align:center">${getWI(h.weathercode[i])}</div>
+      <div class="hc-temp">${Math.round(h.temperature_2m[i])}°</div>
+      <div class="hc-rain">🌧️ ${(h.precipitation[i]||0).toFixed(1)} mm</div>`;
+    g.appendChild(card);
+  }
+}
+
+function renderDaily(d) {
+  const g = document.getElementById('dailyGrid');
+  g.innerHTML = '';
+  for (let i=0; i<d.time?.length; i++) {
+    const date = d.time[i];
+    const div = document.createElement('div');
+    div.className = 'day';
+    div.innerHTML = `
+      <div style="min-width:90px;font-size:13px">${new Date(date).toLocaleDateString('sk-SK',{weekday:'short',day:'2-digit',month:'2-digit'})}</div>
+      <div class="day-icon" style="font-size:22px;line-height:1;width:26px;text-align:center">${getWI(d.weathercode[i])}</div>
+      <div class="day-temps">
+        <span class="temp-max">${Math.round(d.temperature_2m_max[i])}°</span>
+        <span style="opacity:.4">/</span>
+        <span class="temp-min">${Math.round(d.temperature_2m_min[i])}°</span>
+      </div>
+      <div class="day-rain">🌧️ ${d.precipitation_sum[i]} mm</div>`;
+    div.addEventListener('click', () => {
+      div.classList.toggle('expanded');
+      let next = div.nextElementSibling;
+      if (next && next.classList.contains('hourlyPanel')) next.classList.toggle('active');
+      else {
+        const p = document.createElement('div');
+        p.className = 'hourlyPanel active';
+        renderHourlyForDay(date, p);
+        div.after(p);
+      }
+    });
+    g.appendChild(div);
+  }
+}
+
+function renderHourlyForDay(date, container) {
+  const h = lastHourlyData; container.innerHTML='';
+  for (let i=0; i<h.time.length; i++) {
+    if (!h.time[i].startsWith(date)) continue;
+    const c = document.createElement('div');
+    c.className = 'hourCard';
+    c.innerHTML = `
+      <div class="hc-time">${new Date(h.time[i]).getHours()}:00</div>
+      <div class="hc-icon" style="font-size:26px;line-height:1.2;text-align:center">${getWI(h.weathercode[i])}</div>
+      <div class="hc-temp">${Math.round(h.temperature_2m[i])}°</div>
+      <div class="hc-rain">🌧️ ${(h.precipitation[i]||0).toFixed(1)} mm</div>`;
+    container.appendChild(c);
+  }
+}
+
+function renderBigChart(d) {
+  const ctx  = document.getElementById('bigChart').getContext('2d');
+  const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const gridColor = dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.07)';
+  const tickColor = dark ? '#BBC7DC' : '#42474E';
+  if (bigChart) bigChart.destroy();
+  bigChart = new Chart(ctx, {
+    type:'line',
+    data:{
+      labels: d.time.map(t=>new Date(t).toLocaleDateString('sk-SK',{day:'2-digit',month:'2-digit'})),
+      datasets:[
+        {label:'Max °C', data:d.temperature_2m_max, borderColor:'#EF4444', backgroundColor:'rgba(239,68,68,0.08)', fill:true, tension:0.4, pointRadius:3, pointBackgroundColor:'#EF4444'},
+        {label:'Min °C', data:d.temperature_2m_min, borderColor:'#3B82F6', backgroundColor:'rgba(59,130,246,0.08)', fill:true, tension:0.4, pointRadius:3, pointBackgroundColor:'#3B82F6'},
+        {label:'Zrážky mm', data:d.precipitation_sum, borderColor:'#06B6D4', backgroundColor:'rgba(6,182,212,0.12)', fill:true, tension:0.4, yAxisID:'y1', pointRadius:3, pointBackgroundColor:'#06B6D4'},
+      ]
+    },
+    options:{
+      responsive:true,
+      interaction:{mode:'index',intersect:false},
+      scales:{
+        x:{ ticks:{color:tickColor,font:{family:'Nunito',weight:'700',size:11}}, grid:{color:gridColor} },
+        y:{ position:'left', title:{display:true,text:'Teplota °C',color:tickColor,font:{family:'Nunito',weight:'800'}}, ticks:{color:tickColor}, grid:{color:gridColor} },
+        y1:{ position:'right', title:{display:true,text:'Zrážky mm',color:tickColor,font:{family:'Nunito',weight:'800'}}, ticks:{color:tickColor}, grid:{drawOnChartArea:false} },
+      },
+      plugins:{
+        legend:{display:true,position:'bottom',labels:{color:tickColor,font:{family:'Nunito',weight:'700',size:12},usePointStyle:true}}
+      }
+    }
+  });
+}
+
+function renderAlerts(alerts) {
+  const cont = document.getElementById('alerts');
+  cont.innerHTML = `<h2><div class="section-icon">⚠️</div>Výstrahy</h2>`;
+  if (alerts?.alerts?.length) {
+    alerts.alerts.forEach(a => {
+      const d = document.createElement('div');
+      d.className = 'alert warn';
+      d.innerHTML = `<span class="alert-emoji">⚠️</span>${a.event} — ${a.description}`;
+      cont.appendChild(d);
+    });
+  } else {
+    const none = document.createElement('div');
+    none.className = 'alert';
+    none.innerHTML = `<span class="alert-emoji">✅</span>Žiadne aktívne výstrahy`;
+    cont.appendChild(none);
+  }
+}
+
+function windyUrl(overlay, menu=false) {
+  return `https://embed.windy.com/embed2.html?lat=${LAT}&lon=${LON}&detailLat=${LAT}&detailLon=${LON}&zoom=7&level=surface&overlay=${overlay}&product=ecmwf&menu=${menu?'true':''}&message=${menu?'true':''}&marker=true`;
+}
+
+function updateWindy() {
+  // Skip loading heavy iframes on mobile — user opens maps via modal
+  if (isMobile()) return;
+  document.getElementById('windyMap').src        = windyUrl('wind');
+  document.getElementById('windyMapRain').src    = windyUrl('rain');
+  document.getElementById('windyMapTemp').src    = windyUrl('temp');
+  document.getElementById('windyMapClouds').src  = windyUrl('clouds');
+  document.getElementById('windyMapSnow').src    = windyUrl('snowcover');
+  document.getElementById('windyMapThunder').src = windyUrl('thunder');
+  document.getElementById('windyMapWaves').src   = windyUrl('waves');
+}
+
+function openMapModal(type) {
+  const modal = document.getElementById('mapModal');
+  const frame = document.getElementById('mapModalFrame');
+  const title = document.getElementById('mapModalTitle');
+  const map = {
+    imeteo:    ['🌤️ iMeteo – Počasie',        'https://www.imeteo.sk/iframe/pocasie'],
+    wind:      ['🌬️ Windy – Vietor',          windyUrl('wind',true)],
+    rain:      ['🌧️ Windy – Zrážky',         windyUrl('rain',true)],
+    temp:      ['🌡️ Windy – Teplota',         windyUrl('temp',true)],
+    clouds:    ['☁️ Windy – Oblačnosť',       windyUrl('clouds',true)],
+    snowcover: ['❄️ Windy – Sneh',            windyUrl('snowcover',true)],
+    thunder:   ['⛈️ Windy – Búrky',           windyUrl('thunder',true)],
+    waves:     ['🌊 Windy – Vlny',             windyUrl('waves',true)],
+  };
+  const [t,u] = map[type]||map['wind'];
+  frame.src = u; title.textContent = t;
+  modal.classList.add('open'); document.body.classList.add('modal-open');
+}
+
+function closeMapModal() {
+  const modal = document.getElementById('mapModal');
+  modal.classList.remove('open');
+  document.body.classList.remove('modal-open');
+  setTimeout(() => { document.getElementById('mapModalFrame').src = ''; }, 300);
+}
+
+document.getElementById('mapModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('mapModal')) closeMapModal();
+});
+
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+  if (lastDailyData) renderBigChart(lastDailyData);
+});
+</script>
+</body>
+</html>
