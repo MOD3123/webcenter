@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Knižnica webov</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════
+   MATERIAL 3 TOKENS
+═══════════════════════════════════════ */
+:root {
+  --pri:          #005FAF;
+  --pri-on:       #ffffff;
+  --pri-cont:     #D6E4FF;
+  --pri-cont-on:  #001944;
+  --surf:         #F7F9FC;
+  --surf-low:     #ECF1F8;
+  --surf-high:    #E2EAF4;
+  --surf-var:     #DCE3EC;
+  --on-surf:      #181C20;
+  --on-surf-var:  #40484F;
+  --outline:      #70787F;
+  --out-var:      #BFC7CF;
+  --elev1: 0 1px 2px rgba(0,0,0,.06), 0 1px 3px rgba(0,0,0,.08);
+  --elev2: 0 1px 2px rgba(0,0,0,.04), 0 2px 6px rgba(0,0,0,.10);
+  --elev3: 0 4px 8px rgba(0,0,0,.08), 0 1px 3px rgba(0,0,0,.06);
+  --r-xl:  20px;
+  --r-2xl: 28px;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --pri:         #AAC8FF;
+    --pri-on:      #002F6A;
+    --pri-cont:    #004793;
+    --pri-cont-on: #D6E4FF;
+    --surf:        #111318;
+    --surf-low:    #191D23;
+    --surf-high:   #222830;
+    --surf-var:    #40484F;
+    --on-surf:     #E2E2E6;
+    --on-surf-var: #BFC7CF;
+    --outline:     #89929A;
+    --out-var:     #40484F;
+    --elev1: 0 1px 2px rgba(0,0,0,.3), 0 1px 3px rgba(0,0,0,.4);
+    --elev2: 0 1px 2px rgba(0,0,0,.2), 0 2px 6px rgba(0,0,0,.35);
+    --elev3: 0 4px 8px rgba(0,0,0,.4), 0 1px 3px rgba(0,0,0,.3);
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Roboto', system-ui, sans-serif;
+  background: var(--surf);
+  color: var(--on-surf);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ═══════════════════════════════════════
+   APP BAR
+═══════════════════════════════════════ */
+.app-bar {
+  position: sticky; top: 0; z-index: 200;
+  height: 64px;
+  display: flex; align-items: center; gap: 12px;
+  padding: 0 20px;
+  background: color-mix(in srgb, var(--surf-low) 92%, transparent);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--out-var);
+}
+
+.bar-logo {
+  width: 36px; height: 36px;
+  border-radius: 12px;
+  background: var(--pri-cont);
+  display: grid; place-items: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.bar-title {
+  font-family: 'Google Sans', 'Roboto', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--on-surf);
+  flex: 1;
+  letter-spacing: -0.01em;
+}
+
+.bar-nav {
+  display: flex; gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.bar-nav::-webkit-scrollbar { display: none; }
+
+.nav-chip {
+  padding: 5px 12px;
+  border-radius: 100px;
+  border: 1px solid var(--out-var);
+  background: transparent;
+  color: var(--on-surf-var);
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: background 0.15s var(--ease), border-color 0.15s var(--ease), color 0.15s var(--ease);
+}
+.nav-chip:hover {
+  background: var(--surf-var);
+  border-color: var(--outline);
+  color: var(--on-surf);
+}
+
+@media (max-width: 720px) { .bar-nav { display: none; } }
+
+/* ═══════════════════════════════════════
+   LAYOUT
+═══════════════════════════════════════ */
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 28px 20px 80px;
+}
+
+/* ═══════════════════════════════════════
+   SEARCH PANEL
+═══════════════════════════════════════ */
+.search-panel {
+  background: var(--surf-low);
+  border: 1px solid var(--out-var);
+  border-radius: var(--r-2xl);
+  padding: 20px 20px 16px;
+  margin-bottom: 36px;
+  box-shadow: var(--elev2);
+}
+
+.search-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.search-field {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surf-high);
+  border: 1.5px solid transparent;
+  border-radius: 100px;
+  padding: 0 6px 0 18px;
+  transition: border-color 0.2s var(--ease), background 0.2s var(--ease);
+}
+.search-field:focus-within {
+  background: var(--surf);
+  border-color: var(--pri);
+}
+.search-field svg {
+  width: 20px; height: 20px;
+  fill: var(--outline);
+  flex-shrink: 0;
+  pointer-events: none;
+}
+.search-field input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--on-surf);
+  font-family: 'Roboto', sans-serif;
+  font-size: 1rem;
+  padding: 13px 0;
+  outline: none;
+  min-width: 0;
+}
+.search-field input::placeholder { color: var(--outline); }
+
+.clear-btn {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--outline);
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.clear-btn:hover { background: var(--surf-var); }
+.search-field input:not(:placeholder-shown) ~ .clear-btn { display: flex; }
+
+.search-btn {
+  height: 50px;
+  padding: 0 22px;
+  border: none;
+  border-radius: 100px;
+  background: var(--pri);
+  color: var(--pri-on);
+  font-family: 'Google Sans', 'Roboto', sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  display: flex; align-items: center; gap: 8px;
+  transition: background 0.15s var(--ease), box-shadow 0.15s var(--ease);
+  box-shadow: var(--elev1);
+  flex-shrink: 0;
+}
+.search-btn:hover {
+  background: color-mix(in srgb, var(--pri) 88%, black);
+  box-shadow: var(--elev3);
+}
+.search-btn:active {
+  background: color-mix(in srgb, var(--pri) 80%, black);
+  box-shadow: var(--elev1);
+}
+.search-btn svg { width: 18px; height: 18px; fill: var(--pri-on); flex-shrink: 0; }
+
+.engine-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.engine-label {
+  font-size: 0.8125rem;
+  color: var(--outline);
+  font-weight: 500;
+  margin-right: 2px;
+}
+.engine-chip {
+  padding: 5px 14px;
+  border-radius: 100px;
+  border: 1px solid var(--out-var);
+  background: transparent;
+  color: var(--on-surf-var);
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s var(--ease);
+  user-select: none;
+}
+.engine-chip.active {
+  background: var(--pri-cont);
+  border-color: var(--pri-cont);
+  color: var(--pri-cont-on);
+}
+.engine-chip:hover:not(.active) {
+  background: var(--surf-var);
+  border-color: var(--outline);
+  color: var(--on-surf);
+}
+
+/* ═══════════════════════════════════════
+   SUGGESTIONS DROPDOWN
+═══════════════════════════════════════ */
+.search-wrap {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.suggestions {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0; right: 0;
+  background: var(--surf-low);
+  border: 1px solid var(--out-var);
+  border-radius: 16px;
+  box-shadow: var(--elev3);
+  overflow: hidden;
+  z-index: 300;
+  display: none;
+  flex-direction: column;
+}
+.suggestions.open { display: flex; }
+
+.sug-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 16px;
+  cursor: pointer;
+  font-size: 0.9375rem;
+  color: var(--on-surf);
+  font-family: 'Roboto', sans-serif;
+  transition: background 0.1s;
+  border: none;
+  background: transparent;
+  text-align: left;
+  width: 100%;
+}
+.sug-item:hover,
+.sug-item.focused {
+  background: var(--surf-high);
+}
+.sug-icon {
+  width: 18px; height: 18px;
+  fill: var(--outline);
+  flex-shrink: 0;
+}
+.sug-text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sug-arrow {
+  width: 16px; height: 16px;
+  fill: var(--out-var);
+  flex-shrink: 0;
+  transform: rotate(-45deg);
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+.sug-item:hover .sug-arrow,
+.sug-item.focused .sug-arrow { opacity: 1; }
+
+.sug-divider {
+  height: 1px;
+  background: var(--out-var);
+  margin: 0 12px;
+}
+
+/* ═══════════════════════════════════════
+   SECTION HEADERS
+═══════════════════════════════════════ */
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 40px 0 14px;
+  scroll-margin-top: 80px;
+}
+
+.section-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surf-low);
+  border: 1px solid var(--out-var);
+  border-radius: 100px;
+  padding: 6px 14px 6px 10px;
+  flex-shrink: 0;
+}
+.section-emoji { font-size: 1rem; line-height: 1; }
+.section-title {
+  font-family: 'Google Sans', 'Roboto', sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--on-surf);
+  white-space: nowrap;
+}
+.section-divider {
+  flex: 1;
+  height: 1px;
+  background: var(--out-var);
+}
+
+/* ═══════════════════════════════════════
+   CARDS GRID
+═══════════════════════════════════════ */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+  gap: 8px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 16px 10px 14px;
+  background: var(--surf-low);
+  border: 1px solid var(--out-var);
+  border-radius: var(--r-xl);
+  text-decoration: none;
+  color: var(--on-surf);
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-align: center;
+  line-height: 1.3;
+  word-break: break-word;
+  position: relative;
+  overflow: hidden;
+  /* NO transform / NO lift */
+  transition: background 0.15s var(--ease), border-color 0.15s var(--ease);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* M3 tonal state layer */
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--pri);
+  opacity: 0;
+  transition: opacity 0.15s var(--ease);
+  pointer-events: none;
+}
+.card:hover {
+  background: var(--surf-high);
+  border-color: color-mix(in srgb, var(--pri) 40%, var(--out-var));
+}
+.card:hover::before { opacity: 0.05; }
+.card:active::before { opacity: 0.12; }
+
+.card-icon { font-size: 1.5rem; line-height: 1; display: block; }
+.card-icon img { width: 32px; height: 32px; border-radius: 6px; object-fit: contain; display: block; }
+.card-label { display: block; letter-spacing: 0.005em; }
+
+/* ═══════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════ */
+@media (max-width: 600px) {
+  .app-bar { padding: 0 16px; height: 58px; }
+  .container { padding: 16px 14px 64px; }
+  .search-panel { padding: 16px 14px 14px; border-radius: var(--r-xl); }
+  .search-row { flex-direction: column; }
+  .search-btn { width: 100%; justify-content: center; height: 48px; }
+  .cards-grid { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 7px; }
+  .card { padding: 14px 8px 12px; }
+  .section-header { margin: 32px 0 12px; }
+}
+@media (min-width: 900px) {
+  .cards-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+}
+@media (min-width: 1100px) {
+  .cards-grid { grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 10px; }
+  .container { padding: 32px 32px 80px; }
+}
+</style>
+</head>
+<body>
+
+<header class="app-bar">
+  <div class="bar-logo">🌐</div>
+  <span class="bar-title">Knižnica webov</span>
+  <nav class="bar-nav">
+    <a class="nav-chip" href="#spravy">Správy</a>
+    <a class="nav-chip" href="#eshopy">E-shopy</a>
+    <a class="nav-chip" href="#tv">TV & Médiá</a>
+    <a class="nav-chip" href="#streaming">Streaming</a>
+    <a class="nav-chip" href="#sport">Šport</a>
+    <a class="nav-chip" href="#praca">Práca</a>
+    <a class="nav-chip" href="#financie">Financie</a>
+    <a class="nav-chip" href="#urady">Úrady</a>
+    <a class="nav-chip" href="#doprava">Doprava</a>
+    <a class="nav-chip" href="#pocasie">Počasie</a>
+    <a class="nav-chip" href="#mapy">Mapy</a>
+    <a class="nav-chip" href="#ai">AI</a>
+  </nav>
+</header>
+
+<main class="container">
+
+  <!-- SEARCH -->
+  <div class="search-panel">
+    <div class="search-row">
+      <div class="search-wrap">
+        <div class="search-field">
+          <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+          <input type="text" id="q" placeholder="Hľadaj na webe…" autocomplete="off">
+          <button class="clear-btn" onclick="clearSearch()" aria-label="Vymazať">✕</button>
+        </div>
+        <div class="suggestions" id="suggestions" role="listbox"></div>
+      </div>
+      <button class="search-btn" onclick="doSearch()">
+        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+        Hľadať
+      </button>
+    </div>
+    <div class="engine-row">
+      <button class="engine-chip active" data-url="https://www.google.com/search?q=" onclick="setEngine(this)">Google</button>
+      <button class="engine-chip" data-url="https://www.bing.com/search?q=" onclick="setEngine(this)">Bing</button>
+      <button class="engine-chip" data-url="https://duckduckgo.com/?q=" onclick="setEngine(this)">DuckDuckGo</button>
+      <button class="engine-chip" data-url="https://search.seznam.cz/?q=" onclick="setEngine(this)">Seznam</button>
+      <button class="engine-chip" data-url="https://www.youtube.com/results?search_query=" onclick="setEngine(this)">YouTube</button>
+      <button class="engine-chip" data-url="https://www.google.com/maps/search/" onclick="setEngine(this)">Mapy</button>
+    </div>
+  </div>
+
+  <!-- SPRÁVY -->
+  <div class="section-header" id="spravy">
+    <div class="section-pill"><span class="section-emoji">📰</span><span class="section-title">Správy</span></div>
+    <div class="section-divider"></div>
+  </div>
+  <div class="cards-grid">
+    <a class="card" href="https://www.sme.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.sme.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">SME</span></a>
+    <a class="card" href="https://www.dennikn.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.dennikn.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Denník N</span></a>
+    <a class="card" href="https://www.hnonline.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.hnonline.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Hospodárske noviny</span></a>
+    <a class="card" href="https://www.pravda.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.pravda.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Pravda</span></a>
+    <a class="card" href="https://www.aktuality.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.aktuality.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Aktuality</span></a>
+    <a class="card" href="https://www.topky.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.topky.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Topky</span></a>
+    <a class="card" href="https://www.cas.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.cas.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Čas</span></a>
+    <a class="card" href="https://www.rtvs.sk/spravy" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.rtvs.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">RTVS Správy</span></a>
+    <a class="card" href="https://www.ta3.com" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.ta3.com&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">TA3</span></a>
+    <a class="card" href="https://www.refresher.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.refresher.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Refresher</span></a>
+    <a class="card" href="https://www.postoj.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.postoj.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Postoj</span></a>
+    <a class="card" href="https://www.idnes.cz" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.idnes.cz&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">iDNES</span></a>
+    <a class="card" href="https://www.novinky.cz" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.novinky.cz&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Novinky.cz</span></a>
+    <a class="card" href="https://www.aktualne.cz" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.aktualne.cz&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Aktuálně.cz</span></a>
+    <a class="card" href="https://www.seznamzpravy.cz" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.seznamzpravy.cz&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Seznam Zprávy</span></a>
+    <a class="card" href="https://www.lidovky.cz" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.lidovky.cz&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Lidovky</span></a>
+  </div>
+
+  <!-- E-SHOPY -->
+  <div class="section-header" id="eshopy">
+    <div class="section-pill"><span class="section-emoji">🛒</span><span class="section-title">E-shopy</span></div>
+    <div class="section-divider"></div>
+  </div>
+  <div class="cards-grid">
+    <a class="card" href="https://www.alza.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.alza.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Alza</span></a>
+    <a class="card" href="https://www.nay.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.nay.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Nay</span></a>
+    <a class="card" href="https://www.heureka.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.heureka.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Heureka</span></a>
+    <a class="card" href="https://www.pricemania.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.pricemania.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Pricemania</span></a>
+    <a class="card" href="https://www.zoot.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.zoot.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Zoot</span></a>
+    <a class="card" href="https://www.aboutyou.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.aboutyou.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">About You</span></a>
+    <a class="card" href="https://www.answear.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.answear.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Answear</span></a>
+    <a class="card" href="https://www.notino.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.notino.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Notino</span></a>
+    <a class="card" href="https://www.parfemy-elnino.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.parfemy-elnino.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Elnino</span></a>
+    <a class="card" href="https://www.amazon.de" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.amazon.de&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Amazon</span></a>
+    <a class="card" href="https://www.allegro.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.allegro.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Allegro</span></a>
+    <a class="card" href="https://www.kaufland.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.kaufland.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Kaufland</span></a>
+    <a class="card" href="https://www.lidl.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.lidl.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Lidl</span></a>
+    <a class="card" href="https://www.aliexpress.com" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.aliexpress.com&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">AliExpress</span></a>
+    <a class="card" href="https://www.vinted.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.vinted.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Vinted</span></a>
+    <a class="card" href="https://www.bazos.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.bazos.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Bazoš</span></a>
+  </div>
+
+  <!-- TV & MÉDIÁ -->
+  <div class="section-header" id="tv">
+    <div class="section-pill"><span class="section-emoji">📺</span><span class="section-title">TV & Médiá</span></div>
+    <div class="section-divider"></div>
+  </div>
+  <div class="cards-grid">
+    <a class="card" href="https://www.rtvs.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.rtvs.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">STVR</span></a>
+    <a class="card" href="https://www.markiza.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.markiza.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Markíza</span></a>
+    <a class="card" href="https://www.joj.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.joj.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">JOJ</span></a>
+    <a class="card" href="https://www.ta3.com" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.ta3.com&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">TA3</span></a>
+    <a class="card" href="https://www.ceskatelevize.cz" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.ceskatelevize.cz&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Česká televize</span></a>
+    <a class="card" href="https://www.iprima.cz" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.iprima.cz&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Prima</span></a>
+    <a class="card" href="https://nova.cz" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=nova.cz&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">TV Nova</span></a>
+  </div>
+
+  <!-- STREAMING & ZÁBAVA -->
+  <div class="section-header" id="streaming">
+    <div class="section-pill"><span class="section-emoji">🎬</span><span class="section-title">Streamovacie služby</span></div>
+    <div class="section-divider"></div>
+  </div>
+  <div class="cards-grid">
+    <a class="card" href="https://www.youtube.com" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.youtube.com&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">YouTube</span></a>
+    <a class="card" href="https://www.netflix.com" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.netflix.com&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Netflix</span></a>
+    <a class="card" href="https://www.voyo.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.voyo.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Voyo</span></a>
+    <a class="card" href="https://www.primaplus.cz" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.primaplus.cz&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Prima+</span></a>
+    <a class="card" href="https://www.spotify.com" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.spotify.com&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Spotify</span></a>
+    <a class="card" href="https://music.youtube.com" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=music.youtube.com&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">YT Music</span></a>
+    <a class="card" href="https://www.csfd.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.csfd.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">ČSFD</span></a>
+  </div>
+
+  <!-- ŠPORT -->
+  <div class="section-header" id="sport">
+    <div class="section-pill"><span class="section-emoji">⚽</span><span class="section-title">Šport</span></div>
+    <div class="section-divider"></div>
+  </div>
+  <div class="cards-grid">
+    <a class="card" href="https://sportnet.sme.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=sportnet.sme.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Športnet</span></a>
+    <a class="card" href="https://www.sport.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.sport.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Šport.sk</span></a>
+    <a class="card" href="https://isport.blesk.cz" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=isport.blesk.cz&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">iSport.cz</span></a>
+    <a class="card" href="https://www.flashscore.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.flashscore.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Flashscore</span></a>
+    <a class="card" href="https://www.sofascore.com" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.sofascore.com&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">SofaScore</span></a>
+  </div>
+
+  <!-- PRÁCA -->
+  <div class="section-header" id="praca">
+    <div class="section-pill"><span class="section-emoji">💼</span><span class="section-title">Práca</span></div>
+    <div class="section-divider"></div>
+  </div>
+  <div class="cards-grid">
+    <a class="card" href="https://www.profesia.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.profesia.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Profesia</span></a>
+    <a class="card" href="https://www.linkedin.com" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.linkedin.com&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">LinkedIn</span></a>
+    <a class="card" href="https://www.jobs.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.jobs.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Jobs.sk</span></a>
+    <a class="card" href="https://www.platy.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.platy.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Platy.sk</span></a>
+    <a class="card" href="https://www.startitup.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.startitup.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Startitup</span></a>
+  </div>
+
+  <!-- ÚRADY -->
+  <div class="section-header" id="urady">
+    <div class="section-pill"><span class="section-emoji">🏛️</span><span class="section-title">Úradné stránky</span></div>
+    <div class="section-divider"></div>
+  </div>
+  <div class="cards-grid">
+    <a class="card" href="https://www.slovensko.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.slovensko.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Slovensko.sk</span></a>
+    <a class="card" href="https://www.minv.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.minv.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Min. vnútra</span></a>
+    <a class="card" href="https://www.finance.gov.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.finance.gov.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Min. financií</span></a>
+    <a class="card" href="https://www.minedu.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.minedu.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Min. školstva</span></a>
+    <a class="card" href="https://www.mzsr.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.mzsr.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Min. zdravotníctva</span></a>
+    <a class="card" href="https://www.mpsvr.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.mpsvr.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Min. práce</span></a>
+    <a class="card" href="https://www.economy.gov.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.economy.gov.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Min. hospodárstva</span></a>
+    <a class="card" href="https://www.justice.gov.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.justice.gov.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Min. spravodlivosti</span></a>
+    <a class="card" href="https://www.socpoist.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.socpoist.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Sociálna poisťovňa</span></a>
+    <a class="card" href="https://www.upsvar.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.upsvar.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">ÚPSVaR</span></a>
+    <a class="card" href="https://www.nczisk.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.nczisk.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">NCZISK</span></a>
+    <a class="card" href="https://www.vszp.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.vszp.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">VšZP</span></a>
+    <a class="card" href="https://www.union.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.union.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Union</span></a>
+    <a class="card" href="https://www.dovera.sk/" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.dovera.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Dôvera</span></a>
+    <a class="card" href="https://www.financnasprava.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.financnasprava.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Finančná správa</span></a>
+    <a class="card" href="https://www.kataster.skgeodesy.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.kataster.skgeodesy.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Kataster</span></a>
+    <a class="card" href="https://www.orsr.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.orsr.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">ORSR</span></a>
+    <a class="card" href="https://www.zrsr.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.zrsr.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">ZRSR</span></a>
+    <a class="card" href="https://www.nbs.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.nbs.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">NBS</span></a>
+    <a class="card" href="https://www.mvcr.cz" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.mvcr.cz&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Min. vnútra ČR</span></a>
+    <a class="card" href="https://www.czso.cz" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.czso.cz&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">ČSÚ</span></a>
+  </div>
+
+  <!-- DOPRAVA -->
+  <div class="section-header" id="doprava">
+    <div class="section-pill"><span class="section-emoji">🚌</span><span class="section-title">Doprava</span></div>
+    <div class="section-divider"></div>
+  </div>
+  <div class="cards-grid">
+    <a class="card" href="https://www.zssk.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.zssk.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">ZSSK</span></a>
+    <a class="card" href="https://www.regiojet.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.regiojet.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">RegioJet</span></a>
+    <a class="card" href="https://imhd.sk/ba" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=imhd.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">iMHD.sk</span></a>
+    <a class="card" href="https://arriva.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=arriva.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Arriva</span></a>
+    <a class="card" href="https://www.cp.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.cp.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">CP.sk</span></a>
+    <a class="card" href="https://idos.idnes.cz" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=idos.idnes.cz&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">IDOS</span></a>
+    <a class="card" href="https://www.cd.cz" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.cd.cz&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">České dráhy</span></a>
+    <a class="card" href="https://www.flixbus.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.flixbus.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">FlixBus</span></a>
+    <a class="card" href="https://www.uber.com" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.uber.com&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Uber</span></a>
+    <a class="card" href="https://bolt.eu" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=bolt.eu&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Bolt</span></a>
+  </div>
+
+  <!-- POČASIE -->
+  <div class="section-header" id="pocasie">
+    <div class="section-pill"><span class="section-emoji">🌦️</span><span class="section-title">Počasie</span></div>
+    <div class="section-divider"></div>
+  </div>
+  <div class="cards-grid">
+    <a class="card" href="https://www.shmu.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.shmu.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">SHMÚ</span></a>
+    <a class="card" href="https://www.pocasie.sk" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.pocasie.sk&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Pocasie.sk</span></a>
+    <a class="card" href="https://www.meteoblue.com" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.meteoblue.com&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Meteoblue</span></a>
+    <a class="card" href="https://www.windy.com" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.windy.com&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Windy</span></a>
+    <a class="card" href="https://www.accuweather.com" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.accuweather.com&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">AccuWeather</span></a>
+    <a class="card" href="https://weather.com" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=weather.com&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Weather.com</span></a>
+    <a class="card" href="https://www.chmi.cz" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.chmi.cz&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">ČHMÚ</span></a>
+  </div>
+
+  <!-- MAPY -->
+  <div class="section-header" id="mapy">
+    <div class="section-pill"><span class="section-emoji">🗺️</span><span class="section-title">Mapy & Navigácia</span></div>
+    <div class="section-divider"></div>
+  </div>
+  <div class="cards-grid">
+    <a class="card" href="https://maps.google.com" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=maps.google.com&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Google Maps</span></a>
+    <a class="card" href="https://mapy.cz" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=mapy.cz&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Mapy.cz</span></a>
+    <a class="card" href="https://www.waze.com" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.waze.com&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Waze</span></a>
+    <a class="card" href="https://www.openstreetmap.org" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.openstreetmap.org&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">OpenStreetMap</span></a>
+    <a class="card" href="https://wego.here.com" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=wego.here.com&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Here WeGo</span></a>
+    <a class="card" href="https://www.bing.com/maps" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.bing.com&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Bing Maps</span></a>
+    <a class="card" href="https://maps.apple.com" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=maps.apple.com&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Apple Maps</span></a>
+  </div>
+
+  <!-- AI NÁSTROJE -->
+  <div class="section-header" id="ai">
+    <div class="section-pill"><span class="section-emoji">🤖</span><span class="section-title">AI nástroje</span></div>
+    <div class="section-divider"></div>
+  </div>
+  <div class="cards-grid">
+    <a class="card" href="https://claude.ai" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=claude.ai&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Claude</span></a>
+    <a class="card" href="https://chat.openai.com" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=chat.openai.com&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">ChatGPT</span></a>
+    <a class="card" href="https://gemini.google.com" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=gemini.google.com&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Gemini</span></a>
+    <a class="card" href="https://copilot.microsoft.com" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=copilot.microsoft.com&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Copilot</span></a>
+    <a class="card" href="https://www.perplexity.ai" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.perplexity.ai&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Perplexity</span></a>
+    <a class="card" href="https://www.midjourney.com" target="_blank"><span class="card-icon"><img src="https://www.google.com/s2/favicons?domain=www.midjourney.com&sz=64" alt="" loading="lazy" onerror="this.style.display='none'"></span><span class="card-label">Midjourney</span></a>
+  </div>
+
+</main>
+
+<script>
+  /* ── State ── */
+  let engineUrl = 'https://www.google.com/search?q=';
+  let focusedIdx = -1;
+  let currentSuggestions = [];
+  let debounceTimer = null;
+  let mouseInList = false;
+
+  const input = document.getElementById('q');
+  const box   = document.getElementById('suggestions');
+
+  /* ── Engine select ── */
+  function setEngine(btn) {
+    document.querySelectorAll('.engine-chip').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    engineUrl = btn.dataset.url;
+  }
+
+  /* ── Search ── */
+  function doSearch(query) {
+    const q = (query ?? input.value).trim();
+    if (!q) return;
+    input.value = q;
+    closeSuggestions();
+    window.open(engineUrl + encodeURIComponent(q), '_blank');
+  }
+
+  function clearSearch() {
+    input.value = '';
+    closeSuggestions();
+    input.focus();
+  }
+
+  /* ── Suggestions fetch (JSONP — no CORS) ── */
+  let jsonpCounter = 0;
+
+  function fetchSuggestions(q) {
+    if (!q.trim()) { closeSuggestions(); return; }
+
+    // Clean up any previous JSONP script + callback
+    const cbName = `__sg${++jsonpCounter}`;
+    const old = document.getElementById('__sgScript');
+    if (old) old.remove();
+
+    window[cbName] = (data) => {
+      delete window[cbName];
+      // Google format: ["query", ["s1","s2",...], ...]
+      currentSuggestions = (data[1] || []).slice(0, 8);
+      renderSuggestions(q);
+    };
+
+    const s = document.createElement('script');
+    s.id = '__sgScript';
+    s.src = `https://suggestqueries.google.com/complete/search?client=firefox&q=${encodeURIComponent(q)}&callback=${cbName}`;
+    s.onerror = () => { delete window[cbName]; };
+    document.head.appendChild(s);
+  }
+
+  function renderSuggestions(typed) {
+    if (!currentSuggestions.length) { closeSuggestions(); return; }
+    focusedIdx = -1;
+    box.innerHTML = '';
+
+    // SVG icons
+    const searchSvg = `<svg class="sug-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>`;
+    const arrowSvg = `<svg class="sug-arrow" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>`;
+
+    currentSuggestions.forEach((text, i) => {
+      if (i > 0) {
+        const div = document.createElement('div');
+        div.className = 'sug-divider';
+        box.appendChild(div);
+      }
+      const btn = document.createElement('button');
+      btn.className = 'sug-item';
+      btn.setAttribute('role', 'option');
+      btn.innerHTML = `${searchSvg}<span class="sug-text">${escHtml(text)}</span>${arrowSvg}`;
+      btn.addEventListener('mousedown', e => { e.preventDefault(); doSearch(text); });
+      btn.addEventListener('mouseover', () => {
+        setFocus(i);
+        mouseInList = true;
+      });
+      btn.addEventListener('mouseleave', () => { mouseInList = false; });
+      // Fill input on hover but keep it for arrow nav
+      btn.addEventListener('mouseenter', () => { input.value = text; });
+      btn.addEventListener('mouseleave', () => { if (!mouseInList) input.value = typed; });
+      box.appendChild(btn);
+    });
+
+    box.classList.add('open');
+  }
+
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function closeSuggestions() {
+    box.classList.remove('open');
+    box.innerHTML = '';
+    focusedIdx = -1;
+    currentSuggestions = [];
+  }
+
+  function setFocus(idx) {
+    const items = box.querySelectorAll('.sug-item');
+    items.forEach(el => el.classList.remove('focused'));
+    if (idx >= 0 && idx < items.length) {
+      items[idx].classList.add('focused');
+      items[idx].scrollIntoView({ block: 'nearest' });
+    }
+    focusedIdx = idx;
+  }
+
+  /* ── Input events ── */
+  input.addEventListener('input', () => {
+    clearTimeout(debounceTimer);
+    const val = input.value;
+    if (!val.trim()) { closeSuggestions(); return; }
+    debounceTimer = setTimeout(() => fetchSuggestions(val), 180);
+  });
+
+  input.addEventListener('keydown', e => {
+    const items = box.querySelectorAll('.sug-item');
+    const len = items.length;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      const next = (focusedIdx + 1) % len;
+      setFocus(next);
+      input.value = currentSuggestions[next];
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      const prev = focusedIdx <= 0 ? len - 1 : focusedIdx - 1;
+      setFocus(prev);
+      input.value = currentSuggestions[prev];
+    } else if (e.key === 'Enter') {
+      doSearch();
+    } else if (e.key === 'Escape') {
+      closeSuggestions();
+    }
+  });
+
+  input.addEventListener('focus', () => {
+    if (input.value.trim() && currentSuggestions.length) {
+      box.classList.add('open');
+    }
+  });
+
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.search-wrap')) closeSuggestions();
+  });
+</script>
+
+</body>
+</html>
