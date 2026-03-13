@@ -1,0 +1,1712 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kalendár</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Google+Sans+Display:wght@400;500;700&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0&display=swap" rel="stylesheet">
+
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* ═══ M3 Expressive – svetlý režim ═══ */
+:root {
+  --md-primary:              #1A6EFF;
+  --md-on-primary:           #FFFFFF;
+  --md-primary-container:    #D9E3FF;
+  --md-on-primary-container: #001256;
+  --md-primary-fixed:        #D9E3FF;
+  --md-primary-fixed-dim:    #ADC6FF;
+
+  --md-secondary:            #4A5875;
+  --md-on-secondary:         #FFFFFF;
+  --md-secondary-container:  #D3DCFF;
+  --md-on-secondary-container:#0D1B34;
+
+  --md-tertiary:             #7B4F8A;
+  --md-on-tertiary:          #FFFFFF;
+  --md-tertiary-container:   #F8D8FF;
+  --md-on-tertiary-container:#31004A;
+
+  --md-error:                #BA1A1A;
+  --md-error-container:      #FFDAD6;
+
+  --md-surface:              #F7F8FF;
+  --md-surface-dim:          #D8D9E5;
+  --md-surface-bright:       #F7F8FF;
+  --md-surface-variant:      #DFE2EF;
+  --md-on-surface:           #191B24;
+  --md-on-surface-variant:   #43465A;
+  --md-outline:              #73768A;
+  --md-outline-variant:      #C3C5D9;
+
+  --md-surface-container-lowest: #FFFFFF;
+  --md-surface-container-low:    #F1F2FF;
+  --md-surface-container:        #ECEEFF;
+  --md-surface-container-high:   #E6E8F8;
+  --md-surface-container-highest:#E0E2F2;
+
+  --md-inverse-surface:      #2E3044;
+  --md-inverse-on-surface:   #EEEFFE;
+  --md-inverse-primary:      #ADC6FF;
+
+  --md-shadow-1: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --md-shadow-2: 0 2px 6px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.04);
+  --md-shadow-3: 0 4px 12px rgba(0,0,0,.09), 0 2px 4px rgba(0,0,0,.05);
+  --md-shadow-4: 0 6px 20px rgba(0,0,0,.11), 0 2px 6px rgba(0,0,0,.06);
+
+  --rad-xs: 8px;
+  --rad-sm: 12px;
+  --rad-md: 16px;
+  --rad-lg: 24px;
+  --rad-xl: 32px;
+  --rad-2xl: 40px;
+  --rad-full: 9999px;
+
+  --header-h: 72px;
+
+  /* Expressive spring easing */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out: cubic-bezier(0.0, 0.0, 0.2, 1);
+  --ease-std: cubic-bezier(0.2, 0.0, 0.0, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --md-primary:              #ADC6FF;
+    --md-on-primary:           #002983;
+    --md-primary-container:    #003EBC;
+    --md-on-primary-container: #D9E3FF;
+
+    --md-secondary:            #B9C4E8;
+    --md-on-secondary:         #222D4B;
+    --md-secondary-container:  #394563;
+    --md-on-secondary-container:#D3DCFF;
+
+    --md-tertiary:             #E4B5F3;
+    --md-on-tertiary:          #491961;
+    --md-tertiary-container:   #623379;
+    --md-on-tertiary-container:#F8D8FF;
+
+    --md-surface:              #101420;
+    --md-surface-dim:          #101420;
+    --md-surface-variant:      #43465A;
+    --md-on-surface:           #E2E2EE;
+    --md-on-surface-variant:   #C3C5D9;
+    --md-outline:              #8D8FA5;
+    --md-outline-variant:      #43465A;
+
+    --md-surface-container-lowest: #0B0E1A;
+    --md-surface-container-low:    #181B28;
+    --md-surface-container:        #1D2030;
+    --md-surface-container-high:   #272A3A;
+    --md-surface-container-highest:#323546;
+
+    --md-shadow-1: 0 1px 3px rgba(0,0,0,.18), 0 1px 2px rgba(0,0,0,.14);
+    --md-shadow-2: 0 2px 6px rgba(0,0,0,.22), 0 1px 2px rgba(0,0,0,.16);
+    --md-shadow-3: 0 4px 12px rgba(0,0,0,.26), 0 2px 4px rgba(0,0,0,.18);
+    --md-shadow-4: 0 6px 20px rgba(0,0,0,.30), 0 2px 6px rgba(0,0,0,.20);
+  }
+}
+
+/* ═══ BASE ═══ */
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--md-surface);
+  color: var(--md-on-surface);
+  font-family: 'Google Sans', 'Segoe UI', system-ui, sans-serif;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+.material-symbols-rounded {
+  font-family: 'Material Symbols Rounded';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 20px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  vertical-align: middle;
+}
+
+/* ═══ SCROLLBAR ═══ */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--md-outline-variant);
+  border-radius: var(--rad-full);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--md-outline); }
+
+/* ═══ APP SHELL ═══ */
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ═══ TOP APP BAR ═══ */
+.top-bar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--md-surface-container);
+  border-bottom: 1px solid var(--md-outline-variant);
+  box-shadow: var(--md-shadow-2);
+  transition: background 0.3s;
+}
+
+.top-bar-inner {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 20px;
+  height: var(--header-h);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.brand-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--rad-md);
+  background: var(--md-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--md-shadow-2);
+  flex-shrink: 0;
+}
+
+.brand-icon .material-symbols-rounded {
+  font-size: 24px;
+  color: var(--md-on-primary);
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.brand-title {
+  font-family: 'Google Sans Display', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--md-on-surface);
+  letter-spacing: -0.3px;
+  line-height: 1.1;
+}
+
+.brand-sub {
+  font-size: 11px;
+  color: var(--md-on-surface-variant);
+  font-weight: 500;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+.bar-spacer { flex: 1; }
+
+/* Search Bar */
+.search-wrap {
+  flex: 1;
+  max-width: 420px;
+  position: relative;
+}
+
+.search-icon-left {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--md-on-surface-variant);
+  pointer-events: none;
+  font-size: 20px;
+}
+
+.search-clear {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--md-on-surface-variant);
+  box-shadow: none;
+  padding: 6px;
+  border-radius: var(--rad-full);
+  display: none;
+  transition: background 0.15s;
+}
+.search-clear:hover { background: var(--md-surface-container-high); box-shadow: none; filter: none; }
+.search-clear.visible { display: flex; align-items: center; }
+
+.search-input {
+  width: 100%;
+  padding: 12px 40px 12px 44px;
+  font-size: 14px;
+  font-family: inherit;
+  border: 1.5px solid var(--md-outline-variant);
+  border-radius: var(--rad-full);
+  background: var(--md-surface-container-low);
+  color: var(--md-on-surface);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.search-input::placeholder { color: var(--md-on-surface-variant); }
+
+.search-input:focus {
+  border-color: var(--md-primary);
+  background: var(--md-surface-container-lowest);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--md-primary) 16%, transparent);
+}
+
+/* Bar Controls */
+.bar-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Year select */
+.year-control {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--md-surface-container-high);
+  border: 1.5px solid var(--md-outline-variant);
+  border-radius: var(--rad-full);
+  padding: 0 6px 0 12px;
+  height: 40px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.year-control:focus-within {
+  border-color: var(--md-primary);
+}
+
+.year-select {
+  border: none;
+  background: var(--md-surface-container-highest);
+  color: var(--md-on-surface);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 0 2px;
+}
+
+/* Icon button */
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: var(--rad-full);
+  background: var(--md-surface-container-high);
+  color: var(--md-on-surface-variant);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: none;
+  transition: background 0.15s, color 0.15s, transform 0.15s;
+  padding: 0;
+}
+
+.icon-btn:hover {
+  background: var(--md-surface-container-highest);
+  color: var(--md-on-surface);
+  filter: none;
+  box-shadow: none;
+}
+
+.icon-btn:active {
+  filter: brightness(0.92);
+  filter: none;
+}
+
+.icon-btn.primary {
+  background: var(--md-primary-container);
+  color: var(--md-on-primary-container);
+}
+
+.icon-btn.primary:hover {
+  background: color-mix(in srgb, var(--md-primary-container) 88%, var(--md-primary));
+}
+
+/* ═══ SUB TOOLBAR ═══ */
+.sub-toolbar {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Month chips */
+.month-chips {
+  display: flex;
+  gap: 5px;
+  overflow-x: auto;
+  flex: 1;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+  min-width: 0;
+}
+.month-chips::-webkit-scrollbar { display: none; }
+
+.month-chip {
+  padding: 8px 14px;
+  border: 1.5px solid var(--md-outline-variant);
+  border-radius: var(--rad-full);
+  background: transparent;
+  color: var(--md-on-surface-variant);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: none;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.12s, box-shadow 0.15s;
+  flex-shrink: 0;
+  letter-spacing: 0.1px;
+}
+
+.month-chip:hover {
+  background: var(--md-surface-container-high);
+  color: var(--md-on-surface);
+  border-color: var(--md-outline);
+  filter: none;
+  box-shadow: none;
+}
+
+.month-chip.active {
+  background: var(--md-secondary-container);
+  color: var(--md-on-secondary-container);
+  border-color: var(--md-secondary-container);
+  box-shadow: var(--md-shadow-1);
+}
+
+.month-chip.all-chip.active {
+  background: var(--md-primary-container);
+  color: var(--md-on-primary-container);
+  border-color: var(--md-primary-container);
+}
+
+/* View Toggle */
+.view-toggle {
+  display: flex;
+  background: var(--md-surface-container-highest);
+  border-radius: var(--rad-full);
+  padding: 3px;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.view-btn {
+  padding: 7px 14px;
+  border: none;
+  border-radius: var(--rad-full);
+  background: transparent;
+  color: var(--md-on-surface-variant);
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 13px;
+  box-shadow: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+}
+
+.view-btn .material-symbols-rounded { font-size: 17px; }
+.view-btn span:last-child { display: none; }
+
+.view-btn:hover {
+  background: color-mix(in srgb, var(--md-surface-container-highest) 40%, var(--md-surface-container));
+  color: var(--md-on-surface);
+  filter: none;
+  box-shadow: none;
+}
+
+.view-btn.active {
+  background: var(--md-primary);
+  color: var(--md-on-primary);
+  box-shadow: var(--md-shadow-2);
+}
+
+/* ═══ MAIN CONTENT ═══ */
+.main-content {
+  width: 100%;
+  padding: 16px 20px 40px;
+  flex: 1;
+}
+
+.content-inner {
+  width: 800px;
+  margin: 0 auto;
+}
+
+/* ═══ TODAY BANNER ═══ */
+.today-banner {
+  background: linear-gradient(135deg, var(--md-primary), color-mix(in srgb, var(--md-primary) 60%, var(--md-tertiary)));
+  color: var(--md-on-primary);
+  border-radius: var(--rad-xl);
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: var(--md-shadow-3);
+  position: relative;
+  overflow: hidden;
+}
+
+.today-banner::before {
+  content: '';
+  position: absolute;
+  top: -30%;
+  right: -5%;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  pointer-events: none;
+}
+
+.today-banner::after {
+  content: '';
+  position: absolute;
+  bottom: -40%;
+  right: 10%;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.05);
+  pointer-events: none;
+}
+
+.today-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--rad-lg);
+  background: rgba(255,255,255,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  backdrop-filter: blur(8px);
+}
+
+.today-icon .material-symbols-rounded { font-size: 28px; color: #fff; }
+
+.today-info { flex: 1; }
+
+.today-date {
+  font-size: 13px;
+  opacity: 0.82;
+  font-weight: 500;
+  margin-bottom: 2px;
+  letter-spacing: 0.3px;
+}
+
+.today-names {
+  font-size: 22px;
+  font-weight: 700;
+  font-family: 'Google Sans Display', sans-serif;
+  line-height: 1.2;
+}
+
+.today-sub {
+  font-size: 12px;
+  opacity: 0.7;
+  margin-top: 4px;
+}
+
+/* ═══ SEARCH RESULTS ═══ */
+.search-results-header {
+  font-size: 13px;
+  color: var(--md-on-surface-variant);
+  font-weight: 600;
+  padding: 8px 4px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.results-count {
+  background: var(--md-secondary-container);
+  color: var(--md-on-secondary-container);
+  border-radius: var(--rad-full);
+  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* ═══ CALENDAR GRID ═══ */
+.calendar-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  animation: fadeSlideUp 0.3s var(--ease-out);
+}
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Month card – width inherited from .content-inner ── */
+.month-card {
+  background: var(--md-surface-container-low);
+  border-radius: var(--rad-xl);
+  border: 1px solid var(--md-outline-variant);
+  box-shadow: var(--md-shadow-1);
+  overflow: hidden;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.month-card-header {
+  padding: 18px 22px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--md-outline-variant);
+  background: var(--md-surface-container);
+}
+
+.month-title-wrap { display: flex; align-items: center; gap: 10px; }
+
+.month-number-badge {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--rad-sm);
+  background: var(--md-primary-container);
+  color: var(--md-on-primary-container);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.month-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--md-on-surface);
+  font-family: 'Google Sans Display', sans-serif;
+}
+
+.month-day-count {
+  font-size: 12px;
+  color: var(--md-on-surface-variant);
+  font-weight: 500;
+  background: var(--md-surface-container-highest);
+  padding: 4px 10px;
+  border-radius: var(--rad-full);
+}
+
+.month-body { padding: 14px 16px 16px; }
+
+.weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+  margin-bottom: 6px;
+}
+
+.weekday {
+  text-align: center;
+  font-weight: 700;
+  font-size: 11px;
+  color: var(--md-on-surface-variant);
+  padding: 6px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.weekday:last-child { color: var(--md-error); }
+
+.days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+}
+
+/* ── Day cell ── */
+.day {
+  min-height: 86px;
+  padding: 9px 10px;
+  border-radius: var(--rad-md);
+  border: 1px solid var(--md-outline-variant);
+  background: var(--md-surface-container-lowest);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  overflow: hidden;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s, transform 0.12s;
+  position: relative;
+}
+
+.day:hover {
+  background: var(--md-surface-container-high);
+  border-color: var(--md-primary);
+  box-shadow: var(--md-shadow-2);
+  z-index: 2;
+}
+
+.day:active {
+  background: color-mix(in srgb, var(--md-primary) 10%, var(--md-surface-container));
+  border-color: var(--md-primary);
+}
+
+.day.has-name {
+  background: var(--md-surface-container-lowest);
+  border-color: var(--md-outline-variant);
+}
+
+.day.other-month {
+  opacity: 0.22;
+  cursor: default;
+  pointer-events: none;
+  background: transparent;
+  border-color: transparent;
+}
+
+/* Sunday styling */
+.day.sunday .day-number { color: var(--md-error); }
+
+/* Today */
+.day.today {
+  border: 2px solid var(--md-primary);
+  background: color-mix(in srgb, var(--md-primary) 8%, var(--md-surface-container-lowest));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--md-primary) 18%, transparent), var(--md-shadow-2);
+}
+
+.day.today .day-number {
+  background: var(--md-primary);
+  color: var(--md-on-primary);
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 800;
+  margin-bottom: 5px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.day-number {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--md-on-surface);
+  margin-bottom: 4px;
+  flex-shrink: 0;
+  line-height: 1;
+  letter-spacing: -0.5px;
+}
+
+.day-names {
+  font-size: 11.5px;
+  color: var(--md-on-surface-variant);
+  line-height: 1.38;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  font-weight: 500;
+  word-break: break-word;
+}
+
+.day.has-name::after {
+  content: '';
+  position: absolute;
+  bottom: 6px;
+  right: 7px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--md-primary) 55%, transparent);
+}
+
+.day.has-sviatok {
+  background: color-mix(in srgb, var(--md-tertiary-container) 55%, var(--md-surface-container-lowest));
+  border-color: color-mix(in srgb, var(--md-tertiary) 40%, var(--md-outline-variant));
+}
+
+.day.has-sviatok .day-names {
+  color: color-mix(in srgb, var(--md-tertiary) 90%, var(--md-on-surface-variant));
+  font-weight: 600;
+}
+
+.day.has-sviatok::after { background: var(--md-tertiary); }
+
+/* ═══ LIST VIEW ═══ */
+.list-view {
+  animation: fadeSlideUp 0.3s var(--ease-out);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.list-month-section {
+  background: var(--md-surface-container-low);
+  border-radius: var(--rad-xl);
+  border: 1px solid var(--md-outline-variant);
+  overflow: hidden;
+  box-shadow: var(--md-shadow-1);
+}
+
+.list-month-header {
+  padding: 14px 20px;
+  background: var(--md-surface-container);
+  border-bottom: 1px solid var(--md-outline-variant);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.list-month-badge {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--rad-sm);
+  background: var(--md-primary-container);
+  color: var(--md-on-primary-container);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.list-month-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--md-on-surface);
+}
+
+.list-month-count {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--md-on-surface-variant);
+  background: var(--md-surface-container-highest);
+  padding: 3px 9px;
+  border-radius: var(--rad-full);
+  font-weight: 600;
+}
+
+.list-items { padding: 8px; display: flex; flex-direction: column; gap: 4px; }
+
+.list-item {
+  padding: 12px 14px;
+  border-radius: var(--rad-lg);
+  border: 1px solid transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+.list-item:hover {
+  background: var(--md-surface-container-high);
+  border-color: var(--md-outline-variant);
+  box-shadow: var(--md-shadow-1);
+}
+
+.list-item:active {
+  background: color-mix(in srgb, var(--md-primary) 10%, var(--md-surface));
+}
+
+.list-item.sviatok-item { background: color-mix(in srgb, var(--md-tertiary-container) 40%, transparent); }
+.list-item.sviatok-item:hover { background: color-mix(in srgb, var(--md-tertiary-container) 55%, transparent); }
+
+.list-date-badge {
+  min-width: 50px;
+  height: 50px;
+  border-radius: var(--rad-md);
+  background: var(--md-primary-container);
+  color: var(--md-on-primary-container);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  gap: 0;
+}
+
+.list-date-day { font-size: 18px; font-weight: 800; line-height: 1; }
+.list-date-month-abbr { font-size: 10px; font-weight: 600; text-transform: uppercase; opacity: 0.75; }
+
+.list-item.today-item .list-date-badge {
+  background: var(--md-primary);
+  color: var(--md-on-primary);
+  box-shadow: var(--md-shadow-2);
+}
+
+.list-item.sviatok-item .list-date-badge {
+  background: var(--md-tertiary-container);
+  color: var(--md-on-tertiary-container);
+}
+
+.list-name-wrap { flex: 1; min-width: 0; }
+.list-name { font-size: 14px; font-weight: 600; color: var(--md-on-surface); }
+.list-name-full { font-size: 12px; color: var(--md-on-surface-variant); margin-top: 2px; display: none; }
+
+.list-arrow { color: var(--md-outline); flex-shrink: 0; }
+.list-arrow .material-symbols-rounded { font-size: 18px; }
+
+/* ═══ EMPTY STATE ═══ */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--md-on-surface-variant);
+}
+
+.empty-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.4; }
+.empty-title { font-size: 18px; font-weight: 600; margin-bottom: 6px; color: var(--md-on-surface); }
+.empty-sub { font-size: 14px; }
+
+/* ═══ MODAL ═══ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(6px);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s var(--ease-out);
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.modal-sheet {
+  background: var(--md-surface-container-low);
+  border-radius: var(--rad-2xl) var(--rad-2xl) 0 0;
+  padding: 0 0 env(safe-area-inset-bottom, 0);
+  width: 100%;
+  max-width: 560px;
+  box-shadow: var(--md-shadow-4);
+  transform: translateY(40px);
+  transition: transform 0.3s var(--ease-spring);
+  overflow: hidden;
+}
+
+.modal-overlay.active .modal-sheet { transform: translateY(0); }
+
+.modal-handle {
+  width: 36px;
+  height: 4px;
+  border-radius: var(--rad-full);
+  background: var(--md-outline-variant);
+  margin: 12px auto 0;
+}
+
+.modal-header-area {
+  padding: 16px 24px 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.modal-date-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--md-primary-container);
+  color: var(--md-on-primary-container);
+  border-radius: var(--rad-full);
+  padding: 6px 14px 6px 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.modal-date-chip .material-symbols-rounded { font-size: 16px; }
+
+.modal-close-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: var(--rad-full);
+  background: var(--md-surface-container-highest);
+  color: var(--md-on-surface-variant);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: none;
+  transition: background 0.15s, transform 0.15s;
+  padding: 0;
+}
+
+.modal-close-btn:hover { background: var(--md-surface-container-high); transform: rotate(90deg); filter: none; box-shadow: none; }
+.modal-close-btn .material-symbols-rounded { font-size: 20px; }
+
+.modal-body-area {
+  padding: 20px 24px 28px;
+}
+
+.modal-names-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--md-on-surface-variant);
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.modal-name-cards { display: flex; flex-direction: column; gap: 8px; }
+
+.modal-name-card {
+  background: var(--md-surface-container);
+  border-radius: var(--rad-lg);
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border: 1px solid var(--md-outline-variant);
+  transition: box-shadow 0.15s;
+}
+
+.modal-name-card:hover { box-shadow: var(--md-shadow-1); }
+
+.modal-name-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--md-primary-container);
+  color: var(--md-on-primary-container);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 800;
+  flex-shrink: 0;
+  font-family: 'Google Sans Display', sans-serif;
+}
+
+.modal-name-text { font-size: 17px; font-weight: 600; color: var(--md-on-surface); }
+
+.modal-name-card.sviatok-card {
+  background: color-mix(in srgb, var(--md-tertiary-container) 50%, var(--md-surface-container));
+}
+.modal-name-card.sviatok-card .modal-name-avatar {
+  background: var(--md-tertiary-container);
+  color: var(--md-on-tertiary-container);
+}
+.sviatok-badge {
+  margin-left: auto;
+  font-size: 10px;
+  background: var(--md-tertiary-container);
+  color: var(--md-on-tertiary-container);
+  border-radius: var(--rad-full);
+  padding: 3px 8px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+}
+
+.modal-empty {
+  text-align: center;
+  padding: 24px;
+  color: var(--md-on-surface-variant);
+  font-size: 14px;
+}
+
+/* ═══ DESKTOP ═══ */
+@media (min-width: 768px) {
+  .view-btn span:last-child { display: inline; }
+
+  .modal-overlay {
+    align-items: center;
+    padding: 20px;
+  }
+
+  .modal-sheet {
+    border-radius: var(--rad-2xl);
+    transform: scale(0.92) translateY(10px);
+  }
+
+  .modal-overlay.active .modal-sheet { transform: scale(1) translateY(0); }
+
+  .day { min-height: 104px; }
+  .day-number { font-size: 24px; }
+  .day-names { font-size: 12px; }
+  .day.today .day-number { width: 40px; height: 40px; font-size: 20px; }
+  .days { gap: 4px; }
+  .weekdays { gap: 4px; }
+}
+
+@media (min-width: 1100px) {
+  .day { min-height: 116px; padding: 10px 11px; }
+  .day-number { font-size: 26px; letter-spacing: -0.8px; }
+  .day-names { font-size: 12.5px; line-height: 1.4; }
+  .day.today .day-number { width: 44px; height: 44px; font-size: 22px; }
+  .days { gap: 5px; }
+  .weekdays { gap: 5px; }
+  .month-body { padding: 16px 18px 18px; }
+  .list-name-full { display: block; }
+}
+
+/* ═══ MOBILE ═══ */
+@media (max-width: 767px) {
+  .brand-sub { display: none; }
+  .search-wrap { max-width: none; }
+
+  .top-bar-inner {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 12px 16px;
+    gap: 10px;
+  }
+
+  /* Row 1: brand (left) + bar-controls (right) */
+  .brand   { order: 1; flex: 1; }
+  .bar-controls { order: 2; flex-shrink: 0; }
+  /* Row 2: search full width */
+  .search-wrap { order: 3; flex-basis: 100%; }
+
+  .sub-toolbar { padding: 8px 16px; gap: 8px; }
+  .main-content { padding: 12px 16px 32px; }
+
+  .day { min-height: 58px; padding: 6px 7px; border-radius: var(--rad-sm); }
+  .day.has-name::after { display: none; }
+  .day-names { display: none; }
+  .day-number { font-size: 16px; }
+  .day.today .day-number { width: 28px; height: 28px; font-size: 14px; }
+
+  .today-banner { padding: 16px 18px; }
+  .today-names { font-size: 18px; }
+  .today-icon { width: 44px; height: 44px; }
+
+  .month-card-header { padding: 14px 16px 12px; }
+  .month-body { padding: 10px 10px 12px; }
+  .month-card { width: 100%; }
+  .today-banner,
+  .search-results-header,
+  .list-view,
+  #searchView { width: 100%; }
+  .content-inner { width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- TOP APP BAR -->
+  <header class="top-bar">
+    <div class="top-bar-inner">
+
+      <div class="brand">
+        <div class="brand-icon">
+          <span class="material-symbols-rounded">calendar_month</span>
+        </div>
+        <div class="brand-text">
+          <div class="brand-title">Meniny</div>
+          <div class="brand-sub">Slovenský kalendár mien</div>
+        </div>
+      </div>
+
+      <div class="search-wrap">
+        <span class="material-symbols-rounded search-icon-left">search</span>
+        <input type="text" class="search-input" id="searchInput" placeholder="Hľadať meno alebo dátum…" autocomplete="off">
+        <button class="search-clear" id="searchClear" title="Zmazať">
+          <span class="material-symbols-rounded" style="font-size:18px">close</span>
+        </button>
+      </div>
+
+      <div class="bar-controls">
+        <div class="year-control">
+          <span class="material-symbols-rounded" style="font-size:18px; color:var(--md-on-surface-variant)">calendar_today</span>
+          <select class="year-select" id="yearInput"></select>
+          <span class="material-symbols-rounded" style="font-size:16px; color:var(--md-on-surface-variant); pointer-events:none">expand_more</span>
+        </div>
+        <button class="icon-btn primary" id="todayBtn" title="Dnes">
+          <span class="material-symbols-rounded">today</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- SUB TOOLBAR -->
+  <div style="background: var(--md-surface-container-low); border-bottom: 1px solid var(--md-outline-variant);">
+    <div class="sub-toolbar">
+      <div class="month-chips" id="monthChips">
+        <button class="month-chip all-chip active" data-month="0">Všetky</button>
+        <button class="month-chip" data-month="1">Január</button>
+        <button class="month-chip" data-month="2">Február</button>
+        <button class="month-chip" data-month="3">Marec</button>
+        <button class="month-chip" data-month="4">Apríl</button>
+        <button class="month-chip" data-month="5">Máj</button>
+        <button class="month-chip" data-month="6">Jún</button>
+        <button class="month-chip" data-month="7">Júl</button>
+        <button class="month-chip" data-month="8">August</button>
+        <button class="month-chip" data-month="9">September</button>
+        <button class="month-chip" data-month="10">Október</button>
+        <button class="month-chip" data-month="11">November</button>
+        <button class="month-chip" data-month="12">December</button>
+      </div>
+
+      <div class="view-toggle">
+        <button class="view-btn active" data-view="calendar">
+          <span class="material-symbols-rounded">grid_view</span>
+          <span>Kalendár</span>
+        </button>
+        <button class="view-btn" data-view="list">
+          <span class="material-symbols-rounded">view_list</span>
+          <span>Zoznam</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <main class="main-content">
+    <div class="content-inner">
+    <!-- Today Banner -->
+    <div class="today-banner" id="todayBanner">
+      <div class="today-icon">
+        <span class="material-symbols-rounded">celebration</span>
+      </div>
+      <div class="today-info">
+        <div class="today-date" id="todayDateLabel"></div>
+        <div class="today-names" id="todayNamesLabel"></div>
+        <div class="today-sub">Dnes slaví meniny</div>
+      </div>
+    </div>
+
+    <!-- Search results header (hidden by default) -->
+    <div class="search-results-header" id="searchHeader" style="display:none">
+      <span class="material-symbols-rounded" style="font-size:18px; color: var(--md-on-surface-variant)">search</span>
+      Výsledky hľadania
+      <span class="results-count" id="resultsCount">0</span>
+    </div>
+
+    <div id="calendarView" class="calendar-grid"></div>
+    <div id="listView" class="list-view" style="display:none;"></div>
+    <div id="searchView" class="list-view" style="display:none;"></div>
+    </div>
+  </main>
+</div>
+
+<!-- MODAL -->
+<div id="modalOverlay" class="modal-overlay">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header-area">
+      <div class="modal-date-chip">
+        <span class="material-symbols-rounded">event</span>
+        <span id="modalTitle">—</span>
+      </div>
+      <button class="modal-close-btn" onclick="closeModal()">
+        <span class="material-symbols-rounded">close</span>
+      </button>
+    </div>
+    <div class="modal-body-area">
+      <div class="modal-names-title">Meniny dňa</div>
+      <div class="modal-name-cards" id="modalCards"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ─── DATA ─── */
+const meniny = {
+  "01-01":"Nový rok, Deň vzniku SR (Sviatok)","01-02":"Alexandra","01-03":"Daniela","01-04":"Drahoslav","01-05":"Andrea","01-06":"Antónia, Zjavenie Pána (Traja králi) (Sviatok)","01-07":"Bohuslava","01-08":"Severín","01-09":"Alexej","01-10":"Dáša",
+  "01-11":"Malvína","01-12":"Ernest","01-13":"Rastislav","01-14":"Radovan","01-15":"Dobroslav","01-16":"Kristína","01-17":"Nataša","01-18":"Bohdana","01-19":"Drahomíra","01-20":"Dalibor",
+  "01-21":"Vincent","01-22":"Zora","01-23":"Miloš","01-24":"Timotej","01-25":"Gejza","01-26":"Tamara","01-27":"Bohuš","01-28":"Alfonz","01-29":"Gašpar","01-30":"Ema","01-31":"Emil",
+  "02-01":"Tatiana","02-02":"Erika","02-03":"Blažej","02-04":"Veronika","02-05":"Agáta","02-06":"Dorota","02-07":"Vanda","02-08":"Zoja","02-09":"Zdenko","02-10":"Gabriela",
+  "02-11":"Dezider","02-12":"Perla","02-13":"Arpád","02-14":"Valentín","02-15":"Pravoslav","02-16":"Ida","02-17":"Miloslava","02-18":"Jaromír","02-19":"Vlasta","02-20":"Lívia",
+  "02-21":"Eleonóra","02-22":"Etela","02-23":"Roman","02-24":"Matej","02-25":"Frederik","02-26":"Viktor","02-27":"Alexander","02-28":"Zlatica","02-29":"Radomír",
+  "03-01":"Albín","03-02":"Anežka","03-03":"Bohumil","03-04":"Kazimír","03-05":"Fridrich","03-06":"Radoslav","03-07":"Tomáš","03-08":"Alan, Medzinárodný deň žien","03-09":"Františka","03-10":"Branislav",
+  "03-11":"Angela","03-12":"Gregor","03-13":"Vlastimil","03-14":"Matilda","03-15":"Svetlana","03-16":"Boleslav","03-17":"Ľubica","03-18":"Eduard","03-19":"Jozef","03-20":"Víťazoslav",
+  "03-21":"Blahoslav","03-22":"Beňadik","03-23":"Adrián","03-24":"Gabriel","03-25":"Marián","03-26":"Emanuel","03-27":"Alena","03-28":"Soňa","03-29":"Miroslav","03-30":"Vieroslava","03-31":"Benjamín",
+  "04-01":"Hugo","04-02":"Zita","04-03":"Richard","04-04":"Izidor","04-05":"Miroslava","04-06":"Irena","04-07":"Zoltán","04-08":"Albert","04-09":"Milena","04-10":"Igor",
+  "04-11":"Július","04-12":"Estera","04-13":"Aleš","04-14":"Justína","04-15":"Fedor","04-16":"Dana","04-17":"Rudolf","04-18":"Valér","04-19":"Jela","04-20":"Marcel",
+  "04-21":"Ervín","04-22":"Slavomír","04-23":"Vojtech","04-24":"Juraj","04-25":"Marek","04-26":"Jaroslava","04-27":"Jaroslav","04-28":"Jarmila","04-29":"Lea","04-30":"Anastázia",
+  "05-01":"Sviatok práce (Sviatok)","05-02":"Žigmund","05-03":"Galina","05-04":"Florián","05-05":"Lesana","05-06":"Hermína","05-07":"Monika","05-08":"Ivana, Deň víťazstva nad fašizmom (Sviatok)","05-09":"Roland","05-10":"Viktória",
+  "05-11":"Blažena","05-12":"Pankrác","05-13":"Servác","05-14":"Bonifác","05-15":"Žofia","05-16":"Svetozár","05-17":"Gizela","05-18":"Viola","05-19":"Gertrúda","05-20":"Bernard",
+  "05-21":"Zina","05-22":"Júlia","05-23":"Želmíra","05-24":"Ela","05-25":"Urban","05-26":"Dušan","05-27":"Iveta","05-28":"Viliam","05-29":"Maxim","05-30":"Ferdinand","05-31":"Petrana",
+  "06-01":"Žaneta","06-02":"Xénia","06-03":"Karolína","06-04":"Lenka","06-05":"Laura","06-06":"Norbert","06-07":"Róbert","06-08":"Medard","06-09":"Stanislava","06-10":"Margita",
+  "06-11":"Dobroslava","06-12":"Zlatko","06-13":"Anton","06-14":"Vasil","06-15":"Vít","06-16":"Blanka","06-17":"Adolf","06-18":"Vratislav","06-19":"Alfréd","06-20":"Valéria",
+  "06-21":"Alojz","06-22":"Paulína","06-23":"Sidónia","06-24":"Ján","06-25":"Tadeáš","06-26":"Adriána","06-27":"Ladislav","06-28":"Beáta","06-29":"Peter, Pavol","06-30":"Melánia",
+  "07-01":"Diana","07-02":"Berta","07-03":"Miloslav","07-04":"Prokop","07-05":"Cyril a Metod (Sviatok)","07-06":"Patrik","07-07":"Oliver","07-08":"Ivan","07-09":"Lujza","07-10":"Amália",
+  "07-11":"Milota","07-12":"Nina","07-13":"Margita","07-14":"Kamil","07-15":"Henrich","07-16":"Drahomír","07-17":"Bohuslav","07-18":"Kamila","07-19":"Dušana","07-20":"Iľja",
+  "07-21":"Viera","07-22":"Magdaléna","07-23":"Oľga","07-24":"Vladimír","07-25":"Jakub","07-26":"Anna","07-27":"Božena","07-28":"Krištof","07-29":"Marta","07-30":"Libuša","07-31":"Ignác",
+  "08-01":"Božidara","08-02":"Gustáv","08-03":"Jerguš","08-04":"Dominik","08-05":"Hortenzia","08-06":"Jozefína","08-07":"Štefánia","08-08":"Oskar","08-09":"Ľubomíra","08-10":"Vavrinec",
+  "08-11":"Zuzana","08-12":"Darina","08-13":"Ľubomír","08-14":"Mojmír","08-15":"Nanebovzatie Panny Márie (Sviatok)","08-16":"Leonard","08-17":"Milica","08-18":"Elena","08-19":"Lýdia","08-20":"Anabela",
+  "08-21":"Jana","08-22":"Tichomír","08-23":"Filomena","08-24":"Bartolomej","08-25":"Ľudovít","08-26":"Samuel","08-27":"Silvia","08-28":"Augustín","08-29":"Nikola, Beáta","08-30":"Ružena","08-31":"Nora",
+  "09-01":"Danka, Deň Ústavy SR (Sviatok)","09-02":"Linda","09-03":"Belo","09-04":"Rozália","09-05":"Regína","09-06":"Alica","09-07":"Marianna","09-08":"Miriama","09-09":"Martina","09-10":"Oleg",
+  "09-11":"Bystrík","09-12":"Mária","09-13":"Ctibor","09-14":"Ľudomil","09-15":"Jolana, Sedembolestná Panna Mária (Sviatok)","09-16":"Ľudmila","09-17":"Olympia","09-18":"Eugénia","09-19":"Konštantín","09-20":"Ľuboslav",
+  "09-21":"Matúš","09-22":"Móric","09-23":"Zdenka","09-24":"Ľuboš","09-25":"Vladislav","09-26":"Edita","09-27":"Cyprián","09-28":"Václav","09-29":"Michal","09-30":"Jarolím",
+  "10-01":"Arnold","10-02":"Levoslav","10-03":"Stela","10-04":"František","10-05":"Viera","10-06":"Natália","10-07":"Eliška","10-08":"Brigita","10-09":"Dionýz","10-10":"Slavomíra",
+  "10-11":"Valentína","10-12":"Maximilián","10-13":"Koloman","10-14":"Boris","10-15":"Terézia","10-16":"Vladimíra","10-17":"Hedviga","10-18":"Lukáš","10-19":"Kristián","10-20":"Vendelín",
+  "10-21":"Uršuľa","10-22":"Sergej","10-23":"Alojzia","10-24":"Kvetoslava","10-25":"Aurel","10-26":"Demeter","10-27":"Sabína","10-28":"Dobromila, Deň vzniku ČSR (Sviatok)","10-29":"Klára","10-30":"Šimon","10-31":"Aurélia",
+  "11-01":"Denis, Denisa, Sviatok všetkých svätých (Sviatok)","11-02":"Pamiatka zosnulých","11-03":"Hubert","11-04":"Karol","11-05":"Imrich","11-06":"Renáta","11-07":"René","11-08":"Bohumír","11-09":"Teodor","11-10":"Tibor",
+  "11-11":"Martin","11-12":"Svätopluk","11-13":"Stanislav","11-14":"Irma","11-15":"Leopold","11-16":"Agnesa","11-17":"Klaudia, Deň boja za slobodu a demokraciu (Sviatok)","11-18":"Eugen","11-19":"Alžbeta","11-20":"Félix",
+  "11-21":"Elvíra","11-22":"Cecília","11-23":"Klement","11-24":"Emília","11-25":"Katarína","11-26":"Kornel","11-27":"Milan","11-28":"Henrieta","11-29":"Vratko","11-30":"Ondrej",
+  "12-01":"Edmund","12-02":"Bibiána","12-03":"Oldrich","12-04":"Barbora","12-05":"Oto","12-06":"Mikuláš","12-07":"Ambróz","12-08":"Marína","12-09":"Izabela","12-10":"Radúz",
+  "12-11":"Hilda","12-12":"Otília","12-13":"Lucia","12-14":"Branislava","12-15":"Ivica","12-16":"Albína","12-17":"Kornélia","12-18":"Sláva","12-19":"Judita","12-20":"Dagmara",
+  "12-21":"Bohdan","12-22":"Adela","12-23":"Nadežda","12-24":"Adam, Eva (Štedrý deň) (Sviatok)","12-25":"1. sviatok vianočný (Sviatok)","12-26":"Štefan (2. sviatok vianočný) (Sviatok), Mano","12-27":"Filoména","12-28":"Ivana","12-29":"Milada","12-30":"Dávid","12-31":"Silvester"
+};
+
+const monthNames = ['Január','Február','Marec','Apríl','Máj','Jún','Júl','August','September','Október','November','December'];
+const monthShort = ['Jan','Feb','Mar','Apr','Máj','Jún','Júl','Aug','Sep','Okt','Nov','Dec'];
+const weekdayNames = ['Po','Ut','St','Št','Pi','So','Ne'];
+
+/* ─── HELPERS ─── */
+function removeDiacritics(s){ return s.normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+function getDaysInMonth(y,m){ return new Date(y,m,0).getDate(); }
+function getFirstDay(y,m){ const d=new Date(y,m-1,1).getDay(); return d===0?6:d-1; }
+function getKey(d,m){ return `${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
+function getNames(d,m){ return meniny[getKey(d,m)]||''; }
+function isSviatok(names){ return names.includes('(Sviatok)'); }
+
+/* ─── STATE ─── */
+let currentYear = new Date().getFullYear();
+let currentMonth = 0; // 0 = all
+let currentView = 'calendar';
+let searchQuery = '';
+
+const today = new Date();
+const todayD = today.getDate(), todayM = today.getMonth()+1, todayY = today.getFullYear();
+
+/* ─── TODAY BANNER ─── */
+function initTodayBanner(){
+  const names = getNames(todayD, todayM);
+  const dateLabel = `${todayD}. ${monthNames[todayM-1]} ${todayY}`;
+  document.getElementById('todayDateLabel').textContent = dateLabel;
+  if(names){
+    const display = names.replace(/\s*\(Sviatok\)/g,'');
+    document.getElementById('todayNamesLabel').textContent = display || 'Štátny sviatok';
+  } else {
+    document.getElementById('todayNamesLabel').textContent = 'Žiadne meniny';
+  }
+}
+
+/* ─── CALENDAR ─── */
+function renderCalendar(){
+  const view = document.getElementById('calendarView');
+  view.innerHTML = '';
+  const months = currentMonth ? [currentMonth] : Array.from({length:12},(_,i)=>i+1);
+
+  // single month → centre the card
+  view.classList.toggle('single-month', months.length === 1);
+
+  months.forEach(m=>{
+    const daysInMonth = getDaysInMonth(currentYear, m);
+    const firstDay = getFirstDay(currentYear, m);
+
+    const card = document.createElement('div');
+    card.className = 'month-card';
+
+    // Header
+    const hdr = document.createElement('div');
+    hdr.className = 'month-card-header';
+    hdr.innerHTML = `
+      <div class="month-title-wrap">
+        <div class="month-number-badge">${m}</div>
+        <div class="month-title">${monthNames[m-1]}</div>
+      </div>
+      <div class="month-day-count">${daysInMonth} dní</div>
+    `;
+    card.appendChild(hdr);
+
+    // Body
+    const body = document.createElement('div');
+    body.className = 'month-body';
+
+    // Weekdays row
+    const wkRow = document.createElement('div');
+    wkRow.className = 'weekdays';
+    weekdayNames.forEach(dn=>{
+      const d = document.createElement('div');
+      d.className = 'weekday';
+      d.textContent = dn;
+      wkRow.appendChild(d);
+    });
+    body.appendChild(wkRow);
+
+    // Days
+    const daysGrid = document.createElement('div');
+    daysGrid.className = 'days';
+
+    // Empty cells
+    for(let i=0;i<firstDay;i++){
+      const e = document.createElement('div');
+      e.className = 'day other-month';
+      daysGrid.appendChild(e);
+    }
+
+    for(let d=1;d<=daysInMonth;d++){
+      const dow = (firstDay + d - 1) % 7; // 0=Mon … 6=Sun
+      const names = getNames(d,m);
+      const isSv = isSviatok(names);
+      const isToday = d===todayD && m===todayM && currentYear===todayY;
+
+      const cell = document.createElement('div');
+      cell.className = 'day' + (isToday?' today':'') + (names?' has-name':'') + (isSv?' has-sviatok':'') + (dow===6?' sunday':'');
+
+      const numEl = document.createElement('div');
+      numEl.className = 'day-number';
+      numEl.textContent = d;
+      cell.appendChild(numEl);
+
+      if(names){
+        const nEl = document.createElement('div');
+        nEl.className = 'day-names';
+        nEl.textContent = names.replace(/\s*\(Sviatok\)/g,'');
+        cell.appendChild(nEl);
+      }
+
+      cell.addEventListener('click', ()=>showModal(d,m,currentYear,names));
+      daysGrid.appendChild(cell);
+    }
+
+    body.appendChild(daysGrid);
+    card.appendChild(body);
+    view.appendChild(card);
+  });
+}
+
+/* ─── LIST VIEW ─── */
+function renderList(){
+  const view = document.getElementById('listView');
+  view.innerHTML = '';
+  const months = currentMonth ? [currentMonth] : Array.from({length:12},(_,i)=>i+1);
+
+  months.forEach(m=>{
+    const days = getDaysInMonth(currentYear, m);
+    const items = [];
+    for(let d=1;d<=days;d++){
+      const names = getNames(d,m);
+      if(names) items.push({d,m,names});
+    }
+    if(!items.length) return;
+
+    const section = document.createElement('div');
+    section.className = 'list-month-section';
+
+    const mHdr = document.createElement('div');
+    mHdr.className = 'list-month-header';
+    mHdr.innerHTML = `
+      <div class="list-month-badge">${m}</div>
+      <div class="list-month-title">${monthNames[m-1]} ${currentYear}</div>
+      <div class="list-month-count">${items.length} mien</div>
+    `;
+    section.appendChild(mHdr);
+
+    const itemsWrap = document.createElement('div');
+    itemsWrap.className = 'list-items';
+
+    items.forEach(({d, m: mo, names})=>{
+      const isSv = isSviatok(names);
+      const isToday = d===todayD && mo===todayM && currentYear===todayY;
+      const displayNames = names.replace(/\s*\(Sviatok\)/g,'');
+
+      const li = document.createElement('div');
+      li.className = 'list-item' + (isSv?' sviatok-item':'') + (isToday?' today-item':'');
+      li.innerHTML = `
+        <div class="list-date-badge">
+          <div class="list-date-day">${d}</div>
+          <div class="list-date-month-abbr">${monthShort[mo-1]}</div>
+        </div>
+        <div class="list-name-wrap">
+          <div class="list-name">${displayNames}</div>
+          ${isSv?'<div class="list-name-full">Štátny sviatok</div>':''}
+        </div>
+        <div class="list-arrow"><span class="material-symbols-rounded">chevron_right</span></div>
+      `;
+      li.addEventListener('click', ()=>showModal(d,mo,currentYear,names));
+      itemsWrap.appendChild(li);
+    });
+
+    section.appendChild(itemsWrap);
+    view.appendChild(section);
+  });
+}
+
+/* ─── SEARCH ─── */
+function performSearch(q){
+  const view = document.getElementById('searchView');
+  view.innerHTML = '';
+
+  const qNorm = removeDiacritics(q).toLowerCase().trim();
+  const results = [];
+
+  for(let m=1;m<=12;m++){
+    const days = getDaysInMonth(currentYear, m);
+    for(let d=1;d<=days;d++){
+      const names = getNames(d,m);
+      if(!names) continue;
+      const nNorm = removeDiacritics(names).toLowerCase();
+      const dateStr = `${d}.${m}`;
+      if(nNorm.includes(qNorm) || dateStr.includes(qNorm)){
+        results.push({d,m,names});
+      }
+    }
+  }
+
+  document.getElementById('resultsCount').textContent = results.length;
+
+  if(!results.length){
+    view.innerHTML = `
+      <div class="empty-state">
+        <div class="material-symbols-rounded empty-icon">search_off</div>
+        <div class="empty-title">Žiadne výsledky</div>
+        <div class="empty-sub">Skúste iné meno alebo dátum</div>
+      </div>`;
+    return;
+  }
+
+  results.sort((a,b)=> a.m!==b.m ? a.m-b.m : a.d-b.d);
+
+  const itemsWrap = document.createElement('div');
+  itemsWrap.className = 'list-month-section';
+  const inner = document.createElement('div');
+  inner.className = 'list-items';
+
+  results.forEach(({d, m, names})=>{
+    const isSv = isSviatok(names);
+    const isToday = d===todayD && m===todayM && currentYear===todayY;
+    const displayNames = names.replace(/\s*\(Sviatok\)/g,'');
+
+    const li = document.createElement('div');
+    li.className = 'list-item' + (isSv?' sviatok-item':'') + (isToday?' today-item':'');
+    li.innerHTML = `
+      <div class="list-date-badge">
+        <div class="list-date-day">${d}</div>
+        <div class="list-date-month-abbr">${monthShort[m-1]}</div>
+      </div>
+      <div class="list-name-wrap">
+        <div class="list-name">${displayNames}</div>
+      </div>
+      <div class="list-arrow"><span class="material-symbols-rounded">chevron_right</span></div>
+    `;
+    li.addEventListener('click', ()=>showModal(d,m,currentYear,names));
+    inner.appendChild(li);
+  });
+
+  itemsWrap.appendChild(inner);
+  view.appendChild(itemsWrap);
+}
+
+/* ─── VIEW MANAGEMENT ─── */
+function setView(v){
+  currentView = v;
+  document.querySelectorAll('.view-btn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.view===v);
+  });
+  refreshViews();
+}
+
+function refreshViews(){
+  const cal = document.getElementById('calendarView');
+  const list = document.getElementById('listView');
+  const search = document.getElementById('searchView');
+  const searchHdr = document.getElementById('searchHeader');
+  const todayBanner = document.getElementById('todayBanner');
+
+  if(searchQuery.trim()){
+    cal.style.display = 'none';
+    list.style.display = 'none';
+    search.style.display = 'flex';
+    searchHdr.style.display = 'flex';
+    todayBanner.style.display = 'none';
+    performSearch(searchQuery);
+  } else {
+    searchHdr.style.display = 'none';
+    todayBanner.style.display = 'flex';
+    search.style.display = 'none';
+    if(currentView==='calendar'){
+      cal.style.display = 'grid';
+      list.style.display = 'none';
+      renderCalendar();
+    } else {
+      cal.style.display = 'none';
+      list.style.display = 'flex';
+      renderList();
+    }
+  }
+}
+
+/* ─── MODAL ─── */
+function showModal(d,m,y,names){
+  document.getElementById('modalTitle').textContent = `${d}. ${monthNames[m-1]} ${y}`;
+  const cards = document.getElementById('modalCards');
+  cards.innerHTML = '';
+
+  if(!names){
+    cards.innerHTML = '<div class="modal-empty">Žiadne meniny pre tento deň</div>';
+  } else {
+    const isSv = isSviatok(names);
+    const cleanNames = names.replace(/\s*\(Sviatok\)/g,'').split(',').map(n=>n.trim()).filter(Boolean);
+    cleanNames.forEach((name,i)=>{
+      const card = document.createElement('div');
+      card.className = 'modal-name-card' + (isSv && i===cleanNames.length-1?'':isSv?' sviatok-card':'');
+      // Detect if this item contains sviatok
+      const isThisSviatok = isSv && names.split(',').some(n=> n.includes('(Sviatok)') && removeDiacritics(n).toLowerCase().includes(removeDiacritics(name).toLowerCase()));
+      if(isSv) card.className = 'modal-name-card sviatok-card';
+
+      card.innerHTML = `
+        <div class="modal-name-avatar">${name[0]||'?'}</div>
+        <div class="modal-name-text">${name}</div>
+        ${isSv?'<span class="sviatok-badge">Sviatok</span>':''}
+      `;
+      cards.appendChild(card);
+    });
+    if(!cleanNames.length){
+      cards.innerHTML = '<div class="modal-empty">Štátny sviatok</div>';
+    }
+  }
+
+  document.getElementById('modalOverlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(){
+  document.getElementById('modalOverlay').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+/* ─── EVENTS ─── */
+document.getElementById('yearInput').addEventListener('change', e=>{
+  const v = parseInt(e.target.value);
+  if(v>=2000 && v<=2100){ currentYear=v; refreshViews(); }
+});
+
+document.getElementById('todayBtn').addEventListener('click', ()=>{
+  currentYear = todayY;
+  currentMonth = todayM;
+  document.getElementById('yearInput').value = todayY;
+  searchQuery = '';
+  document.getElementById('searchClear').classList.remove('visible');
+
+  // Select correct month chip
+  document.querySelectorAll('.month-chip').forEach(c=>{
+    c.classList.toggle('active', parseInt(c.dataset.month)===currentMonth);
+  });
+
+  setView('calendar');
+
+  requestAnimationFrame(()=>{
+    const el = document.querySelector('.day.today');
+    if(el) el.scrollIntoView({behavior:'smooth',block:'center'});
+  });
+});
+
+document.getElementById('searchInput').addEventListener('input', e=>{
+  searchQuery = e.target.value;
+  document.getElementById('searchClear').classList.toggle('visible', !!searchQuery);
+  refreshViews();
+});
+
+document.getElementById('searchClear').addEventListener('click', ()=>{
+  document.getElementById('searchInput').value = '';
+  searchQuery = '';
+  document.getElementById('searchClear').classList.remove('visible');
+  refreshViews();
+});
+
+document.querySelectorAll('.month-chip').forEach(chip=>{
+  chip.addEventListener('click', ()=>{
+    document.querySelectorAll('.month-chip').forEach(c=>c.classList.remove('active'));
+    chip.classList.add('active');
+    currentMonth = parseInt(chip.dataset.month);
+    searchQuery = '';
+    document.getElementById('searchInput').value = '';
+    document.getElementById('searchClear').classList.remove('visible');
+    refreshViews();
+  });
+});
+
+document.querySelectorAll('.view-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>setView(btn.dataset.view));
+});
+
+document.getElementById('modalOverlay').addEventListener('click', e=>{
+  if(e.target===document.getElementById('modalOverlay')) closeModal();
+});
+
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+
+/* ─── INIT ─── */
+(function(){
+  // Populate year select: 5 years back to 5 years forward
+  const sel = document.getElementById('yearInput');
+  for(let y = todayY - 5; y <= todayY + 5; y++){
+    const opt = document.createElement('option');
+    opt.value = y;
+    opt.textContent = y;
+    sel.appendChild(opt);
+  }
+
+  currentYear = todayY;
+  currentMonth = todayM;
+  sel.value = currentYear;
+
+  // activate the correct month chip
+  document.querySelectorAll('.month-chip').forEach(c=>{
+    c.classList.toggle('active', parseInt(c.dataset.month) === currentMonth);
+  });
+
+  initTodayBanner();
+  refreshViews();
+
+  // scroll to today after render
+  requestAnimationFrame(()=>{
+    const el = document.querySelector('.day.today');
+    if(el) el.scrollIntoView({behavior:'smooth', block:'center'});
+  });
+})();
+</script>
+</body>
+</html>
