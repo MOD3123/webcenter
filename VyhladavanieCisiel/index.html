@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vyhľadávanie čísel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --p: #2563EB; --p-light: #DBEAFE; --p-dark: #1D4ED8;
+      --accent-light: #CFFAFE;
+      --red: #EF4444; --red-light: #FEE2E2;
+      --bg: #F8FAFC; --surface: #FFFFFF;
+      --surface2: #F1F5F9; --surface3: #E2E8F0;
+      --border: #CBD5E1; --border-light: #E2E8F0;
+      --text: #0F172A; --text-secondary: #64748B; --text-muted: #94A3B8;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --p: #3B82F6; --p-light: #1E3A5F; --p-dark: #60A5FA;
+        --accent-light: #0E3A45;
+        --red: #F87171; --red-light: #450A0A;
+        --bg: #0F172A; --surface: #1E293B;
+        --surface2: #162033; --surface3: #253047;
+        --border: #334155; --border-light: #1E293B;
+        --text: #F1F5F9; --text-secondary: #94A3B8; --text-muted: #475569;
+      }
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14px; line-height: 1.5;
+      background: var(--bg); color: var(--text);
+    }
+
+    /* Shell: JS sets height = window.innerHeight */
+    #shell {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    /* Topbar */
+    #topbar {
+      flex-shrink: 0;
+      height: 56px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border-light);
+      padding: 0 24px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .topbar-icon {
+      width: 32px; height: 32px; background: var(--p); border-radius: 8px;
+      display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0;
+    }
+    .topbar-title { font-size: 15px; font-weight: 700; color: var(--text); flex: 1; }
+    .topbar-badge {
+      background: var(--p-light); color: var(--p);
+      font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 9999px;
+    }
+
+    /* Mobile tabs — hidden on desktop */
+    #mobile-tabs {
+      display: none;
+      flex-shrink: 0;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border-light);
+    }
+    .tab-btn {
+      flex: 1; padding: 11px 8px; border: none; background: transparent;
+      font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; font-weight: 700;
+      color: var(--text-muted); cursor: pointer;
+      border-bottom: 2.5px solid transparent; transition: all .2s;
+    }
+    .tab-btn.active { color: var(--p); border-bottom-color: var(--p); }
+
+    /* Content: fills all remaining height */
+    #content {
+      flex: 1;
+      min-height: 0;   /* CRITICAL — without this flex-child won't shrink */
+      display: grid;
+      grid-template-columns: 400px 1fr;
+      overflow: hidden;
+    }
+
+    /* Left panel scrolls its own content */
+    #panel-search {
+      display: flex; flex-direction: column; gap: 16px;
+      overflow-y: auto; overflow-x: hidden;
+      background: var(--surface);
+      border-right: 1px solid var(--border-light);
+      padding: 24px 20px 32px;
+    }
+
+    /* Right panel: fixed header + scrollable list */
+    #panel-list {
+      display: flex; flex-direction: column;
+      overflow: hidden; min-height: 0;
+    }
+    .rp-head {
+      flex-shrink: 0;
+      padding: 16px 20px 12px;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border-light);
+    }
+    .rp-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .rp-title { font-size: 15px; font-weight: 800; color: var(--text); }
+    .rp-badge {
+      background: var(--p-light); color: var(--p);
+      border-radius: 9999px; padding: 3px 11px; font-size: 12px; font-weight: 700;
+    }
+    .srch { position: relative; }
+    .srch input {
+      width: 100%; padding: 10px 14px 10px 38px;
+      border: 1.5px solid var(--border); border-radius: 9999px;
+      background: var(--surface); color: var(--text);
+      font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; transition: all .2s;
+    }
+    .srch input::placeholder { color: var(--text-muted); }
+    .srch input:focus { outline: none; border-color: var(--p); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+    .srch-ic { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 14px; color: var(--text-muted); pointer-events: none; }
+
+    /* Country list — THE scrolling area */
+    .clist {
+      flex: 1;
+      min-height: 0;   /* CRITICAL */
+      overflow-y: auto;
+      padding: 8px 12px 20px;
+    }
+    .cgrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 2px;
+    }
+    .citem {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; border-radius: 12px; cursor: pointer; transition: background .12s;
+    }
+    .citem:hover { background: var(--surface2); }
+    .citem:active { background: var(--surface3); }
+    .cflag { font-size: 24px; line-height: 1; flex-shrink: 0; }
+    .cinfo { flex: 1; min-width: 0; }
+    .cname { font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ccode { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--p); font-weight: 500; }
+
+    /* Hero */
+    .hero {
+      background: linear-gradient(135deg, #1D4ED8 0%, #0891B2 100%);
+      border-radius: 20px; padding: 24px; position: relative; overflow: hidden; flex-shrink: 0;
+    }
+    .hero::before {
+      content: ''; position: absolute; top: -40px; right: -40px;
+      width: 130px; height: 130px; border-radius: 50%; background: rgba(255,255,255,0.08);
+    }
+    .hero-label { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.65); margin-bottom: 6px; }
+    .hero-title { font-size: 20px; font-weight: 800; color: #fff; line-height: 1.25; margin-bottom: 20px; }
+
+    .field { position: relative; margin-bottom: 12px; }
+    .field input {
+      width: 100%; padding: 14px 48px 14px 18px;
+      border: 2px solid rgba(255,255,255,0.2); border-radius: 9999px;
+      background: rgba(255,255,255,0.15); color: #fff;
+      font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 500; transition: all .2s;
+    }
+    .field input::placeholder { color: rgba(255,255,255,0.45); }
+    .field input:focus { outline: none; border-color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.22); }
+    .field-icon { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font-size: 18px; pointer-events: none; }
+
+    .btn-search {
+      width: 100%; padding: 14px 24px; border: none; border-radius: 9999px;
+      background: #fff; color: var(--p-dark);
+      font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: all .2s; box-shadow: 0 4px 12px rgba(0,0,0,.15);
+    }
+    .btn-search:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,0,0,.2); }
+    .btn-search:active { transform: translateY(0); }
+
+    .err {
+      background: var(--red-light); color: var(--red); border-radius: 10px; padding: 12px 14px;
+      font-size: 13px; font-weight: 600; display: none; align-items: center; gap: 8px;
+      border: 1px solid rgba(239,68,68,0.2); flex-shrink: 0;
+    }
+    .err.on { display: flex; animation: slideDown .2s ease; }
+
+    .result {
+      background: var(--surface); border: 1px solid var(--border-light);
+      border-radius: 20px; overflow: hidden; display: none;
+      box-shadow: 0 4px 16px rgba(0,0,0,.08); flex-shrink: 0;
+    }
+    .result.on { display: block; animation: popIn .28s cubic-bezier(.34,1.56,.64,1); }
+
+    .res-head {
+      background: linear-gradient(135deg, var(--p-light), var(--accent-light));
+      padding: 20px; display: flex; align-items: center; gap: 14px;
+    }
+    .res-flag { font-size: 44px; line-height: 1; flex-shrink: 0; animation: flagPop .3s cubic-bezier(.34,1.56,.64,1) .05s both; }
+    .res-meta { flex: 1; min-width: 0; }
+    .res-name { font-size: 17px; font-weight: 800; color: var(--text); line-height: 1.25; margin-bottom: 6px; word-break: break-word; }
+    .res-chip {
+      display: inline-flex; align-items: center; background: var(--p); color: #fff;
+      border-radius: 9999px; padding: 3px 12px;
+      font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600;
+    }
+    .res-body { padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+    .info-row {
+      display: flex; flex-direction: column;
+      background: var(--surface2);
+      border-radius: 12px;
+      border: 1px solid var(--border-light);
+      padding: 12px 16px; gap: 4px;
+    }
+    .info-lbl {
+      color: var(--text-muted);
+      font-size: 10px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 1px;
+    }
+    .info-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px; font-weight: 600;
+      color: var(--text);
+    }
+    .divider { height: 1px; background: var(--border-light); }
+    .btn-copy {
+      width: 100%; padding: 12px 20px; border: 2px solid var(--border); border-radius: 9999px;
+      background: transparent; color: var(--text);
+      font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all .2s;
+    }
+    .btn-copy:hover { background: var(--surface2); border-color: var(--p); color: var(--p); }
+    .svc-label {
+      font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.2px;
+      color: var(--text-secondary); margin-bottom: 10px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .svc-label::after {
+      content: ''; flex: 1; height: 1px; background: var(--border-light);
+    }
+    .svc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .btn-svc {
+      padding: 13px 10px; border: 1.5px solid var(--border); border-radius: 14px;
+      background: var(--surface2); color: var(--text);
+      font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12px; font-weight: 700;
+      cursor: pointer; text-align: center; transition: all .18s;
+      display: flex; flex-direction: column; align-items: center; gap: 5px;
+      line-height: 1.2;
+    }
+    .btn-svc .svc-ico { font-size: 20px; }
+    .btn-svc .svc-name { color: var(--text); font-size: 12px; font-weight: 700; }
+    .btn-svc .svc-sub { color: var(--text-muted); font-size: 10px; font-weight: 500; }
+    .btn-svc:hover { border-color: var(--p); background: var(--p-light); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(37,99,235,0.15); }
+    .btn-svc:hover .svc-name { color: var(--p); }
+    .btn-svc:active { transform: translateY(0); }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    @keyframes popIn { from { opacity:0; transform:scale(.94) translateY(8px); } to { opacity:1; transform:scale(1) translateY(0); } }
+    @keyframes flagPop { from { transform:scale(.3) rotate(-18deg); opacity:0; } to { transform:scale(1) rotate(0); opacity:1; } }
+    @keyframes slideDown { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
+
+    @media (max-width: 900px) { #content { grid-template-columns: 320px 1fr; } }
+
+    @media (max-width: 640px) {
+      #topbar { padding: 0 16px; }
+      .topbar-badge { display: none; }
+      #mobile-tabs { display: none !important; }
+      /* On mobile: remove all internal scroll, let the whole shell scroll */
+      #shell { height: auto !important; overflow: visible !important; }
+      #content { grid-template-columns: 1fr; overflow: visible; height: auto; }
+      #panel-search { overflow: visible; height: auto; border-right: none; }
+      #panel-list { overflow: visible; height: auto; min-height: 0; }
+      .clist { overflow: visible; height: auto; }
+      .hero-title { font-size: 17px; }
+      body { overflow-y: auto; }
+    }
+    @media (max-width: 380px) { .svc-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<div id="shell">
+  <div id="topbar">
+    <div class="topbar-icon">📞</div>
+    <span class="topbar-title">Vyhľadávanie telefónnych čísel</span>
+  </div>
+
+  <div id="mobile-tabs">
+    <button class="tab-btn active" id="tab-search" onclick="showTab('search')">Vyhľadať</button>
+    <button class="tab-btn" id="tab-list" onclick="showTab('list')">Predvoľby</button>
+  </div>
+
+  <div id="content">
+    <div id="panel-search">
+      <div class="hero">
+        <div class="hero-label">Identifikácia čísla</div>
+        <div class="hero-title">Zistite, z ktorej krajiny telefónne číslo pochádza</div>
+        <div class="field">
+          <input type="tel" id="phoneInput" placeholder="+421 2 1234 5678 alebo 02 1234 5678" autocomplete="off" inputmode="tel">
+        </div>
+        <button class="btn-search" onclick="searchPhone()"><span>🔍</span> Vyhľadať číslo</button>
+      </div>
+
+      <div class="err" id="errBar"><span>⚠️</span><span id="errTxt"></span></div>
+
+      <div class="result" id="resultCard">
+        <div class="res-head">
+          <span class="res-flag" id="rFlag"></span>
+          <div class="res-meta">
+            <div class="res-name" id="rName"></div>
+            <div class="res-chip" id="rCode"></div>
+          </div>
+        </div>
+        <div class="res-body">
+          <div class="info-row">
+            <div class="info-lbl">Predvoľba</div>
+            <div class="info-val" id="dCode"></div>
+          </div>
+          <div class="info-row">
+            <div class="info-lbl">Číslo</div>
+            <div class="info-val" id="dPhone"></div>
+          </div>
+          <button class="btn-copy" id="copyBtn" onclick="copyPhone()">Kopírovať číslo</button>
+          <div class="divider"></div>
+          <div>
+            <div class="svc-label">Vyhľadať na</div>
+            <div class="svc-grid">
+              <button class="btn-svc" onclick="svcNezname()">
+                <span class="svc-ico">🔍</span>
+                <span class="svc-name">Neznáme číslo</span>
+                <span class="svc-sub">neznamecislo.sk</span>
+              </button>
+              <button class="btn-svc" onclick="svcVyhladavanie()">
+                <span class="svc-ico">📋</span>
+                <span class="svc-name">Vyhľadávanie čísel</span>
+                <span class="svc-sub">vyhladavaniecisla.sk</span>
+              </button>
+              <button class="btn-svc" onclick="svcGoogle()">
+                <span class="svc-ico">🌐</span>
+                <span class="svc-name">Google</span>
+                <span class="svc-sub">google.com</span>
+              </button>
+              <button class="btn-svc" onclick="svcReceive()">
+                <span class="svc-ico">📨</span>
+                <span class="svc-name">ReceiveSMS</span>
+                <span class="svc-sub">receivesms.co</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="panel-list">
+      <div class="rp-head">
+        <div class="rp-row">
+          <span class="rp-title">Telefónne predvoľby</span>
+          <span class="rp-badge" id="cntBadge">—</span>
+        </div>
+        <div class="srch">
+          <span class="srch-ic">🔎</span>
+          <input type="text" id="srchInput" placeholder="Hľadať krajinu alebo predvoľbu…" oninput="filterC()">
+        </div>
+      </div>
+      <div class="clist">
+        <div class="cgrid" id="cGrid"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* Key insight: CSS height:100% doesn't work in iframes without explicit parent height.
+   We set the shell height directly from JS using window.innerHeight. */
+function setHeight() {
+  document.getElementById('shell').style.height = window.innerHeight + 'px';
+}
+setHeight();
+window.addEventListener('resize', setHeight);
+
+const C = {
+  '1':['USA, Kanada, Bahamy','🇺🇸'],'7':['Rusko, Kazachstan','🇷🇺'],
+  '20':['Egypt','🇪🇬'],'27':['Južná Afrika','🇿🇦'],'30':['Grécko','🇬🇷'],
+  '31':['Holandsko','🇳🇱'],'32':['Belgicko','🇧🇪'],'33':['Francúzsko','🇫🇷'],
+  '34':['Španielsko','🇪🇸'],'36':['Maďarsko','🇭🇺'],'39':['Taliansko','🇮🇹'],
+  '40':['Rumunsko','🇷🇴'],'41':['Švajčiarsko','🇨🇭'],'43':['Rakúsko','🇦🇹'],
+  '44':['Spojené kráľovstvo','🇬🇧'],'45':['Dánsko','🇩🇰'],'46':['Švédsko','🇸🇪'],
+  '47':['Nórsko','🇳🇴'],'48':['Poľsko','🇵🇱'],'49':['Nemecko','🇩🇪'],
+  '51':['Peru','🇵🇪'],'52':['Mexiko','🇲🇽'],'53':['Kuba','🇨🇺'],
+  '54':['Argentína','🇦🇷'],'55':['Brazília','🇧🇷'],'56':['Čile','🇨🇱'],
+  '57':['Kolumbia','🇨🇴'],'58':['Venezuéla','🇻🇪'],'60':['Malajzia','🇲🇾'],
+  '61':['Austrália','🇦🇺'],'62':['Indonézia','🇮🇩'],'63':['Filipíny','🇵🇭'],
+  '64':['Nový Zéland','🇳🇿'],'65':['Singapur','🇸🇬'],'66':['Thajsko','🇹🇭'],
+  '81':['Japonsko','🇯🇵'],'82':['Južná Kórea','🇰🇷'],'84':['Vietnam','🇻🇳'],
+  '86':['Čína','🇨🇳'],'90':['Turecko','🇹🇷'],'91':['India','🇮🇳'],
+  '92':['Pakistan','🇵🇰'],'93':['Afganistan','🇦🇫'],'94':['Srí Lanka','🇱🇰'],
+  '95':['Mjanmarsko','🇲🇲'],'98':['Irán','🇮🇷'],
+  '212':['Maroko','🇲🇦'],'213':['Alžírsko','🇩🇿'],'216':['Tunisko','🇹🇳'],
+  '218':['Líbya','🇱🇾'],'220':['Gambia','🇬🇲'],'221':['Senegal','🇸🇳'],
+  '222':['Mauritánia','🇲🇷'],'223':['Mali','🇲🇱'],'224':['Guinea','🇬🇳'],
+  '225':['Pobrežie Slonoviny','🇨🇮'],'226':['Burkina Faso','🇧🇫'],
+  '227':['Niger','🇳🇪'],'228':['Togo','🇹🇬'],'229':['Benin','🇧🇯'],
+  '230':['Maurícius','🇲🇺'],'231':['Libéria','🇱🇷'],'232':['Sierra Leone','🇸🇱'],
+  '233':['Ghana','🇬🇭'],'234':['Nigéria','🇳🇬'],'235':['Čad','🇹🇩'],
+  '236':['Stredoafrická republika','🇨🇫'],'237':['Kamerun','🇨🇲'],
+  '238':['Kapverdské ostrovy','🇨🇻'],'239':['Sv. Tomáš a Princov ostrov','🇸🇹'],
+  '240':['Rovníková Guinea','🇬🇶'],'241':['Gabon','🇬🇦'],
+  '242':['Kongo','🇨🇬'],'243':['Dem. rep. Kongo','🇨🇩'],'244':['Angola','🇦🇴'],
+  '245':['Guinea-Bissau','🇬🇼'],'246':['Diego Garcia','🇬🇧'],'247':['Ascension','🇦🇨'],
+  '248':['Seychely','🇸🇨'],'249':['Sudán','🇸🇩'],'250':['Ruanda','🇷🇼'],
+  '251':['Etiópia','🇪🇹'],'252':['Somálsko','🇸🇴'],'253':['Džibutsko','🇩🇯'],
+  '254':['Keňa','🇰🇪'],'255':['Tanzánia','🇹🇿'],'256':['Uganda','🇺🇬'],
+  '257':['Burundi','🇧🇮'],'258':['Mozambik','🇲🇿'],'260':['Zambia','🇿🇲'],
+  '261':['Madagaskar','🇲🇬'],'262':['Reunion','🇷🇪'],'263':['Zimbabwe','🇿🇼'],
+  '264':['Namíbia','🇳🇦'],'265':['Malawi','🇲🇼'],'266':['Lesoto','🇱🇸'],
+  '267':['Botswana','🇧🇼'],'268':['Eswatini','🇸🇿'],'269':['Komory','🇰🇲'],
+  '290':['Sv. Helena','🇸🇭'],'291':['Eritrea','🇪🇷'],'297':['Aruba','🇦🇼'],
+  '298':['Faerské ostrovy','🇫🇴'],'299':['Grónsko','🇬🇱'],
+  '350':['Gibraltár','🇬🇮'],'351':['Portugalsko','🇵🇹'],'352':['Luxembursko','🇱🇺'],
+  '353':['Írsko','🇮🇪'],'354':['Island','🇮🇸'],'355':['Albánsko','🇦🇱'],
+  '356':['Malta','🇲🇹'],'357':['Cypr','🇨🇾'],'358':['Fínsko','🇫🇮'],
+  '359':['Bulharsko','🇧🇬'],'370':['Litva','🇱🇹'],'371':['Lotyšsko','🇱🇻'],
+  '372':['Estónsko','🇪🇪'],'373':['Moldavsko','🇲🇩'],'374':['Arménsko','🇦🇲'],
+  '375':['Bielorusko','🇧🇾'],'376':['Andorra','🇦🇩'],'377':['Monako','🇲🇨'],
+  '378':['San Maríno','🇸🇲'],'379':['Vatikán','🇻🇦'],'380':['Ukrajina','🇺🇦'],
+  '381':['Srbsko','🇷🇸'],'382':['Čierna Hora','🇲🇪'],'383':['Kosovo','🇽🇰'],
+  '385':['Chorvátsko','🇭🇷'],'386':['Slovinsko','🇸🇮'],'387':['Bosna a Hercegovina','🇧🇦'],
+  '389':['Severná Macedónia','🇲🇰'],'420':['Česká republika','🇨🇿'],
+  '421':['Slovensko','🇸🇰'],'423':['Lichtenštajnsko','🇱🇮'],
+  '500':['Falklandské ostrovy','🇫🇰'],'501':['Belize','🇧🇿'],'502':['Guatemela','🇬🇹'],
+  '503':['Salvádor','🇸🇻'],'504':['Honduras','🇭🇳'],'505':['Nikaragua','🇳🇮'],
+  '506':['Kostarika','🇨🇷'],'507':['Panama','🇵🇦'],'508':['Sv. Pierre a Miquelon','🇵🇲'],
+  '509':['Haití','🇭🇹'],'590':['Guadeloupe','🇬🇵'],'591':['Bolívia','🇧🇴'],
+  '592':['Guyana','🇬🇾'],'593':['Ekvádor','🇪🇨'],'594':['Francúzska Guyana','🇬🇫'],
+  '595':['Paraguaj','🇵🇾'],'596':['Martinik','🇲🇶'],'597':['Surinam','🇸🇷'],
+  '598':['Uruguaj','🇺🇾'],'599':['Curaçao, Sv. Bartolomej','🇨🇼'],
+  '670':['Východný Timor','🇹🇱'],'672':['Norfolk, Kokosové ostrovy','🇳🇫'],
+  '673':['Brunej','🇧🇳'],'674':['Nauru','🇳🇷'],'675':['Papua Nová Guinea','🇵🇬'],
+  '676':['Tonga','🇹🇴'],'677':['Šalamúnove ostrovy','🇸🇧'],'678':['Vanuatu','🇻🇺'],
+  '679':['Fidži','🇫🇯'],'680':['Palau','🇵🇼'],'681':['Wallis a Futuna','🇼🇫'],
+  '682':['Cookove ostrovy','🇨🇰'],'683':['Niue','🇳🇺'],'684':['Americká Samoa','🇦🇸'],
+  '685':['Samoa','🇼🇸'],'686':['Kiribati','🇰🇮'],'687':['Nová Kaledónia','🇳🇨'],
+  '688':['Tuvalu','🇹🇻'],'689':['Francúzska Polynézia','🇵🇫'],'690':['Tokelau','🇹🇰'],
+  '691':['Mikronézia','🇫🇲'],'692':['Marshallove ostrovy','🇲🇭'],
+  '850':['Severná Kórea','🇰🇵'],'852':['Hongkong','🇭🇰'],'853':['Makao','🇲🇴'],
+  '855':['Kambodža','🇰🇭'],'856':['Laos','🇱🇦'],'880':['Bangladéš','🇧🇩'],
+  '886':['Taiwan','🇹🇼'],'960':['Maldivy','🇲🇻'],'961':['Libanon','🇱🇧'],
+  '962':['Jordánsko','🇯🇴'],'963':['Sýria','🇸🇾'],'964':['Irak','🇮🇶'],
+  '965':['Kuvajt','🇰🇼'],'966':['Saudská Arábia','🇸🇦'],'967':['Jemen','🇾🇪'],
+  '968':['Omán','🇴🇲'],'970':['Palestína','🇵🇸'],'971':['SAE','🇦🇪'],
+  '972':['Izrael','🇮🇱'],'973':['Bahrajn','🇧🇭'],'974':['Katar','🇶🇦'],
+  '975':['Bhután','🇧🇹'],'976':['Mongolsko','🇲🇳'],'977':['Nepál','🇳🇵'],
+  '992':['Tadžikistan','🇹🇯'],'993':['Turkménistan','🇹🇲'],'994':['Azerbajdžan','🇦🇿'],
+  '995':['Gruzínsko','🇬🇪'],'996':['Kirgizsko','🇰🇬'],'998':['Uzbekistan','🇺🇿']
+};
+
+let curPhone = '', curCode = '';
+
+function isMobile() { return window.innerWidth <= 640; }
+
+function showTab(tab) {
+  // Tabs only relevant on desktop (not used on mobile anymore)
+  if (!isMobile()) {
+    const ps = document.getElementById('panel-search');
+    const pl = document.getElementById('panel-list');
+    const ts = document.getElementById('tab-search');
+    const tl = document.getElementById('tab-list');
+    if (tab === 'search') {
+      ps.style.display = ''; pl.style.display = 'none';
+      ts.classList.add('active'); tl.classList.remove('active');
+    } else {
+      pl.style.display = ''; ps.style.display = 'none';
+      tl.classList.add('active'); ts.classList.remove('active');
+    }
+  }
+}
+
+function renderC(q = '') {
+  const grid = document.getElementById('cGrid');
+  const badge = document.getElementById('cntBadge');
+  const ql = q.toLowerCase();
+  const entries = Object.entries(C).filter(([k,v]) => !ql || v[0].toLowerCase().includes(ql) || k.includes(ql));
+  grid.innerHTML = '';
+  entries.forEach(([code, [name, flag]]) => {
+    const el = document.createElement('div');
+    el.className = 'citem';
+    el.innerHTML = `<div class="cflag">${flag}</div><div class="cinfo"><div class="cname">${name}</div><div class="ccode">+${code}</div></div>`;
+    el.onclick = () => {
+      document.getElementById('phoneInput').value = '+' + code;
+      // no tab switching on mobile - panels stack
+      document.getElementById('phoneInput').focus();
+    };
+    grid.appendChild(el);
+  });
+  badge.textContent = entries.length + ' krajín';
+}
+
+function filterC() { renderC(document.getElementById('srchInput').value); }
+
+function findCode(phone) {
+  const p = phone.replace(/[^0-9+]/g, '');
+  for (let i = 4; i > 0; i--) { const c = p.substring(1, i+1); if (C[c]) return c; }
+  return null;
+}
+
+function showErr(msg) {
+  const b = document.getElementById('errBar');
+  document.getElementById('errTxt').textContent = msg;
+  b.classList.add('on');
+  setTimeout(() => b.classList.remove('on'), 4000);
+}
+
+function searchPhone() {
+  let inp = document.getElementById('phoneInput').value.trim();
+  const rc = document.getElementById('resultCard');
+  document.getElementById('errBar').classList.remove('on');
+  rc.classList.remove('on');
+  if (!inp) { showErr('Zadajte telefónne číslo'); return; }
+
+  // Normalize: strip spaces/dashes/parens/slashes
+  inp = inp.replace(/[\s\-()./]/g, '');
+
+  if (!inp.startsWith('+')) {
+    const stripped = inp.replace(/[^0-9]/g, '');
+
+    if (stripped.startsWith('00')) {
+      // International format with 00 prefix → convert to +
+      inp = '+' + stripped.substring(2);
+    } else if (stripped.startsWith('0') && stripped.length >= 9) {
+      // Local format (pevna linka / mobil bez krajiny) - predpokladame SK (+421)
+      inp = '+421' + stripped.substring(1);
+    } else {
+      // Skus najst predvolbu priamo zo zadanych cislic
+      let matched = null;
+      for (let i = Math.min(4, stripped.length); i > 0; i--) {
+        const c = stripped.substring(0, i);
+        if (C[c]) { matched = c; break; }
+      }
+      if (matched) {
+        inp = '+' + stripped;
+      } else {
+        showErr('Cislo sa nepodarilo rozpoznat. Skuste pridat + pred cislo (napr. +421 2 1234 5678)');
+        return;
+      }
+    }
+  }
+
+  const code = findCode(inp);
+  if (!code) { showErr('Krajina pre toto číslo nebola nájdená'); return; }
+  const [name, flag] = C[code];
+  curPhone = inp; curCode = code;
+  void rc.offsetWidth;
+  document.getElementById('rFlag').textContent = flag;
+  document.getElementById('rName').textContent = name;
+  document.getElementById('rCode').textContent = '+' + code;
+  document.getElementById('dCode').textContent = '+' + code;
+  document.getElementById('dPhone').textContent = inp;
+  rc.classList.add('on');
+  if (isMobile()) setTimeout(() => rc.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+}
+
+function copyPhone() {
+  navigator.clipboard.writeText(curPhone).then(() => {
+    const b = document.getElementById('copyBtn');
+    const orig = b.innerHTML;
+    b.innerHTML = '✅ Skopírované!';
+    setTimeout(() => b.innerHTML = orig, 1800);
+  });
+}
+
+function svcNezname()      { window.open('https://www.neznamecislo.sk/cislo/'     + curPhone.replace('+',''), '_blank'); }
+function svcVyhladavanie() { window.open('https://www.vyhladavaniecisla.sk/cislo/'+ curPhone.replace('+',''), '_blank'); }
+function svcGoogle()       { window.open('https://www.google.com/search?q='       + encodeURIComponent(curPhone), '_blank'); }
+function svcReceive()      { window.open('https://www.receivesms.co/who-called-me/'+ curPhone.replace('+',''), '_blank'); }
+
+document.getElementById('phoneInput').addEventListener('keypress', e => { if (e.key === 'Enter') searchPhone(); });
+
+renderC();
+</script>
+</body>
+</html>
