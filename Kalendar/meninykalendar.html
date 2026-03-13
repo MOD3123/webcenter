@@ -235,6 +235,24 @@ body {
   line-height: 1.1;
 }
 
+.brand-plus {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--md-primary);
+  color: var(--md-on-primary);
+  font-size: 13px;
+  font-weight: 800;
+  border-radius: var(--rad-full);
+  padding: 1px 7px;
+  margin-left: 5px;
+  vertical-align: middle;
+  letter-spacing: 0;
+  line-height: 1.5;
+  position: relative;
+  top: -1px;
+}
+
 .brand-sub {
   font-size: 11px;
   color: var(--md-on-surface-variant);
@@ -321,15 +339,26 @@ body {
   height: 40px;
   cursor: pointer;
   transition: border-color 0.2s;
+  position: relative;
 }
 
 .year-control:focus-within {
   border-color: var(--md-primary);
 }
 
+/* invisible overlay so the whole pill opens the select */
+.year-control::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--rad-full);
+  cursor: pointer;
+  pointer-events: none;
+}
+
 .year-select {
   border: none;
-  background: var(--md-surface-container-highest);
+  background: transparent;
   color: var(--md-on-surface);
   font-family: inherit;
   font-size: 14px;
@@ -339,6 +368,12 @@ body {
   appearance: none;
   -webkit-appearance: none;
   padding: 0 2px;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  z-index: 1;
 }
 
 /* Icon button */
@@ -496,12 +531,18 @@ body {
 }
 
 /* ═══ TODAY BANNER ═══ */
+.today-banners-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
 .today-banner {
   background: linear-gradient(135deg, #1A6EFF, color-mix(in srgb, #1A6EFF 60%, #7B4F8A));
   color: #FFFFFF;
   border-radius: var(--rad-xl);
   padding: 20px 24px;
-  margin-bottom: 20px;
+  flex: 1;
   display: flex;
   align-items: center;
   gap: 16px;
@@ -510,7 +551,30 @@ body {
   overflow: hidden;
 }
 
-.today-banner::before {
+.stores-banner {
+  border-radius: var(--rad-xl);
+  padding: 20px 22px;
+  flex: 0 0 auto;
+  width: calc(50% - 6px);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: var(--md-shadow-3);
+  position: relative;
+  overflow: hidden;
+  color: #FFFFFF;
+}
+
+.stores-banner.zatvorene {
+  background: linear-gradient(135deg, #B71C1C, color-mix(in srgb, #B71C1C 70%, #4A0000));
+}
+
+.stores-banner.otvorene {
+  background: linear-gradient(135deg, #1B6B35, color-mix(in srgb, #1B6B35 70%, #0A3D1A));
+}
+
+.today-banner::before,
+.stores-banner::before {
   content: '';
   position: absolute;
   top: -30%;
@@ -522,7 +586,8 @@ body {
   pointer-events: none;
 }
 
-.today-banner::after {
+.today-banner::after,
+.stores-banner::after {
   content: '';
   position: absolute;
   bottom: -40%;
@@ -547,6 +612,24 @@ body {
 }
 
 .today-icon .material-symbols-rounded { font-size: 28px; color: #fff; }
+
+.stores-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--rad-md);
+  background: rgba(255,255,255,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  backdrop-filter: blur(8px);
+}
+
+.stores-icon .material-symbols-rounded { font-size: 24px; color: #fff; }
+.stores-info { flex: 1; min-width: 0; }
+.stores-label { font-size: 11px; opacity: 0.8; font-weight: 500; letter-spacing: 0.3px; margin-bottom: 2px; text-transform: uppercase; }
+.stores-status { font-size: 18px; font-weight: 700; font-family: 'Google Sans Display', sans-serif; line-height: 1.2; }
+.stores-sub { font-size: 11px; opacity: 0.7; margin-top: 3px; }
 
 .today-info { flex: 1; }
 
@@ -892,6 +975,12 @@ body {
 
 .list-item.sviatok-item { background: color-mix(in srgb, var(--md-tertiary-container) 40%, transparent); }
 .list-item.sviatok-item:hover { background: color-mix(in srgb, var(--md-tertiary-container) 55%, transparent); }
+.list-item.sviatok-item .list-date-badge { background: var(--md-tertiary-container); color: var(--md-on-tertiary-container); }
+
+.list-item.zatvorene-item { background: color-mix(in srgb, var(--md-error-container) 35%, transparent); }
+.list-item.zatvorene-item:hover { background: color-mix(in srgb, var(--md-error-container) 50%, transparent); }
+.list-item.zatvorene-item .list-date-badge { background: var(--md-error-container); color: var(--md-error); }
+.list-item.zatvorene-item .list-name { color: color-mix(in srgb, var(--md-error) 70%, var(--md-on-surface)); }
 
 .list-date-badge {
   min-width: 50px;
@@ -916,14 +1005,9 @@ body {
   box-shadow: var(--md-shadow-2);
 }
 
-.list-item.sviatok-item .list-date-badge {
-  background: var(--md-tertiary-container);
-  color: var(--md-on-tertiary-container);
-}
-
 .list-name-wrap { flex: 1; min-width: 0; }
 .list-name { font-size: 17px; font-weight: 600; color: var(--md-on-surface); }
-.list-name-full { font-size: 13px; color: var(--md-on-surface-variant); margin-top: 2px; display: none; }
+.list-name-full { font-size: 13px; color: var(--md-on-surface-variant); margin-top: 2px; display: block; }
 
 .list-arrow { color: var(--md-outline); flex-shrink: 0; }
 .list-arrow .material-symbols-rounded { font-size: 18px; }
@@ -1231,6 +1315,11 @@ body {
   .today-banner { padding: 16px 18px; }
   .today-names { font-size: 18px; }
   .today-icon { width: 44px; height: 44px; }
+  .stores-banner { padding: 14px 16px; }
+  .stores-status { font-size: 15px; }
+  .stores-icon { width: 38px; height: 38px; }
+  .today-banners-row { flex-direction: column; }
+  .stores-banner { width: 100%; }
 
   .month-card-header { padding: 14px 16px 12px; }
   .month-body { padding: 10px 10px 12px; }
@@ -1269,10 +1358,11 @@ body {
       </div>
 
       <div class="bar-controls">
-        <div class="year-control">
-          <span class="material-symbols-rounded" style="font-size:18px; color:var(--md-on-surface-variant)">calendar_today</span>
+        <div class="year-control" id="yearControl">
+          <span class="material-symbols-rounded" style="font-size:18px; color:var(--md-on-surface-variant); position:relative; z-index:2; pointer-events:none">calendar_today</span>
+          <span class="year-label" id="yearLabel" style="font-size:14px; font-weight:700; color:var(--md-on-surface); position:relative; z-index:2; pointer-events:none; white-space:nowrap;"></span>
+          <span class="material-symbols-rounded" style="font-size:16px; color:var(--md-on-surface-variant); pointer-events:none; position:relative; z-index:2;">expand_more</span>
           <select class="year-select" id="yearInput"></select>
-          <span class="material-symbols-rounded" style="font-size:16px; color:var(--md-on-surface-variant); pointer-events:none">expand_more</span>
         </div>
         <button class="icon-btn primary" id="todayBtn" title="Dnes">
           <span class="material-symbols-rounded">today</span>
@@ -1317,6 +1407,8 @@ body {
   <!-- MAIN -->
   <main class="main-content">
     <div class="content-inner">
+    <!-- Today Banners Row -->
+    <div class="today-banners-row" id="todayBannersRow">
     <!-- Today Banner -->
     <div class="today-banner" id="todayBanner">
       <div class="today-icon">
@@ -1324,9 +1416,21 @@ body {
       </div>
       <div class="today-info">
         <div class="today-date" id="todayDateLabel"></div>
+        <div class="today-sub">Dnes má meniny</div>
         <div class="today-names" id="todayNamesLabel"></div>
-        <div class="today-sub">Dnes slaví meniny</div>
       </div>
+    </div>
+    <!-- Stores Banner -->
+    <div class="stores-banner" id="storesBanner">
+      <div class="stores-icon">
+        <span class="material-symbols-rounded" id="storesIcon">store</span>
+      </div>
+      <div class="stores-info">
+        <div class="stores-label">Obchody dnes</div>
+        <div class="stores-status" id="storesStatus">—</div>
+        <div class="stores-sub" id="storesSub"></div>
+      </div>
+    </div>
     </div>
 
     <!-- Search results header (hidden by default) -->
@@ -1528,6 +1632,27 @@ function initTodayBanner(){
   } else {
     document.getElementById('todayNamesLabel').textContent = 'Žiadne meniny';
   }
+
+  // Stores banner
+  const sb = document.getElementById('storesBanner');
+  const isStedry = todayM===12 && todayD===24;
+  const zatv = isZatvorene(todayD, todayM);
+  if(isStedry){
+    sb.className = 'stores-banner zatvorene';
+    document.getElementById('storesIcon').textContent = 'store_off';
+    document.getElementById('storesStatus').textContent = 'Zatvorené od 12:00';
+    document.getElementById('storesSub').textContent = 'Štedrý deň – skrátená prevádzka';
+  } else if(zatv){
+    sb.className = 'stores-banner zatvorene';
+    document.getElementById('storesIcon').textContent = 'store_off';
+    document.getElementById('storesStatus').textContent = 'Zatvorené';
+    document.getElementById('storesSub').textContent = sv || 'Zákonný sviatok';
+  } else {
+    sb.className = 'stores-banner otvorene';
+    document.getElementById('storesIcon').textContent = 'store';
+    document.getElementById('storesStatus').textContent = 'Otvorené';
+    document.getElementById('storesSub').textContent = sv ? sv : 'Bežný pracovný deň';
+  }
 }
 
 /* ─── CALENDAR ─── */
@@ -1653,11 +1778,21 @@ function renderList(){
 
     items.forEach(({d, m: mo, names, sv})=>{
       const isSv    = !!sv;
+      const isZat   = isZatvorene(d, mo);
       const isToday = d===todayD && mo===todayM && currentYear===todayY;
       const display = names || sv;
 
       const li = document.createElement('div');
-      li.className = 'list-item' + (isSv?' sviatok-item':'') + (isToday?' today-item':'');
+      let itemClass = 'list-item';
+      if(isZat) itemClass += ' zatvorene-item';
+      else if(isSv) itemClass += ' sviatok-item';
+      if(isToday) itemClass += ' today-item';
+      li.className = itemClass;
+
+      const svLabel = isSv
+        ? `<span style="font-size:11px;color:color-mix(in srgb,var(--md-tertiary) 90%,var(--md-on-surface-variant));font-weight:600;">🎊 ${sv}</span>`
+        : '';
+
       li.innerHTML = `
         <div class="list-date-badge">
           <div class="list-date-day">${d}</div>
@@ -1665,8 +1800,7 @@ function renderList(){
         </div>
         <div class="list-name-wrap">
           <div class="list-name">${display}</div>
-          ${(isSv && names)?'<div class="list-name-full">'+sv+'</div>':''}
-          ${(isSv && !names)?'<div class="list-name-full">Štátny sviatok</div>':''}
+          ${(isSv && names) ? '<div class="list-name-full">' + svLabel + '</div>' : ''}
         </div>
         <div class="list-arrow"><span class="material-symbols-rounded">chevron_right</span></div>
       `;
@@ -1721,11 +1855,16 @@ function performSearch(q){
 
   results.forEach(({d, m, names, sv})=>{
     const isSv    = !!sv;
+    const isZat   = isZatvorene(d, m);
     const isToday = d===todayD && m===todayM && currentYear===todayY;
     const display = names || sv;
 
     const li = document.createElement('div');
-    li.className = 'list-item' + (isSv?' sviatok-item':'') + (isToday?' today-item':'');
+    let itemClass = 'list-item';
+    if(isZat) itemClass += ' zatvorene-item';
+    else if(isSv) itemClass += ' sviatok-item';
+    if(isToday) itemClass += ' today-item';
+    li.className = itemClass;
     li.innerHTML = `
       <div class="list-date-badge">
         <div class="list-date-day">${d}</div>
@@ -1811,18 +1950,17 @@ function refreshViews(){
   const list = document.getElementById('listView');
   const search = document.getElementById('searchView');
   const searchHdr = document.getElementById('searchHeader');
-  const todayBanner = document.getElementById('todayBanner');
 
   if(searchQuery.trim()){
     cal.style.display = 'none';
     list.style.display = 'none';
     search.style.display = 'flex';
     searchHdr.style.display = 'flex';
-    todayBanner.style.display = 'none';
+    document.getElementById('todayBannersRow').style.display = 'none';
     performSearch(searchQuery);
   } else {
     searchHdr.style.display = 'none';
-    todayBanner.style.display = 'flex';
+    document.getElementById('todayBannersRow').style.display = 'flex';
     search.style.display = 'none';
     if(currentView==='calendar'){
       cal.style.display = 'grid';
@@ -1844,13 +1982,14 @@ function closeModal(){
 /* ─── EVENTS ─── */
 document.getElementById('yearInput').addEventListener('change', e=>{
   const v = parseInt(e.target.value);
-  if(v>=2000 && v<=2100){ currentYear=v; _easterCache={}; refreshViews(); }
+  if(v>=2000 && v<=2100){ currentYear=v; _easterCache={}; document.getElementById('yearLabel').textContent = v; refreshViews(); }
 });
 
 document.getElementById('todayBtn').addEventListener('click', ()=>{
   currentYear = todayY;
   currentMonth = todayM;
   document.getElementById('yearInput').value = todayY;
+  document.getElementById('yearLabel').textContent = todayY;
   searchQuery = '';
   document.getElementById('searchClear').classList.remove('visible');
 
@@ -1915,6 +2054,7 @@ document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
   currentYear = todayY;
   currentMonth = todayM;
   sel.value = currentYear;
+  document.getElementById('yearLabel').textContent = currentYear;
 
   // activate the correct month chip
   document.querySelectorAll('.month-chip').forEach(c=>{
