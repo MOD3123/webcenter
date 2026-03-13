@@ -7,6 +7,14 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Google+Sans+Display:wght@400;500;700&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0&display=swap" rel="stylesheet">
+<script>
+  // Mark fonts as loaded once Material Symbols is available
+  document.fonts.load('400 20px "Material Symbols Rounded"').then(() => {
+    document.documentElement.classList.add('fonts-loaded');
+  });
+  // Fallback: always show after 2s even if font fails
+  setTimeout(() => document.documentElement.classList.add('fonts-loaded'), 2000);
+</script>
 
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -108,6 +116,10 @@
     --md-shadow-2: 0 2px 6px rgba(0,0,0,.22), 0 1px 2px rgba(0,0,0,.16);
     --md-shadow-3: 0 4px 12px rgba(0,0,0,.26), 0 2px 4px rgba(0,0,0,.18);
     --md-shadow-4: 0 6px 20px rgba(0,0,0,.30), 0 2px 6px rgba(0,0,0,.20);
+
+    /* M3 dark error tokens */
+    --md-error:            #FFB4AB;
+    --md-error-container:  #93000A;
   }
 }
 
@@ -122,6 +134,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Hide icon text until Material Symbols font is loaded */
 .material-symbols-rounded {
   font-family: 'Material Symbols Rounded';
   font-weight: normal;
@@ -136,6 +149,14 @@ body {
   direction: ltr;
   -webkit-font-smoothing: antialiased;
   vertical-align: middle;
+  /* invisible until font ready */
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+/* shown once fonts-loaded class is added to <html> */
+.fonts-loaded .material-symbols-rounded {
+  opacity: 1;
 }
 
 /* ═══ SCROLLBAR ═══ */
@@ -476,8 +497,8 @@ body {
 
 /* ═══ TODAY BANNER ═══ */
 .today-banner {
-  background: linear-gradient(135deg, var(--md-primary), color-mix(in srgb, var(--md-primary) 60%, var(--md-tertiary)));
-  color: var(--md-on-primary);
+  background: linear-gradient(135deg, #1A6EFF, color-mix(in srgb, #1A6EFF 60%, #7B4F8A));
+  color: #FFFFFF;
   border-radius: var(--rad-xl);
   padding: 20px 24px;
   margin-bottom: 20px;
@@ -775,6 +796,22 @@ body {
 
 .day.has-sviatok::after { background: var(--md-tertiary); }
 
+/* Zatvorené obchody – červená v kalendári */
+.day.has-zatvorene {
+  background: color-mix(in srgb, var(--md-error-container) 45%, var(--md-surface-container-lowest));
+  border-color: color-mix(in srgb, var(--md-error) 35%, var(--md-outline-variant));
+}
+
+.day.has-zatvorene .day-names {
+  color: color-mix(in srgb, var(--md-on-surface) 70%, var(--md-error));
+  font-weight: 600;
+}
+
+.day.has-zatvorene .day-number {
+  color: var(--md-error);
+}
+.day.has-zatvorene::after { background: var(--md-error); }
+
 /* ═══ LIST VIEW ═══ */
 .list-view {
   animation: fadeSlideUp 0.3s var(--ease-out);
@@ -885,8 +922,8 @@ body {
 }
 
 .list-name-wrap { flex: 1; min-width: 0; }
-.list-name { font-size: 14px; font-weight: 600; color: var(--md-on-surface); }
-.list-name-full { font-size: 12px; color: var(--md-on-surface-variant); margin-top: 2px; display: none; }
+.list-name { font-size: 17px; font-weight: 600; color: var(--md-on-surface); }
+.list-name-full { font-size: 13px; color: var(--md-on-surface-variant); margin-top: 2px; display: none; }
 
 .list-arrow { color: var(--md-outline); flex-shrink: 0; }
 .list-arrow .material-symbols-rounded { font-size: 18px; }
@@ -1039,6 +1076,76 @@ body {
   background: var(--md-tertiary-container);
   color: var(--md-on-tertiary-container);
 }
+
+/* Zatvorené obchody – červená farba */
+.modal-name-card.zatvorene-card {
+  background: color-mix(in srgb, var(--md-error-container) 55%, var(--md-surface-container));
+  border-color: color-mix(in srgb, var(--md-error) 25%, var(--md-outline-variant));
+}
+.modal-name-card.zatvorene-card .modal-name-avatar {
+  background: var(--md-error-container);
+  color: var(--md-error);
+}
+.modal-name-card.zatvorene-card .modal-name-text {
+  color: var(--md-on-surface);
+}
+
+/* Otvorené obchody – zelená farba */
+.modal-name-card.otvorene-card {
+  background: color-mix(in srgb, #C8F5D4 55%, var(--md-surface-container));
+  border-color: color-mix(in srgb, #2E7D45 20%, var(--md-outline-variant));
+}
+.modal-name-card.otvorene-card .modal-name-avatar {
+  background: #C8F5D4;
+  color: #1B5E2F;
+}
+
+@media (prefers-color-scheme: dark) {
+  .modal-name-card.otvorene-card {
+    background: color-mix(in srgb, #1B3D25 80%, var(--md-surface-container));
+    border-color: #2E7D45;
+  }
+  .modal-name-card.otvorene-card .modal-name-avatar {
+    background: #1B3D25;
+    color: #6FCF8A;
+  }
+}
+
+.zatvorene-badge {
+  margin-left: auto;
+  font-size: 10px;
+  background: var(--md-error-container);
+  color: var(--md-error);
+  border-radius: var(--rad-full);
+  padding: 3px 8px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.otvorene-badge {
+  margin-left: auto;
+  font-size: 10px;
+  background: #C8F5D4;
+  color: #1B5E2F;
+  border-radius: var(--rad-full);
+  padding: 3px 8px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .otvorene-badge { background: #1B3D25; color: #6FCF8A; }
+}
 .sviatok-badge {
   margin-left: auto;
   font-size: 10px;
@@ -1149,14 +1256,13 @@ body {
           <span class="material-symbols-rounded">calendar_month</span>
         </div>
         <div class="brand-text">
-          <div class="brand-title">Meniny</div>
-          <div class="brand-sub">Slovenský kalendár mien</div>
+          <div class="brand-title">Kalendár</div>
         </div>
       </div>
 
       <div class="search-wrap">
         <span class="material-symbols-rounded search-icon-left">search</span>
-        <input type="text" class="search-input" id="searchInput" placeholder="Hľadať meno alebo dátum…" autocomplete="off">
+        <input type="text" class="search-input" id="searchInput" placeholder="Hľadať meno, sviatok alebo dátum…" autocomplete="off">
         <button class="search-clear" id="searchClear" title="Zmazať">
           <span class="material-symbols-rounded" style="font-size:18px">close</span>
         </button>
@@ -1259,43 +1365,63 @@ body {
 
 <script>
 /* ─── DATA ─── */
+
+/* Len osobné mená – bez sviatkov */
 const meniny = {
-  "01-01":"Nový rok, Deň vzniku SR (Sviatok)","01-02":"Alexandra","01-03":"Daniela","01-04":"Drahoslav","01-05":"Andrea","01-06":"Antónia, Zjavenie Pána (Traja králi) (Sviatok)","01-07":"Bohuslava","01-08":"Severín","01-09":"Alexej","01-10":"Dáša",
+  "01-02":"Alexandra","01-03":"Daniela","01-04":"Drahoslav","01-05":"Andrea","01-06":"Antónia","01-07":"Bohuslava","01-08":"Severín","01-09":"Alexej","01-10":"Dáša",
   "01-11":"Malvína","01-12":"Ernest","01-13":"Rastislav","01-14":"Radovan","01-15":"Dobroslav","01-16":"Kristína","01-17":"Nataša","01-18":"Bohdana","01-19":"Drahomíra","01-20":"Dalibor",
   "01-21":"Vincent","01-22":"Zora","01-23":"Miloš","01-24":"Timotej","01-25":"Gejza","01-26":"Tamara","01-27":"Bohuš","01-28":"Alfonz","01-29":"Gašpar","01-30":"Ema","01-31":"Emil",
   "02-01":"Tatiana","02-02":"Erika","02-03":"Blažej","02-04":"Veronika","02-05":"Agáta","02-06":"Dorota","02-07":"Vanda","02-08":"Zoja","02-09":"Zdenko","02-10":"Gabriela",
   "02-11":"Dezider","02-12":"Perla","02-13":"Arpád","02-14":"Valentín","02-15":"Pravoslav","02-16":"Ida","02-17":"Miloslava","02-18":"Jaromír","02-19":"Vlasta","02-20":"Lívia",
   "02-21":"Eleonóra","02-22":"Etela","02-23":"Roman","02-24":"Matej","02-25":"Frederik","02-26":"Viktor","02-27":"Alexander","02-28":"Zlatica","02-29":"Radomír",
-  "03-01":"Albín","03-02":"Anežka","03-03":"Bohumil","03-04":"Kazimír","03-05":"Fridrich","03-06":"Radoslav","03-07":"Tomáš","03-08":"Alan, Medzinárodný deň žien","03-09":"Františka","03-10":"Branislav",
+  "03-01":"Albín","03-02":"Anežka","03-03":"Bohumil","03-04":"Kazimír","03-05":"Fridrich","03-06":"Radoslav","03-07":"Tomáš","03-08":"Alan","03-09":"Františka","03-10":"Branislav",
   "03-11":"Angela","03-12":"Gregor","03-13":"Vlastimil","03-14":"Matilda","03-15":"Svetlana","03-16":"Boleslav","03-17":"Ľubica","03-18":"Eduard","03-19":"Jozef","03-20":"Víťazoslav",
   "03-21":"Blahoslav","03-22":"Beňadik","03-23":"Adrián","03-24":"Gabriel","03-25":"Marián","03-26":"Emanuel","03-27":"Alena","03-28":"Soňa","03-29":"Miroslav","03-30":"Vieroslava","03-31":"Benjamín",
   "04-01":"Hugo","04-02":"Zita","04-03":"Richard","04-04":"Izidor","04-05":"Miroslava","04-06":"Irena","04-07":"Zoltán","04-08":"Albert","04-09":"Milena","04-10":"Igor",
   "04-11":"Július","04-12":"Estera","04-13":"Aleš","04-14":"Justína","04-15":"Fedor","04-16":"Dana","04-17":"Rudolf","04-18":"Valér","04-19":"Jela","04-20":"Marcel",
   "04-21":"Ervín","04-22":"Slavomír","04-23":"Vojtech","04-24":"Juraj","04-25":"Marek","04-26":"Jaroslava","04-27":"Jaroslav","04-28":"Jarmila","04-29":"Lea","04-30":"Anastázia",
-  "05-01":"Sviatok práce (Sviatok)","05-02":"Žigmund","05-03":"Galina","05-04":"Florián","05-05":"Lesana","05-06":"Hermína","05-07":"Monika","05-08":"Ivana, Deň víťazstva nad fašizmom (Sviatok)","05-09":"Roland","05-10":"Viktória",
+  "05-02":"Žigmund","05-03":"Galina","05-04":"Florián","05-05":"Lesana","05-06":"Hermína","05-07":"Monika","05-08":"Ivana","05-09":"Roland","05-10":"Viktória",
   "05-11":"Blažena","05-12":"Pankrác","05-13":"Servác","05-14":"Bonifác","05-15":"Žofia","05-16":"Svetozár","05-17":"Gizela","05-18":"Viola","05-19":"Gertrúda","05-20":"Bernard",
   "05-21":"Zina","05-22":"Júlia","05-23":"Želmíra","05-24":"Ela","05-25":"Urban","05-26":"Dušan","05-27":"Iveta","05-28":"Viliam","05-29":"Maxim","05-30":"Ferdinand","05-31":"Petrana",
   "06-01":"Žaneta","06-02":"Xénia","06-03":"Karolína","06-04":"Lenka","06-05":"Laura","06-06":"Norbert","06-07":"Róbert","06-08":"Medard","06-09":"Stanislava","06-10":"Margita",
   "06-11":"Dobroslava","06-12":"Zlatko","06-13":"Anton","06-14":"Vasil","06-15":"Vít","06-16":"Blanka","06-17":"Adolf","06-18":"Vratislav","06-19":"Alfréd","06-20":"Valéria",
   "06-21":"Alojz","06-22":"Paulína","06-23":"Sidónia","06-24":"Ján","06-25":"Tadeáš","06-26":"Adriána","06-27":"Ladislav","06-28":"Beáta","06-29":"Peter, Pavol","06-30":"Melánia",
-  "07-01":"Diana","07-02":"Berta","07-03":"Miloslav","07-04":"Prokop","07-05":"Cyril a Metod (Sviatok)","07-06":"Patrik","07-07":"Oliver","07-08":"Ivan","07-09":"Lujza","07-10":"Amália",
+  "07-01":"Diana","07-02":"Berta","07-03":"Miloslav","07-04":"Prokop","07-05":"Cyril, Metod","07-06":"Patrik","07-07":"Oliver","07-08":"Ivan","07-09":"Lujza","07-10":"Amália",
   "07-11":"Milota","07-12":"Nina","07-13":"Margita","07-14":"Kamil","07-15":"Henrich","07-16":"Drahomír","07-17":"Bohuslav","07-18":"Kamila","07-19":"Dušana","07-20":"Iľja",
   "07-21":"Viera","07-22":"Magdaléna","07-23":"Oľga","07-24":"Vladimír","07-25":"Jakub","07-26":"Anna","07-27":"Božena","07-28":"Krištof","07-29":"Marta","07-30":"Libuša","07-31":"Ignác",
   "08-01":"Božidara","08-02":"Gustáv","08-03":"Jerguš","08-04":"Dominik","08-05":"Hortenzia","08-06":"Jozefína","08-07":"Štefánia","08-08":"Oskar","08-09":"Ľubomíra","08-10":"Vavrinec",
-  "08-11":"Zuzana","08-12":"Darina","08-13":"Ľubomír","08-14":"Mojmír","08-15":"Nanebovzatie Panny Márie (Sviatok)","08-16":"Leonard","08-17":"Milica","08-18":"Elena","08-19":"Lýdia","08-20":"Anabela",
+  "08-11":"Zuzana","08-12":"Darina","08-13":"Ľubomír","08-14":"Mojmír","08-16":"Leonard","08-17":"Milica","08-18":"Elena","08-19":"Lýdia","08-20":"Anabela",
   "08-21":"Jana","08-22":"Tichomír","08-23":"Filomena","08-24":"Bartolomej","08-25":"Ľudovít","08-26":"Samuel","08-27":"Silvia","08-28":"Augustín","08-29":"Nikola, Beáta","08-30":"Ružena","08-31":"Nora",
-  "09-01":"Danka, Deň Ústavy SR (Sviatok)","09-02":"Linda","09-03":"Belo","09-04":"Rozália","09-05":"Regína","09-06":"Alica","09-07":"Marianna","09-08":"Miriama","09-09":"Martina","09-10":"Oleg",
-  "09-11":"Bystrík","09-12":"Mária","09-13":"Ctibor","09-14":"Ľudomil","09-15":"Jolana, Sedembolestná Panna Mária (Sviatok)","09-16":"Ľudmila","09-17":"Olympia","09-18":"Eugénia","09-19":"Konštantín","09-20":"Ľuboslav",
+  "09-01":"Danka","09-02":"Linda","09-03":"Belo","09-04":"Rozália","09-05":"Regína","09-06":"Alica","09-07":"Marianna","09-08":"Miriama","09-09":"Martina","09-10":"Oleg",
+  "09-11":"Bystrík","09-12":"Mária","09-13":"Ctibor","09-14":"Ľudomil","09-15":"Jolana","09-16":"Ľudmila","09-17":"Olympia","09-18":"Eugénia","09-19":"Konštantín","09-20":"Ľuboslav",
   "09-21":"Matúš","09-22":"Móric","09-23":"Zdenka","09-24":"Ľuboš","09-25":"Vladislav","09-26":"Edita","09-27":"Cyprián","09-28":"Václav","09-29":"Michal","09-30":"Jarolím",
   "10-01":"Arnold","10-02":"Levoslav","10-03":"Stela","10-04":"František","10-05":"Viera","10-06":"Natália","10-07":"Eliška","10-08":"Brigita","10-09":"Dionýz","10-10":"Slavomíra",
   "10-11":"Valentína","10-12":"Maximilián","10-13":"Koloman","10-14":"Boris","10-15":"Terézia","10-16":"Vladimíra","10-17":"Hedviga","10-18":"Lukáš","10-19":"Kristián","10-20":"Vendelín",
-  "10-21":"Uršuľa","10-22":"Sergej","10-23":"Alojzia","10-24":"Kvetoslava","10-25":"Aurel","10-26":"Demeter","10-27":"Sabína","10-28":"Dobromila, Deň vzniku ČSR (Sviatok)","10-29":"Klára","10-30":"Šimon","10-31":"Aurélia",
-  "11-01":"Denis, Denisa, Sviatok všetkých svätých (Sviatok)","11-02":"Pamiatka zosnulých","11-03":"Hubert","11-04":"Karol","11-05":"Imrich","11-06":"Renáta","11-07":"René","11-08":"Bohumír","11-09":"Teodor","11-10":"Tibor",
-  "11-11":"Martin","11-12":"Svätopluk","11-13":"Stanislav","11-14":"Irma","11-15":"Leopold","11-16":"Agnesa","11-17":"Klaudia, Deň boja za slobodu a demokraciu (Sviatok)","11-18":"Eugen","11-19":"Alžbeta","11-20":"Félix",
+  "10-21":"Uršuľa","10-22":"Sergej","10-23":"Alojzia","10-24":"Kvetoslava","10-25":"Aurel","10-26":"Demeter","10-27":"Sabína","10-28":"Dobromila","10-29":"Klára","10-30":"Šimon","10-31":"Aurélia",
+  "11-01":"Denis, Denisa","11-02":"Pamiatka zosnulých","11-03":"Hubert","11-04":"Karol","11-05":"Imrich","11-06":"Renáta","11-07":"René","11-08":"Bohumír","11-09":"Teodor","11-10":"Tibor",
+  "11-11":"Martin","11-12":"Svätopluk","11-13":"Stanislav","11-14":"Irma","11-15":"Leopold","11-16":"Agnesa","11-17":"Klaudia","11-18":"Eugen","11-19":"Alžbeta","11-20":"Félix",
   "11-21":"Elvíra","11-22":"Cecília","11-23":"Klement","11-24":"Emília","11-25":"Katarína","11-26":"Kornel","11-27":"Milan","11-28":"Henrieta","11-29":"Vratko","11-30":"Ondrej",
   "12-01":"Edmund","12-02":"Bibiána","12-03":"Oldrich","12-04":"Barbora","12-05":"Oto","12-06":"Mikuláš","12-07":"Ambróz","12-08":"Marína","12-09":"Izabela","12-10":"Radúz",
   "12-11":"Hilda","12-12":"Otília","12-13":"Lucia","12-14":"Branislava","12-15":"Ivica","12-16":"Albína","12-17":"Kornélia","12-18":"Sláva","12-19":"Judita","12-20":"Dagmara",
-  "12-21":"Bohdan","12-22":"Adela","12-23":"Nadežda","12-24":"Adam, Eva (Štedrý deň) (Sviatok)","12-25":"1. sviatok vianočný (Sviatok)","12-26":"Štefan (2. sviatok vianočný) (Sviatok), Mano","12-27":"Filoména","12-28":"Ivana","12-29":"Milada","12-30":"Dávid","12-31":"Silvester"
+  "12-21":"Bohdan","12-22":"Adela","12-23":"Nadežda","12-24":"Adam, Eva","12-26":"Štefan, Mano","12-27":"Filoména","12-28":"Ivana","12-29":"Milada","12-30":"Dávid","12-31":"Silvester"
+};
+
+/* Štátne sviatky (pevné) – len názov, žiadne mená */
+const sviatky = {
+  "01-01": "Nový rok, Deň vzniku SR",
+  "01-06": "Zjavenie Pána (Traja králi)",
+  "05-01": "Sviatok práce",
+  "05-08": "Deň víťazstva nad fašizmom",
+  "07-05": "Cyril a Metod",
+  "08-15": "Nanebovzatie Panny Márie",
+  "09-01": "Deň Ústavy SR",
+  "09-15": "Sedembolestná Panna Mária",
+  "10-28": "Deň vzniku ČSR",
+  "11-01": "Sviatok všetkých svätých",
+  "11-17": "Deň boja za slobodu a demokraciu",
+  "12-24": "Štedrý deň",
+  "12-25": "1. sviatok vianočný",
+  "12-26": "2. sviatok vianočný"
 };
 
 const monthNames = ['Január','Február','Marec','Apríl','Máj','Jún','Júl','August','September','Október','November','December'];
@@ -1307,8 +1433,78 @@ function removeDiacritics(s){ return s.normalize('NFD').replace(/[\u0300-\u036f]
 function getDaysInMonth(y,m){ return new Date(y,m,0).getDate(); }
 function getFirstDay(y,m){ const d=new Date(y,m-1,1).getDay(); return d===0?6:d-1; }
 function getKey(d,m){ return `${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
-function getNames(d,m){ return meniny[getKey(d,m)]||''; }
-function isSviatok(names){ return names.includes('(Sviatok)'); }
+
+/* Výpočet Veľkej Noci – Anonymný Gregorian algoritmus */
+function getEaster(year){
+  const a=year%19, b=Math.floor(year/100), c=year%100;
+  const d=Math.floor(b/4), e=b%4, f=Math.floor((b+8)/25);
+  const g=Math.floor((b-f+1)/3), h=(19*a+b-d-g+15)%30;
+  const i=Math.floor(c/4), k=c%4, l=(32+2*e+2*i-h-k)%7;
+  const m2=Math.floor((a+11*h+22*l)/451);
+  const month=Math.floor((h+l-7*m2+114)/31);
+  const day=((h+l-7*m2+114)%31)+1;
+  return {day, month};
+}
+
+/* Cache pohyblivých sviatkov (Veľká Noc) */
+let _easterCache = {};
+function ensureEasterCache(year){
+  if(_easterCache[year]) return;
+  const e = getEaster(year);
+  const easterDate = new Date(year, e.month-1, e.day);
+  const fmt = dt => `${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
+  const addDays = (dt, n) => { const r=new Date(dt); r.setDate(r.getDate()+n); return r; };
+  _easterCache[year] = {
+    [fmt(addDays(easterDate,-2))]: 'Veľký piatok',
+    [fmt(easterDate)]:             'Veľkonočná nedeľa',
+    [fmt(addDays(easterDate, 1))]: 'Veľkonočný pondelok',
+  };
+}
+
+/* Vráti názov štátneho sviatku pre daný deň (pevný alebo pohyblivý), alebo '' */
+function getSviatokName(d, m){
+  ensureEasterCache(currentYear);
+  const key = getKey(d,m);
+  return (_easterCache[currentYear][key] || sviatky[key] || '');
+}
+
+/* Je deň štátny sviatok? */
+function isSviatok(d, m){
+  return !!getSviatokName(d, m);
+}
+
+/* Sú zatvorené obchody? Len zákonom stanovené dni */
+function isZatvorene(d, m){
+  // Pevné: 1.1, 24.12, 25.12, 26.12
+  if(m===1  && d===1)  return true;
+  if(m===12 && d===24) return true;
+  if(m===12 && d===25) return true;
+  if(m===12 && d===26) return true;
+  // Pohyblivé: Veľký piatok + Veľkonočná nedeľa
+  ensureEasterCache(currentYear);
+  const key = getKey(d, m);
+  const moving = _easterCache[currentYear][key] || '';
+  return moving === 'Veľký piatok' || moving === 'Veľkonočná nedeľa';
+}
+
+/* Osobné mená pre daný deň */
+function getPersonNames(d, m){
+  return meniny[getKey(d,m)] || '';
+}
+
+/* Text zobrazovaný v kalendári/zozname (mená + prípadný sviatok) */
+function getCalendarText(d, m){
+  const names = getPersonNames(d, m);
+  const sv    = getSviatokName(d, m);
+  return [names, sv].filter(Boolean).join(', ');
+}
+
+/* Text pre vyhľadávanie (mená + sviatok) */
+function getSearchText(d, m){
+  const names = getPersonNames(d, m);
+  const sv = getSviatokName(d, m);
+  return [names, sv].filter(Boolean).join(', ');
+}
 
 /* ─── STATE ─── */
 let currentYear = new Date().getFullYear();
@@ -1321,12 +1517,14 @@ const todayD = today.getDate(), todayM = today.getMonth()+1, todayY = today.getF
 
 /* ─── TODAY BANNER ─── */
 function initTodayBanner(){
-  const names = getNames(todayD, todayM);
+  const names = getPersonNames(todayD, todayM);
+  const sv    = getSviatokName(todayD, todayM);
   const dateLabel = `${todayD}. ${monthNames[todayM-1]} ${todayY}`;
   document.getElementById('todayDateLabel').textContent = dateLabel;
   if(names){
-    const display = names.replace(/\s*\(Sviatok\)/g,'');
-    document.getElementById('todayNamesLabel').textContent = display || 'Štátny sviatok';
+    document.getElementById('todayNamesLabel').textContent = names;
+  } else if(sv){
+    document.getElementById('todayNamesLabel').textContent = sv;
   } else {
     document.getElementById('todayNamesLabel').textContent = 'Žiadne meniny';
   }
@@ -1388,26 +1586,31 @@ function renderCalendar(){
 
     for(let d=1;d<=daysInMonth;d++){
       const dow = (firstDay + d - 1) % 7; // 0=Mon … 6=Sun
-      const names = getNames(d,m);
-      const isSv = isSviatok(names);
+      const calText = getCalendarText(d,m);
+      const isSv  = isSviatok(d, m);
+      const isZat = isZatvorene(d, m);
       const isToday = d===todayD && m===todayM && currentYear===todayY;
 
       const cell = document.createElement('div');
-      cell.className = 'day' + (isToday?' today':'') + (names?' has-name':'') + (isSv?' has-sviatok':'') + (dow===6?' sunday':'');
+      cell.className = 'day'
+        + (isToday?' today':'')
+        + (calText?' has-name':'')
+        + (isZat?' has-zatvorene':isSv?' has-sviatok':'')
+        + (dow===6?' sunday':'');
 
       const numEl = document.createElement('div');
       numEl.className = 'day-number';
       numEl.textContent = d;
       cell.appendChild(numEl);
 
-      if(names){
+      if(calText){
         const nEl = document.createElement('div');
         nEl.className = 'day-names';
-        nEl.textContent = names.replace(/\s*\(Sviatok\)/g,'');
+        nEl.textContent = calText;
         cell.appendChild(nEl);
       }
 
-      cell.addEventListener('click', ()=>showModal(d,m,currentYear,names));
+      cell.addEventListener('click', ()=>showModal(d,m,currentYear));
       daysGrid.appendChild(cell);
     }
 
@@ -1427,8 +1630,9 @@ function renderList(){
     const days = getDaysInMonth(currentYear, m);
     const items = [];
     for(let d=1;d<=days;d++){
-      const names = getNames(d,m);
-      if(names) items.push({d,m,names});
+      const names  = getPersonNames(d, m);
+      const sv     = getSviatokName(d, m);
+      if(names || sv) items.push({d, m, names, sv});
     }
     if(!items.length) return;
 
@@ -1447,10 +1651,10 @@ function renderList(){
     const itemsWrap = document.createElement('div');
     itemsWrap.className = 'list-items';
 
-    items.forEach(({d, m: mo, names})=>{
-      const isSv = isSviatok(names);
+    items.forEach(({d, m: mo, names, sv})=>{
+      const isSv    = !!sv;
       const isToday = d===todayD && mo===todayM && currentYear===todayY;
-      const displayNames = names.replace(/\s*\(Sviatok\)/g,'');
+      const display = names || sv;
 
       const li = document.createElement('div');
       li.className = 'list-item' + (isSv?' sviatok-item':'') + (isToday?' today-item':'');
@@ -1460,12 +1664,13 @@ function renderList(){
           <div class="list-date-month-abbr">${monthShort[mo-1]}</div>
         </div>
         <div class="list-name-wrap">
-          <div class="list-name">${displayNames}</div>
-          ${isSv?'<div class="list-name-full">Štátny sviatok</div>':''}
+          <div class="list-name">${display}</div>
+          ${(isSv && names)?'<div class="list-name-full">'+sv+'</div>':''}
+          ${(isSv && !names)?'<div class="list-name-full">Štátny sviatok</div>':''}
         </div>
         <div class="list-arrow"><span class="material-symbols-rounded">chevron_right</span></div>
       `;
-      li.addEventListener('click', ()=>showModal(d,mo,currentYear,names));
+      li.addEventListener('click', ()=>showModal(d,mo,currentYear));
       itemsWrap.appendChild(li);
     });
 
@@ -1485,12 +1690,12 @@ function performSearch(q){
   for(let m=1;m<=12;m++){
     const days = getDaysInMonth(currentYear, m);
     for(let d=1;d<=days;d++){
-      const names = getNames(d,m);
-      if(!names) continue;
-      const nNorm = removeDiacritics(names).toLowerCase();
+      const searchText = getSearchText(d, m);
+      if(!searchText) continue;
+      const nNorm = removeDiacritics(searchText).toLowerCase();
       const dateStr = `${d}.${m}`;
       if(nNorm.includes(qNorm) || dateStr.includes(qNorm)){
-        results.push({d,m,names});
+        results.push({d, m, names: getPersonNames(d,m), sv: getSviatokName(d,m)});
       }
     }
   }
@@ -1514,10 +1719,10 @@ function performSearch(q){
   const inner = document.createElement('div');
   inner.className = 'list-items';
 
-  results.forEach(({d, m, names})=>{
-    const isSv = isSviatok(names);
+  results.forEach(({d, m, names, sv})=>{
+    const isSv    = !!sv;
     const isToday = d===todayD && m===todayM && currentYear===todayY;
-    const displayNames = names.replace(/\s*\(Sviatok\)/g,'');
+    const display = names || sv;
 
     const li = document.createElement('div');
     li.className = 'list-item' + (isSv?' sviatok-item':'') + (isToday?' today-item':'');
@@ -1527,11 +1732,11 @@ function performSearch(q){
         <div class="list-date-month-abbr">${monthShort[m-1]}</div>
       </div>
       <div class="list-name-wrap">
-        <div class="list-name">${displayNames}</div>
+        <div class="list-name">${display}</div>
       </div>
       <div class="list-arrow"><span class="material-symbols-rounded">chevron_right</span></div>
     `;
-    li.addEventListener('click', ()=>showModal(d,m,currentYear,names));
+    li.addEventListener('click', ()=>showModal(d,m,currentYear));
     inner.appendChild(li);
   });
 
@@ -1539,7 +1744,60 @@ function performSearch(q){
   view.appendChild(itemsWrap);
 }
 
-/* ─── VIEW MANAGEMENT ─── */
+/* ─── MODAL ─── */
+function showModal(d,m,y){
+  document.getElementById('modalTitle').textContent = `${d}. ${monthNames[m-1]} ${y}`;
+  const cards = document.getElementById('modalCards');
+  cards.innerHTML = '';
+
+  const zatvorene = isZatvorene(d, m);
+  const sv        = getSviatokName(d, m);
+  const names     = getPersonNames(d, m);
+
+  // Zatvorené / otvorené obchody
+  if(zatvorene){
+    const isStedryDen = m===12 && d===24;
+    const notice = document.createElement('div');
+    notice.className = 'modal-name-card zatvorene-card';
+    notice.innerHTML = `
+      <div class="modal-name-avatar"><span class="material-symbols-rounded" style="font-size:18px">store</span></div>
+      <div class="modal-name-text" style="font-size:14px;">${sv}</div>
+      <span class="zatvorene-badge"><span class="material-symbols-rounded" style="font-size:12px">lock</span>${isStedryDen ? 'Zatvorené od 12:00' : 'Zatvorené'}</span>
+    `;
+    cards.appendChild(notice);
+  } else if(sv){
+    const notice = document.createElement('div');
+    notice.className = 'modal-name-card otvorene-card';
+    notice.innerHTML = `
+      <div class="modal-name-avatar"><span class="material-symbols-rounded" style="font-size:18px">store</span></div>
+      <div class="modal-name-text" style="font-size:14px;">${sv}</div>
+      <span class="otvorene-badge"><span class="material-symbols-rounded" style="font-size:12px">lock_open</span>Otvorené</span>
+    `;
+    cards.appendChild(notice);
+  }
+
+  // Osobné mená
+  if(names){
+    const parts = names.split(',').map(n => n.trim()).filter(Boolean);
+    parts.forEach(name => {
+      if(!name) return;
+      const card = document.createElement('div');
+      card.className = 'modal-name-card';
+      card.innerHTML = `
+        <div class="modal-name-avatar">${name[0] || '?'}</div>
+        <div class="modal-name-text">${name}</div>
+      `;
+      cards.appendChild(card);
+    });
+  }
+
+  if(!cards.children.length){
+    cards.innerHTML = '<div class="modal-empty">Žiadne meniny pre tento deň</div>';
+  }
+
+  document.getElementById('modalOverlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
 function setView(v){
   currentView = v;
   document.querySelectorAll('.view-btn').forEach(b=>{
@@ -1578,40 +1836,6 @@ function refreshViews(){
   }
 }
 
-/* ─── MODAL ─── */
-function showModal(d,m,y,names){
-  document.getElementById('modalTitle').textContent = `${d}. ${monthNames[m-1]} ${y}`;
-  const cards = document.getElementById('modalCards');
-  cards.innerHTML = '';
-
-  if(!names){
-    cards.innerHTML = '<div class="modal-empty">Žiadne meniny pre tento deň</div>';
-  } else {
-    const isSv = isSviatok(names);
-    const cleanNames = names.replace(/\s*\(Sviatok\)/g,'').split(',').map(n=>n.trim()).filter(Boolean);
-    cleanNames.forEach((name,i)=>{
-      const card = document.createElement('div');
-      card.className = 'modal-name-card' + (isSv && i===cleanNames.length-1?'':isSv?' sviatok-card':'');
-      // Detect if this item contains sviatok
-      const isThisSviatok = isSv && names.split(',').some(n=> n.includes('(Sviatok)') && removeDiacritics(n).toLowerCase().includes(removeDiacritics(name).toLowerCase()));
-      if(isSv) card.className = 'modal-name-card sviatok-card';
-
-      card.innerHTML = `
-        <div class="modal-name-avatar">${name[0]||'?'}</div>
-        <div class="modal-name-text">${name}</div>
-        ${isSv?'<span class="sviatok-badge">Sviatok</span>':''}
-      `;
-      cards.appendChild(card);
-    });
-    if(!cleanNames.length){
-      cards.innerHTML = '<div class="modal-empty">Štátny sviatok</div>';
-    }
-  }
-
-  document.getElementById('modalOverlay').classList.add('active');
-  document.body.style.overflow = 'hidden';
-}
-
 function closeModal(){
   document.getElementById('modalOverlay').classList.remove('active');
   document.body.style.overflow = '';
@@ -1620,7 +1844,7 @@ function closeModal(){
 /* ─── EVENTS ─── */
 document.getElementById('yearInput').addEventListener('change', e=>{
   const v = parseInt(e.target.value);
-  if(v>=2000 && v<=2100){ currentYear=v; refreshViews(); }
+  if(v>=2000 && v<=2100){ currentYear=v; _easterCache={}; refreshViews(); }
 });
 
 document.getElementById('todayBtn').addEventListener('click', ()=>{
@@ -1630,7 +1854,6 @@ document.getElementById('todayBtn').addEventListener('click', ()=>{
   searchQuery = '';
   document.getElementById('searchClear').classList.remove('visible');
 
-  // Select correct month chip
   document.querySelectorAll('.month-chip').forEach(c=>{
     c.classList.toggle('active', parseInt(c.dataset.month)===currentMonth);
   });
