@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QR Generátor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600&family=Google+Sans+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+  <style>
+    :root {
+      --md-primary: #6750A4;
+      --md-on-primary: #FFFFFF;
+      --md-primary-container: #EADDFF;
+      --md-on-primary-container: #21005D;
+      --md-secondary: #625B71;
+      --md-secondary-container: #E8DEF8;
+      --md-surface: #FEF7FF;
+      --md-surface-variant: #E7E0EC;
+      --md-on-surface: #1C1B1F;
+      --md-on-surface-variant: #49454F;
+      --md-outline: #79747E;
+      --md-outline-variant: #CAC4D0;
+      --md-error: #B3261E;
+      --md-error-container: #F9DEDC;
+      --md-background: #FEF7FF;
+      --md-tonal-surface: #F3EDF7;
+      --md-shadow: rgba(0,0,0,0.3);
+
+      --md-shape-small: 8px;
+      --md-shape-medium: 12px;
+      --md-shape-large: 16px;
+      --md-shape-xl: 28px;
+      --md-shape-full: 9999px;
+
+      --md-elevation-1: 0 1px 2px rgba(0,0,0,0.3), 0 1px 3px 1px rgba(0,0,0,0.15);
+      --md-elevation-2: 0 1px 2px rgba(0,0,0,0.3), 0 2px 6px 2px rgba(0,0,0,0.15);
+      --md-elevation-3: 0 1px 3px rgba(0,0,0,0.3), 0 4px 8px 3px rgba(0,0,0,0.15);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --md-primary: #D0BCFF;
+        --md-on-primary: #381E72;
+        --md-primary-container: #4F378B;
+        --md-on-primary-container: #EADDFF;
+        --md-secondary: #CCC2DC;
+        --md-secondary-container: #4A4458;
+        --md-surface: #141218;
+        --md-surface-variant: #49454F;
+        --md-on-surface: #E6E1E5;
+        --md-on-surface-variant: #CAC4D0;
+        --md-outline: #938F99;
+        --md-outline-variant: #49454F;
+        --md-error: #F2B8B5;
+        --md-error-container: #8C1D18;
+        --md-background: #141218;
+        --md-tonal-surface: #211F26;
+      }
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Google Sans', 'Segoe UI', sans-serif;
+      background: var(--md-background);
+      color: var(--md-on-surface);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 24px 16px 80px;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 520px;
+    }
+
+    /* ── Top App Bar ── */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 4px 24px;
+    }
+    .top-bar-icon {
+      width: 40px; height: 40px;
+      border-radius: var(--md-shape-full);
+      background: var(--md-primary-container);
+      color: var(--md-on-primary-container);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .top-bar-title {
+      font-family: 'Google Sans Display', sans-serif;
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--md-on-surface);
+      line-height: 1.2;
+    }
+    .top-bar-subtitle {
+      font-size: 12px;
+      color: var(--md-on-surface-variant);
+      margin-top: 1px;
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--md-tonal-surface);
+      border-radius: var(--md-shape-xl);
+      padding: 24px;
+      margin-bottom: 12px;
+      transition: background 0.3s;
+    }
+    .card-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--md-primary);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    /* ── Type Selector Chips ── */
+    .type-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: var(--md-shape-full);
+      border: 1.5px solid var(--md-outline-variant);
+      background: transparent;
+      color: var(--md-on-surface-variant);
+      font-family: 'Google Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+      user-select: none;
+    }
+    .chip:hover {
+      border-color: var(--md-primary);
+      color: var(--md-primary);
+      background: color-mix(in srgb, var(--md-primary) 8%, transparent);
+    }
+    .chip.active {
+      background: var(--md-secondary-container);
+      border-color: var(--md-secondary-container);
+      color: var(--md-on-primary-container);
+    }
+    .chip-icon { font-size: 16px; }
+
+    /* ── Text Fields ── */
+    .field-wrap {
+      position: relative;
+      margin-bottom: 8px;
+    }
+    .field-wrap + .field-wrap { margin-top: 12px; }
+
+    .text-field {
+      width: 100%;
+      padding: 16px 48px 16px 16px;
+      border: 1.5px solid var(--md-outline-variant);
+      border-radius: var(--md-shape-medium);
+      background: var(--md-surface);
+      color: var(--md-on-surface);
+      font-family: 'Google Sans', sans-serif;
+      font-size: 16px;
+      outline: none;
+      transition: border-color 0.2s, background 0.3s;
+      appearance: none;
+    }
+    .text-field::placeholder { color: var(--md-on-surface-variant); }
+    .text-field:focus { border-color: var(--md-primary); border-width: 2px; }
+
+    textarea.text-field {
+      resize: vertical;
+      min-height: 80px;
+      padding: 16px;
+    }
+
+    .field-icon {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--md-on-surface-variant);
+      pointer-events: none;
+      font-size: 20px;
+    }
+
+    .field-helper {
+      font-size: 12px;
+      color: var(--md-on-surface-variant);
+      margin-top: 4px;
+      padding: 0 4px;
+    }
+    .field-helper.error { color: var(--md-error); }
+
+    /* ── Segmented button (size) ── */
+    .seg-group {
+      display: flex;
+      border: 1.5px solid var(--md-outline-variant);
+      border-radius: var(--md-shape-full);
+      overflow: hidden;
+    }
+    .seg-btn {
+      flex: 1;
+      padding: 10px 8px;
+      border: none;
+      border-right: 1.5px solid var(--md-outline-variant);
+      background: transparent;
+      color: var(--md-on-surface-variant);
+      font-family: 'Google Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .seg-btn:last-child { border-right: none; }
+    .seg-btn.active {
+      background: var(--md-secondary-container);
+      color: var(--md-on-primary-container);
+    }
+    .seg-btn:hover:not(.active) {
+      background: color-mix(in srgb, var(--md-primary) 8%, transparent);
+    }
+
+    /* ── Color pickers ── */
+    .color-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .color-item {
+      flex: 1;
+    }
+    .color-label {
+      font-size: 12px;
+      color: var(--md-on-surface-variant);
+      margin-bottom: 6px;
+    }
+    .color-swatch {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border: 1.5px solid var(--md-outline-variant);
+      border-radius: var(--md-shape-medium);
+      cursor: pointer;
+      background: var(--md-surface);
+      transition: border-color 0.2s;
+    }
+    .color-swatch:hover { border-color: var(--md-primary); }
+    .color-preview {
+      width: 24px; height: 24px;
+      border-radius: var(--md-shape-small);
+      border: 1px solid var(--md-outline-variant);
+      flex-shrink: 0;
+    }
+    .color-hex { font-size: 14px; font-weight: 500; color: var(--md-on-surface); }
+    .color-input {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%;
+    }
+
+    /* ── Presets ── */
+    .preset-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+    .preset-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: var(--md-shape-full);
+      border: 1.5px solid var(--md-outline-variant);
+      background: transparent;
+      font-family: 'Google Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--md-on-surface-variant);
+      transition: all 0.2s;
+    }
+    .preset-btn:hover { border-color: var(--md-primary); color: var(--md-primary); }
+    .preset-dot {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      border: 1px solid rgba(0,0,0,0.15);
+      flex-shrink: 0;
+    }
+
+    /* ── FAB / Generate Button ── */
+    .fab {
+      width: 100%;
+      padding: 20px;
+      border-radius: var(--md-shape-xl);
+      border: none;
+      background: var(--md-primary);
+      color: var(--md-on-primary);
+      font-family: 'Google Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 0.1px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+      box-shadow: var(--md-elevation-3);
+      margin-bottom: 12px;
+    }
+    .fab:hover {
+      box-shadow: var(--md-elevation-2);
+      filter: brightness(1.08);
+      transform: translateY(-1px);
+    }
+    .fab:active { transform: scale(0.98); }
+    .fab svg { width: 22px; height: 22px; }
+
+    /* ── QR Result Card ── */
+    #result-card {
+      display: none;
+      background: var(--md-tonal-surface);
+      border-radius: var(--md-shape-xl);
+      padding: 24px;
+      margin-bottom: 12px;
+      text-align: center;
+      animation: slideUp 0.35s cubic-bezier(0.05, 0.7, 0.1, 1.0);
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── QR Code wrapper with white padding border ── */
+    #qrcode {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .qr-frame {
+      display: inline-flex;
+      padding: 16px;
+      background: #ffffff;
+      border-radius: var(--md-shape-large);
+      box-shadow: var(--md-elevation-2);
+    }
+
+    .qr-frame canvas,
+    .qr-frame img {
+      display: block;
+      border-radius: 4px;
+    }
+
+    .result-meta {
+      font-size: 12px;
+      color: var(--md-on-surface-variant);
+      margin-bottom: 16px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* ── Action buttons row ── */
+    .action-row {
+      display: flex;
+      gap: 8px;
+    }
+    .btn-tonal {
+      flex: 1;
+      padding: 12px 16px;
+      border-radius: var(--md-shape-large);
+      border: none;
+      background: var(--md-secondary-container);
+      color: var(--md-on-primary-container);
+      font-family: 'Google Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .btn-tonal:hover { filter: brightness(0.94); }
+
+    /* ── Snackbar ── */
+    .snackbar {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--md-on-surface);
+      color: var(--md-surface);
+      padding: 14px 24px;
+      border-radius: var(--md-shape-large);
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: var(--md-elevation-3);
+      z-index: 999;
+      transition: transform 0.3s cubic-bezier(0.05, 0.7, 0.1, 1.0);
+      white-space: nowrap;
+    }
+    .snackbar.show { transform: translateX(-50%) translateY(0); }
+
+    /* Error field */
+    .text-field.err { border-color: var(--md-error); }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Top App Bar -->
+  <div class="top-bar">
+    <div class="top-bar-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="4" height="4"/><path d="M14 21h4"/><path d="M21 14v4"/></svg>
+    </div>
+    <div>
+      <div class="top-bar-title">QR Generátor</div>
+    </div>
+  </div>
+
+  <!-- Type Card -->
+  <div class="card">
+    <div class="card-label">Typ kódu</div>
+    <div class="type-chips">
+      <button class="chip active" data-type="url">
+        <span class="chip-icon">🌐</span> URL
+      </button>
+      <button class="chip" data-type="text">
+        <span class="chip-icon">📝</span> Text
+      </button>
+      <button class="chip" data-type="email">
+        <span class="chip-icon">📧</span> E-mail
+      </button>
+      <button class="chip" data-type="tel">
+        <span class="chip-icon">📞</span> Telefón
+      </button>
+      <button class="chip" data-type="sms">
+        <span class="chip-icon">💬</span> SMS
+      </button>
+      <button class="chip" data-type="wifi">
+        <span class="chip-icon">📶</span> Wi-Fi
+      </button>
+      <button class="chip" data-type="vcard">
+        <span class="chip-icon">👤</span> Kontakt
+      </button>
+      <button class="chip" data-type="geo">
+        <span class="chip-icon">📍</span> GPS
+      </button>
+      <button class="chip" data-type="barcode">
+        <span class="chip-icon">🔢</span> Čiarový kód
+      </button>
+    </div>
+  </div>
+
+  <!-- Content Card -->
+  <div class="card" id="content-card">
+    <div class="card-label" id="content-label">Obsah</div>
+    <!-- Dynamic fields injected here -->
+    <div id="dynamic-fields"></div>
+  </div>
+
+  <!-- Appearance Card -->
+  <div class="card">
+    <div class="card-label">Vzhľad</div>
+
+    <div style="font-size:12px; color: var(--md-on-surface-variant); margin-bottom:8px;">Veľkosť</div>
+    <div class="seg-group" id="sizeGroup">
+      <button class="seg-btn" data-size="180">S</button>
+      <button class="seg-btn active" data-size="256">M</button>
+      <button class="seg-btn" data-size="320">L</button>
+      <button class="seg-btn" data-size="400">XL</button>
+    </div>
+
+    <div style="margin-top:16px;">
+      <div style="font-size:12px; color: var(--md-on-surface-variant); margin-bottom:8px;">Farby</div>
+      <div class="color-row">
+        <div class="color-item">
+          <div class="color-label">Popredie</div>
+          <label class="color-swatch">
+            <div class="color-preview" id="fgPreview" style="background:#000000"></div>
+            <span class="color-hex" id="fgHex">#000000</span>
+            <input type="color" class="color-input" id="fgColor" value="#000000">
+          </label>
+        </div>
+        <div class="color-item">
+          <div class="color-label">Pozadie</div>
+          <label class="color-swatch">
+            <div class="color-preview" id="bgPreview" style="background:#ffffff"></div>
+            <span class="color-hex" id="bgHex">#ffffff</span>
+            <input type="color" class="color-input" id="bgColor" value="#ffffff">
+          </label>
+        </div>
+      </div>
+
+      <div class="preset-row">
+        <button class="preset-btn" data-fg="#000000" data-bg="#ffffff">
+          <div class="preset-dot" style="background:#000000;border-color:#ccc"></div>Klasický
+        </button>
+        <button class="preset-btn" data-fg="#1a1a2e" data-bg="#e8f4f8">
+          <div class="preset-dot" style="background:#1a1a2e"></div>Nočná modrá
+        </button>
+        <button class="preset-btn" data-fg="#6750A4" data-bg="#EADDFF">
+          <div class="preset-dot" style="background:#6750A4"></div>Fialová
+        </button>
+        <button class="preset-btn" data-fg="#006A6A" data-bg="#9FF0F0">
+          <div class="preset-dot" style="background:#006A6A"></div>Teal
+        </button>
+        <button class="preset-btn" data-fg="#ffffff" data-bg="#1C1B1F">
+          <div class="preset-dot" style="background:#1C1B1F;border-color:#333"></div>Tmavý
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Generate FAB -->
+  <button class="fab" id="generateBtn">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h.01M18 14h.01M14 18h.01M18 18h.01"/></svg>
+    <span id="fab-label">Generovať QR kód</span>
+  </button>
+
+  <!-- Result Card -->
+  <div id="result-card">
+    <div class="card-label" style="text-align:left;">Výsledok</div>
+    <div id="qrcode"></div>
+    <div class="result-meta" id="result-meta"></div>
+    <div class="action-row">
+      <button class="btn-tonal" id="downloadBtn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Stiahnuť
+      </button>
+      <button class="btn-tonal" id="copyBtn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Kopírovať
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<div class="snackbar" id="snackbar"></div>
+
+<script>
+  // ── State ──
+  let currentType = 'url';
+  let currentSize = 256;
+  let lastQRCanvas = null;
+  let isBarcodeMode = false;
+
+  // ── Field Configs ──
+  const fieldConfigs = {
+    url: [{ id: 'url', label: 'Adresa URL', placeholder: 'napr. google.com', type: 'text' }],
+    text: [{ id: 'text', label: 'Text', placeholder: 'Napíšte čokoľvek...', type: 'textarea' }],
+    email: [
+      { id: 'email', label: 'E-mail adresa', placeholder: 'meno@example.com', type: 'text' },
+      { id: 'subject', label: 'Predmet (voliteľné)', placeholder: 'Predmet e-mailu', type: 'text' },
+      { id: 'body', label: 'Správa (voliteľné)', placeholder: 'Obsah e-mailu...', type: 'textarea' }
+    ],
+    tel: [{ id: 'tel', label: 'Telefónne číslo', placeholder: '+421 900 000 000', type: 'text' }],
+    sms: [
+      { id: 'tel', label: 'Telefónne číslo', placeholder: '+421 900 000 000', type: 'text' },
+      { id: 'body', label: 'Správa (voliteľné)', placeholder: 'Text SMS...', type: 'textarea' }
+    ],
+    wifi: [
+      { id: 'ssid', label: 'Názov siete (SSID)', placeholder: 'MojaWiFiSiet', type: 'text' },
+      { id: 'password', label: 'Heslo', placeholder: 'WiFi heslo', type: 'password' },
+      { id: 'encryption', label: 'Šifrovanie', type: 'select', options: ['WPA3', 'WPA/WPA2', 'WEP', 'Žiadne'] }
+    ],
+    vcard: [
+      { id: 'name', label: 'Celé meno', placeholder: 'Meno Priezvisko', type: 'text' },
+      { id: 'phone', label: 'Telefón', placeholder: '+421 900 000 000', type: 'text' },
+      { id: 'email', label: 'E-mail', placeholder: 'mail@example.com', type: 'text' },
+      { id: 'org', label: 'Organizácia (voliteľné)', placeholder: 'Spoločnosť s.r.o.', type: 'text' },
+      { id: 'url', label: 'Web (voliteľné)', placeholder: 'https://example.com', type: 'text' }
+    ],
+    geo: [
+      { id: 'lat', label: 'Zemepisná šírka', placeholder: '48.1486', type: 'text' },
+      { id: 'lng', label: 'Zemepisná dĺžka', placeholder: '17.1077', type: 'text' }
+    ],
+    barcode: [
+      { id: 'format', label: 'Formát čiarového kódu', type: 'select', options: ['CODE128', 'EAN13', 'EAN8', 'UPC', 'CODE39', 'ITF14', 'MSI', 'pharmacode'] },
+      { id: 'value', label: 'Hodnota', placeholder: 'napr. 123456789012', type: 'text' },
+      { id: 'displayValue', label: 'Zobraziť čísla pod kódom', type: 'select', options: ['Áno', 'Nie'] }
+    ]
+  };
+
+  function renderFields(type) {
+    const container = document.getElementById('dynamic-fields');
+    container.innerHTML = '';
+    const fields = fieldConfigs[type];
+    fields.forEach(f => {
+      const wrap = document.createElement('div');
+      wrap.className = 'field-wrap';
+
+      const lbl = document.createElement('label');
+      lbl.htmlFor = 'field_' + f.id;
+      lbl.style.cssText = 'display:block; font-size:13px; font-weight:500; color:var(--md-on-surface-variant); margin-bottom:6px;';
+      lbl.textContent = f.label;
+      wrap.appendChild(lbl);
+
+      let input;
+      if (f.type === 'textarea') {
+        input = document.createElement('textarea');
+        input.className = 'text-field';
+        input.placeholder = f.placeholder || '';
+      } else if (f.type === 'select') {
+        input = document.createElement('select');
+        input.className = 'text-field';
+        f.options.forEach(o => {
+          const opt = document.createElement('option');
+          opt.value = o; opt.textContent = o;
+          input.appendChild(opt);
+        });
+      } else {
+        input = document.createElement('input');
+        input.type = f.type === 'password' ? 'password' : 'text';
+        input.className = 'text-field';
+        input.placeholder = f.placeholder || '';
+      }
+      input.id = 'field_' + f.id;
+      input.dataset.fieldId = f.id;
+      wrap.appendChild(input);
+      container.appendChild(wrap);
+    });
+  }
+
+  function getFieldValues() {
+    const vals = {};
+    document.querySelectorAll('#dynamic-fields [data-field-id]').forEach(el => {
+      vals[el.dataset.fieldId] = el.value.trim();
+    });
+    return vals;
+  }
+
+  function buildQRData(type, vals) {
+    switch(type) {
+      case 'url': {
+        let u = vals.url || '';
+        if (u && !/^https?:\/\//i.test(u)) u = 'https://' + u;
+        return u;
+      }
+      case 'text': return vals.text || '';
+      case 'email': {
+        let s = `mailto:${vals.email || ''}`;
+        const p = [];
+        if (vals.subject) p.push('subject=' + encodeURIComponent(vals.subject));
+        if (vals.body) p.push('body=' + encodeURIComponent(vals.body));
+        if (p.length) s += '?' + p.join('&');
+        return s;
+      }
+      case 'tel': return `tel:${vals.tel || ''}`;
+      case 'sms': {
+        let s = `sms:${vals.tel || ''}`;
+        if (vals.body) s += `?body=${encodeURIComponent(vals.body)}`;
+        return s;
+      }
+      case 'wifi': {
+        // WPA3 uses SAE protocol but WIFI QR format uses WPA as the type string
+        const enc = vals.encryption === 'Žiadne' ? 'nopass' :
+                    vals.encryption === 'WEP' ? 'WEP' : 'WPA';
+        return `WIFI:T:${enc};S:${vals.ssid || ''};P:${vals.password || ''};;`;
+      }
+      case 'vcard': {
+        let v = `BEGIN:VCARD\nVERSION:3.0\n`;
+        if (vals.name) v += `FN:${vals.name}\n`;
+        if (vals.phone) v += `TEL:${vals.phone}\n`;
+        if (vals.email) v += `EMAIL:${vals.email}\n`;
+        if (vals.org) v += `ORG:${vals.org}\n`;
+        if (vals.url) v += `URL:${vals.url}\n`;
+        v += `END:VCARD`;
+        return v;
+      }
+      case 'geo':
+        return `geo:${vals.lat || '0'},${vals.lng || '0'}`;
+      default: return '';
+    }
+  }
+
+  // ── Type chips ──
+  document.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      currentType = chip.dataset.type;
+      isBarcodeMode = currentType === 'barcode';
+      document.getElementById('fab-label').textContent = isBarcodeMode ? 'Generovať čiarový kód' : 'Generovať QR kód';
+      // Hide size selector for barcode (barcode width is auto)
+      document.getElementById('sizeGroup').closest('.card') && (document.getElementById('sizeGroup').parentElement.style.display = isBarcodeMode ? 'none' : '');
+      renderFields(currentType);
+      document.getElementById('result-card').style.display = 'none';
+    });
+  });
+
+  // ── Size group ──
+  document.querySelectorAll('.seg-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentSize = parseInt(btn.dataset.size);
+    });
+  });
+
+  // ── Color pickers ──
+  function setupColor(inputId, previewId, hexId) {
+    const input = document.getElementById(inputId);
+    const preview = document.getElementById(previewId);
+    const hex = document.getElementById(hexId);
+    input.addEventListener('input', () => {
+      preview.style.background = input.value;
+      hex.textContent = input.value;
+    });
+  }
+  setupColor('fgColor', 'fgPreview', 'fgHex');
+  setupColor('bgColor', 'bgPreview', 'bgHex');
+
+  // ── Presets ──
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const fg = btn.dataset.fg, bg = btn.dataset.bg;
+      document.getElementById('fgColor').value = fg;
+      document.getElementById('bgColor').value = bg;
+      document.getElementById('fgPreview').style.background = fg;
+      document.getElementById('bgPreview').style.background = bg;
+      document.getElementById('fgHex').textContent = fg;
+      document.getElementById('bgHex').textContent = bg;
+    });
+  });
+
+  // ── Generate ──
+  function showSnack(msg) {
+    const s = document.getElementById('snackbar');
+    s.textContent = msg;
+    s.classList.add('show');
+    setTimeout(() => s.classList.remove('show'), 2800);
+  }
+
+  document.getElementById('generateBtn').addEventListener('click', () => {
+    const vals = getFieldValues();
+
+    // ── Barcode mode ──
+    if (isBarcodeMode) {
+      const value = vals.value || '';
+      if (!value.trim()) { showSnack('Vyplňte hodnotu čiarového kódu'); return; }
+      const format = vals.format || 'CODE128';
+      const displayValue = vals.displayValue !== 'Nie';
+      const fg = document.getElementById('fgColor').value;
+      const bg = document.getElementById('bgColor').value;
+
+      const container = document.getElementById('qrcode');
+      container.innerHTML = '';
+      const frame = document.createElement('div');
+      frame.className = 'qr-frame';
+      frame.style.background = bg;
+      container.appendChild(frame);
+
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      frame.appendChild(svg);
+
+      try {
+        JsBarcode(svg, value, {
+          format: format,
+          lineColor: fg,
+          background: bg,
+          width: 2,
+          height: 100,
+          displayValue: displayValue,
+          fontOptions: '500',
+          font: 'Google Sans, sans-serif',
+          fontSize: 16,
+          margin: 10
+        });
+      } catch(e) {
+        showSnack('Neplatná hodnota pre formát ' + format);
+        return;
+      }
+
+      const resultCard = document.getElementById('result-card');
+      resultCard.style.display = 'block';
+      resultCard.style.animation = 'none';
+      void resultCard.offsetWidth;
+      resultCard.style.animation = '';
+      document.getElementById('result-meta').textContent = format + ': ' + value;
+      showSnack('Čiarový kód bol vygenerovaný');
+      return;
+    }
+
+    const data = buildQRData(currentType, vals);
+
+    if (!data || data.replace(/^(https?:\/\/|mailto:|tel:|sms:|geo:|WIFI:|BEGIN:VCARD[\s\S]*END:VCARD)/, '').trim() === '' && data.length < 5) {
+      showSnack('Vyplňte aspoň jedno pole');
+      return;
+    }
+    if (!data.trim() || data.trim().length < 2) {
+      showSnack('Vyplňte požadované polia');
+      return;
+    }
+
+    const container = document.getElementById('qrcode');
+    container.innerHTML = '';
+
+    const fg = document.getElementById('fgColor').value;
+    const bg = document.getElementById('bgColor').value;
+
+    // Create frame wrapper for QR padding
+    const frame = document.createElement('div');
+    frame.className = 'qr-frame';
+    // Match frame background to QR background color
+    frame.style.background = bg;
+    container.appendChild(frame);
+
+    new QRCode(frame, {
+      text: data,
+      width: currentSize,
+      height: currentSize,
+      colorDark: fg,
+      colorLight: bg,
+      correctLevel: QRCode.CorrectLevel.H
+    });
+
+    // Store canvas ref after slight delay (qrcodejs is async)
+    setTimeout(() => {
+      lastQRCanvas = frame.querySelector('canvas');
+    }, 100);
+
+    const resultCard = document.getElementById('result-card');
+    resultCard.style.display = 'block';
+    resultCard.style.animation = 'none';
+    void resultCard.offsetWidth;
+    resultCard.style.animation = '';
+
+    const shortData = data.length > 50 ? data.substring(0, 47) + '…' : data;
+    document.getElementById('result-meta').textContent = shortData;
+
+    showSnack('QR kód bol vygenerovaný');
+  });
+
+  // ── Download ──
+  document.getElementById('downloadBtn').addEventListener('click', () => {
+    // Try canvas first (QR), then SVG (barcode)
+    const canvas = document.querySelector('#qrcode canvas');
+    if (canvas) {
+      const link = document.createElement('a');
+      link.download = 'qr-kod.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      showSnack('Stiahnuté');
+      return;
+    }
+    const svg = document.querySelector('#qrcode svg');
+    if (svg) {
+      const svgData = new XMLSerializer().serializeToString(svg);
+      const blob = new Blob([svgData], { type: 'image/svg+xml' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.download = 'ciarovy-kod.svg';
+      link.href = url;
+      link.click();
+      URL.revokeObjectURL(url);
+      showSnack('Stiahnuté ako SVG');
+      return;
+    }
+    showSnack('Najprv vygenerujte kód');
+  });
+
+  // ── Copy to clipboard ──
+  document.getElementById('copyBtn').addEventListener('click', async () => {
+    const canvas = document.querySelector('#qrcode canvas');
+    if (canvas) {
+      try {
+        canvas.toBlob(async blob => {
+          try {
+            await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+            showSnack('Skopírované do schránky');
+          } catch(e) { showSnack('Kopírovanie zlyhalo'); }
+        });
+      } catch(e) { showSnack('Kopírovanie nie je podporované'); }
+      return;
+    }
+    const svg = document.querySelector('#qrcode svg');
+    if (svg) {
+      try {
+        const svgData = new XMLSerializer().serializeToString(svg);
+        await navigator.clipboard.writeText(svgData);
+        showSnack('SVG skopírované do schránky!');
+      } catch(e) { showSnack('Kopírovanie zlyhalo'); }
+      return;
+    }
+    showSnack('Najprv vygenerujte kód');
+  });
+
+  // ── Init ──
+  renderFields('url');
+</script>
+</body>
+</html>
