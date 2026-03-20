@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="UTF-8">
+  <title>Kalkulačka</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg:         #000000;
+      --calc-bg:    #000000;
+      --disp-bg:    #1C1C2A;
+      --expr-clr:   #E8E8F0;
+      --live-clr:   #4488FF;
+      --sci-clr:    #6699CC;
+      --btn-bg:     #181824;
+      --btn-clr:    #C8C8D8;
+      --op-bg:      #1E2440;
+      --op-clr:     #C8C8D8;
+      --ac-bg:      #A8C8F0;
+      --ac-clr:     #0A1A3A;
+      --eq-bg:      #1E3A7A;
+      --eq-clr:     #D0E4FF;
+      --shadow:     rgba(0,0,0,.8);
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg:         #E8E8F0;
+        --calc-bg:    #E8E8F0;
+        --disp-bg:    #D4D4E4;
+        --expr-clr:   #1A1A2E;
+        --live-clr:   #1155CC;
+        --sci-clr:    #336699;
+        --btn-bg:     #D0D0E0;
+        --btn-clr:    #1A1A2E;
+        --op-bg:      #B0C4E0;
+        --op-clr:     #1A1A2E;
+        --ac-bg:      #5588DD;
+        --ac-clr:     #FFFFFF;
+        --eq-bg:      #1144AA;
+        --eq-clr:     #FFFFFF;
+        --shadow:     none;
+      }
+    }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+      background: var(--bg);
+      font-family: 'Roboto', sans-serif;
+      overflow: hidden;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /*
+      The whole calculator is sized using a CSS custom property --s (unit size).
+      --s = min(viewport_width / 5, viewport_height / 8.5)
+      This guarantees the calculator always fits, both wide and tall.
+      All distances derive from --s so everything scales together.
+    */
+    .calc {
+      --s: min(22vw, 12vh);        /* one button unit */
+      --gap: calc(var(--s) * 0.06);
+      --pad: calc(var(--s) * 0.1);
+      --r: calc(var(--s) * 0.5);     /* full pill radius */
+
+      display: flex;
+      flex-direction: column;
+      background: var(--calc-bg);
+      border-radius: calc(var(--s) * 0.6);
+      overflow: hidden;
+      box-shadow: 0 8px 48px var(--shadow);
+
+      /* Total width = 4 buttons + 3 gaps + 2 paddings */
+      width: calc(4 * var(--s) + 3 * var(--gap) + 2 * var(--pad));
+    }
+
+    /* ── Display ── */
+    .display {
+      background: var(--disp-bg);
+      border-radius: calc(var(--s) * 0.45);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: calc(var(--s) * 0.3) calc(var(--s) * 0.3) calc(var(--s) * 0.28) calc(var(--s) * 0.1);
+      gap: calc(var(--s) * 0.06);
+      /* height ≈ 2 button units */
+      min-height: calc(var(--s) * 2);
+    }
+
+    .expr {
+      font-weight: 300;
+      color: var(--expr-clr);
+      text-align: right;
+      word-break: break-all;
+      line-height: 1.1;
+      letter-spacing: -1px;
+      font-size: calc(var(--s) * 0.52);
+      transition: font-size .1s;
+    }
+    .expr.long  { font-size: calc(var(--s) * 0.38); }
+    .expr.xlong { font-size: calc(var(--s) * 0.27); }
+
+    .live-result {
+      font-weight: 300;
+      color: var(--live-clr);
+      text-align: right;
+      font-size: calc(var(--s) * 0.32);
+      min-height: calc(var(--s) * 0.38);
+    }
+
+    /* ── Scientific row ── */
+    .sci-row {
+      display: flex;
+      align-items: center;
+      padding: calc(var(--s) * 0.08) var(--pad) calc(var(--s) * 0.04);
+      gap: 0;
+    }
+
+    .sci-btn {
+      flex: 1;
+      background: none;
+      border: none;
+      color: var(--sci-clr);
+      font-family: 'Roboto', sans-serif;
+      font-size: calc(var(--s) * 0.28);
+      font-weight: 400;
+      cursor: pointer;
+      padding: calc(var(--s) * 0.06) 0;
+      text-align: center;
+      -webkit-tap-highlight-color: transparent;
+      outline: none;
+    }
+
+    /* ── Button grid ── */
+    .panel {
+      padding: calc(var(--s) * 0.05) var(--pad) calc(var(--s) * 0.25);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, var(--s));
+      grid-template-rows: repeat(5, var(--s));
+      gap: var(--gap);
+    }
+
+    button.btn {
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: var(--s);
+      height: var(--s);
+      border: none;
+      border-radius: 50%;
+      font-family: 'Roboto', sans-serif;
+      font-size: calc(var(--s) * 0.50);
+      font-weight: 400;
+      color: var(--btn-clr);
+      cursor: pointer;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      outline: none;
+      transition: transform .08s ease;
+      background: var(--btn-bg);
+    }
+
+    button.btndel {
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: var(--s);
+      height: var(--s);
+      border: none;
+      border-radius: 50%;
+      font-family: 'Roboto', sans-serif;
+      font-size: calc(var(--s) * 0.37);
+      font-weight: 400;
+      color: var(--btn-clr);
+      cursor: pointer;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      outline: none;
+      transition: transform .08s ease;
+      background: var(--btn-bg);
+    }
+
+    button.btn:active { transform: scale(.90); }
+    button.btn::after {
+      content: ''; position: absolute; inset: 0;
+      border-radius: inherit; background: white;
+      opacity: 0; transition: opacity .12s;
+    }
+    button.btn:active::after { opacity: .09; }
+
+    .op  { background: var(--op-bg) !important; color: var(--op-clr) !important; }
+    .ac  { background: var(--ac-bg) !important; color: var(--ac-clr) !important; font-weight: 500 !important; }
+    .eq  { background: var(--eq-bg) !important; color: var(--eq-clr) !important; }
+
+    /* Ripple */
+    @keyframes rpl { from{transform:scale(0);opacity:.2;} to{transform:scale(3.5);opacity:0;} }
+    .rpl { position:absolute; border-radius:50%; background:white; pointer-events:none; animation:rpl .36s ease-out forwards; }
+  </style>
+</head>
+<body>
+<div class="calc">
+
+  <div class="display" style="margin: calc(var(--s)*0.15) calc(var(--s)*0.1) 0;">
+    <div class="expr" id="expr">0</div>
+    <div class="live-result" id="live"></div>
+  </div>
+
+
+
+  <div class="sci-row">
+    <button class="sci-btn" onclick="sciFunc('sqrt')">√</button>
+    <button class="sci-btn" onclick="sciFunc('pi')">π</button>
+    <button class="sci-btn" onclick="sciFunc('pow')">^</button>
+    <button class="sci-btn" onclick="sciFunc('fact')">!</button>
+
+  </div>
+
+  <div class="panel">
+    <div class="grid">
+      <button class="btn ac"  onclick="ca()">AC</button>
+      <button class="btn"     onclick="paren()">( )</button>
+      <button class="btn"     onclick="pct()">%</button>
+      <button class="btn op"  onclick="addOp('÷')">÷</button>
+
+      <button class="btn" onclick="n('7')">7</button>
+      <button class="btn" onclick="n('8')">8</button>
+      <button class="btn" onclick="n('9')">9</button>
+      <button class="btn op" onclick="addOp('×')">×</button>
+
+      <button class="btn" onclick="n('4')">4</button>
+      <button class="btn" onclick="n('5')">5</button>
+      <button class="btn" onclick="n('6')">6</button>
+      <button class="btn op" onclick="addOp('−')">−</button>
+
+      <button class="btn" onclick="n('1')">1</button>
+      <button class="btn" onclick="n('2')">2</button>
+      <button class="btn" onclick="n('3')">3</button>
+      <button class="btn op" onclick="addOp('+')">+</button>
+
+      <button class="btn" onclick="n('0')">0</button>
+      <button class="btn" onclick="dot()">,</button>
+      <button class="btndel" onclick="bk()">⌫</button>
+      <button class="btn eq" onclick="eq()">=</button>
+    </div>
+  </div>
+
+</div>
+<script>
+  const exprEl = document.getElementById('expr');
+  const liveEl = document.getElementById('live');
+  let str = '', justEvaled = false;
+
+  const toJS = s => s
+    .replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-')
+    .replace(/,/g,'.').replace(/(\d+(?:\.\d+)?)%/g,'($1/100)')
+    .replace(/π/g,'Math.PI');
+
+  const fmt = v => (Math.round(v*1e10)/1e10).toLocaleString('sk',{maximumFractionDigits:10});
+  const endsOp    = () => /[×÷\+−\(]$/.test(str);
+  const endsDigit = () => /[\d\),]$/.test(str);
+
+  function render() {
+    exprEl.textContent = str || '0';
+    const l = (str||'0').length;
+    exprEl.className = l > 18 ? 'expr xlong' : l > 10 ? 'expr long' : 'expr';
+    try {
+      const js = toJS(str);
+      if (/[\d\)\.,]$/.test(str) && str.length > 0) {
+        const r = Function('"use strict";return('+js+')')();
+        liveEl.textContent = isFinite(r) ? fmt(r) : '';
+      } else liveEl.textContent = '';
+    } catch { liveEl.textContent = ''; }
+  }
+
+  function n(d) { if(justEvaled){str='';justEvaled=false;} str+=d; render(); }
+  function dot() {
+    if(justEvaled){str='0';justEvaled=false;}
+    if(!str.split(/[×÷\+−\(\)]/).pop().includes(',')) str+=',';
+    render();
+  }
+  function addOp(o) {
+    justEvaled=false; if(!str)str='0';
+    str=str.replace(/[×÷\+−]$/,'')+o;
+    liveEl.textContent=''; render();
+  }
+  function paren() {
+    justEvaled=false;
+    const op=(str.match(/\(/g)||[]).length, cl=(str.match(/\)/g)||[]).length;
+    if(!str||endsOp()||str.slice(-1)==='(') str+='(';
+    else if(op>cl) str+=')';
+    else str+='×(';
+    render();
+  }
+  function pct() { if(endsDigit()){str+='%';render();} }
+  function bk() { if(justEvaled){str='';justEvaled=false;render();return;} str=str.slice(0,-1); render(); }
+  function ca() { str='';justEvaled=false;liveEl.textContent='';render(); }
+  function eq() {
+    if(!str) return;
+    try {
+      const r=Function('"use strict";return('+toJS(str)+')')();
+      if(isFinite(r)){str=fmt(r).replace(/\s/g,'');liveEl.textContent='';justEvaled=true;render();}
+    } catch {}
+  }
+  function sciFunc(f) {
+    justEvaled=false;
+    if(f==='sqrt') str='√('+str;
+    else if(f==='pi') str+=endsDigit()?'×π':'π';
+    else if(f==='pow') str+='^';
+    else if(f==='fact'&&endsDigit()) str+='!';
+    render();
+  }
+
+  document.querySelectorAll('button.btn').forEach(b=>{
+    b.addEventListener('pointerdown',e=>{
+      const rect=b.getBoundingClientRect(),sz=Math.max(rect.width,rect.height);
+      const el=document.createElement('span');
+      el.className='rpl';
+      el.style.cssText=`width:${sz}px;height:${sz}px;left:${e.clientX-rect.left-sz/2}px;top:${e.clientY-rect.top-sz/2}px`;
+      b.appendChild(el);
+      el.addEventListener('animationend',()=>el.remove());
+    });
+  });
+
+  document.addEventListener('keydown',e=>{
+    if(e.key>='0'&&e.key<='9')            {e.preventDefault();n(e.key);}
+    else if(e.key==='.'||e.key===',')     {e.preventDefault();dot();}
+    else if(e.key==='+')                  {e.preventDefault();addOp('+');}
+    else if(e.key==='-')                  {e.preventDefault();addOp('−');}
+    else if(e.key==='*')                  {e.preventDefault();addOp('×');}
+    else if(e.key==='/')                  {e.preventDefault();addOp('÷');}
+    else if(e.key==='('||e.key===')')     {e.preventDefault();paren();}
+    else if(e.key==='Enter'||e.key==='='){e.preventDefault();eq();}
+    else if(e.key==='Escape')             {e.preventDefault();ca();}
+    else if(e.key==='Backspace')          {e.preventDefault();bk();}
+    else if(e.key==='%')                  {e.preventDefault();pct();}
+  });
+
+  render();
+</script>
+</body>
+</html>
