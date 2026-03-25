@@ -3,13 +3,43 @@
   "updated": "2026-03-20",
   "apps": [
     {
+      "id": "sk.center.web",
+      "name": "WebCenter",
+      "description": "Správy, počasie a doprava na jednom mieste",
+      "icon_url": "https://raw.githubusercontent.com/MOD3123/Ikony_TV/refs/heads/master/Copilot_20260319_194514%20(Vlastn%C3%AD).png",
+      "apk_url": "https://github.com/MOD3123/webcenter/releases/download/Apps/WebCenter.apk",
+      "version_name": "2.0",
+      "version_code": 2,
+      "package": "sk.center.app"
+    }
+    {
+      "id": "sk.tvmobile.app",
+      "name": "TVmobile",
+      "description": "Televízia a rádio priamo v mobile",
+      "icon_url": "https://raw.githubusercontent.com/MOD3123/Ikony_TV/refs/heads/master/Designer%20(4).png",
+      "apk_url": "https://github.com/MOD3123/webcenter/releases/download/Apps/tvmobile.apk",
+      "version_name": "2.0",
+      "version_code": 2,
+      "package": "sk.center.app"
+    }
+    {
+      "id": "sk.spravy.app",
+      "name": "Správy SK",
+      "description": "Najnovšie správy priamo v mobile",
+      "icon_url": "https://raw.githubusercontent.com/MOD3123/Ikony_TV/refs/heads/master/Designer%20(9).png",
+      "apk_url": "https://github.com/MOD3123/webcenter/releases/download/Apps/SpravySK.apk",
+      "version_name": "2.0",
+      "version_code": 2,
+      "package": "sk.center.app"
+    }
+    {
       "id": "sk.center.app",
       "name": "AppCenter",
       "description": "Aktualizácia tejto aplikácie",
       "icon_url": "https://raw.githubusercontent.com/MOD3123/Ikony_TV/refs/heads/master/ic_launcher-playstore.png",
-      "apk_url": "https://github.com/MOD3123/webcenter/releases/download/Webcenter/app-debug.apk",
-      "version_name": "3.0",
-      "version_code": 3,
+      "apk_url": "https://github.com/MOD3123/webcenter/releases/download/Apps/AppCenter.apk",
+      "version_name": "2.0",
+      "version_code": 2,
       "package": "sk.center.app"
     }
   ]
