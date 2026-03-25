@@ -6,6 +6,7 @@
     <title>Domovská stránka</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <style>
         :root {
           --bg: #0a0e1a;
@@ -476,7 +477,7 @@
 
         .search-submit svg { width: 15px; height: 15px; }
 
-        /* Suggestions */
+        /* Suggestions – Google style */
         .suggestions {
           position: absolute;
           top: calc(100% + 4px);
@@ -490,35 +491,61 @@
           z-index: 999;
           display: none;
           backdrop-filter: blur(20px);
+          padding: 8px 0;
         }
 
-        .suggestions div {
-          padding: 11px 16px;
-          cursor: pointer;
-          font-size: 14px;
-          color: var(--muted);
-          border-bottom: 1px solid rgba(255,255,255,0.04);
-          transition: all 0.15s;
+        .suggestions.open { display: block; }
+
+        .sug-divider {
+          height: 1px;
+          background: rgba(255,255,255,0.05);
+          margin: 0 12px;
+        }
+
+        .sug-item {
           display: flex;
           align-items: center;
           gap: 10px;
+          width: 100%;
+          padding: 11px 14px;
+          background: none;
+          border: none;
+          cursor: pointer;
+          font-size: 14px;
+          font-family: 'DM Sans', sans-serif;
+          color: var(--muted);
+          text-align: left;
+          transition: background 0.12s, color 0.12s;
+          position: relative;
+          overflow: hidden;
         }
 
-        .suggestions div::before {
-          content: '';
-          width: 14px;
-          height: 14px;
-          background-image: url("data:image/svg+xml,%3Csvg fill='none' stroke='%238890a4' stroke-width='2' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
-          background-size: contain;
-          flex-shrink: 0;
-        }
-
-        .suggestions div:last-child { border-bottom: none; }
-
-        .suggestions div:hover {
+        .sug-item:hover, .sug-item.focused {
           background: rgba(79,142,247,0.08);
           color: var(--text);
-          padding-left: 20px;
+        }
+
+        .sug-icon {
+          font-size: 16px;
+          color: var(--muted);
+          flex-shrink: 0;
+          opacity: 0.7;
+        }
+
+        .sug-text {
+          flex: 1;
+          min-width: 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .sug-arrow {
+          font-size: 15px;
+          color: var(--muted);
+          opacity: 0.4;
+          flex-shrink: 0;
+          transform: rotate(45deg);
         }
 
         /* === Kalkulačka === */
@@ -778,17 +805,17 @@
         </div>
     </div>
     <div class="search-section">
-        <!-- Bing -->
-        <div class="search-row">
-            <form class="search-box" action="https://www.bing.com/search" method="GET" target="_blank">
-                <span class="search-tag">Bing</span>
-                <input type="text" id="bingInput" name="q" placeholder="Hľadať na internete" autocomplete="off">
-                <button type="button" class="search-clear" data-for="bingInput">✕</button>
-                <button type="submit" class="search-submit" title="Hľadať">
+        <!-- Google -->
+        <div class="search-row search-container">
+            <div class="search-box">
+                <span class="search-tag">Google</span>
+                <input type="text" id="googleInput" placeholder="Hľadať na internete" autocomplete="off">
+                <button type="button" class="search-clear" data-for="googleInput">&#x2715;</button>
+                <button type="button" class="search-submit" title="Hladať" onclick="doGoogleSearch()">
                     <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                 </button>
-            </form>
-            <div class="suggestions" id="bingSuggestions"></div>
+            </div>
+            <div class="suggestions" id="googleSuggestions" role="listbox"></div>
         </div>
 
         <!-- Slovník -->
@@ -982,39 +1009,85 @@
       });
     });
 
-    /* ========== BING SUGGESTIONS ========== */
-    const bingInput = document.getElementById('bingInput');
-    const sugBox = document.getElementById('bingSuggestions');
-    let debounce;
+    /* ========== GOOGLE SUGGESTIONS ========== */
+    let jc = 0, dt = null, cs = [], fi = -1, mil = false;
+    const gi = document.getElementById('googleInput');
+    const sb = document.getElementById('googleSuggestions');
 
-    bingInput.addEventListener('input', () => {
-      clearTimeout(debounce);
-      const q = bingInput.value.trim();
-      if (!q) { sugBox.style.display = 'none'; return; }
-      debounce = setTimeout(() => {
-        fetch(`https://corsproxy.io/?https://api.bing.com/osjson.aspx?query=${encodeURIComponent(q)}`)
-          .then(r => r.json())
-          .then(data => {
-            const items = (data && data[1]) ? data[1].slice(0, 5) : [];
-            sugBox.innerHTML = '';
-            items.forEach(s => {
-              const div = document.createElement('div');
-              div.textContent = s;
-              div.addEventListener('click', () => {
-                bingInput.value = s;
-                sugBox.style.display = 'none';
-                bingInput.closest('.search-box').querySelector('.search-clear').style.display = 'block';
-              });
-              sugBox.appendChild(div);
-            });
-            sugBox.style.display = items.length ? 'block' : 'none';
-          }).catch(() => sugBox.style.display = 'none');
-      }, 280);
+    function doGoogleSearch() {
+      const q = gi.value.trim();
+      if (!q) return;
+      window.open('https://www.google.com/search?q=' + encodeURIComponent(q), '_blank');
+    }
+
+    function fetchSug(q) {
+      if (!q.trim()) { closeSug(); return; }
+      const cb = '__sg' + (++jc);
+      const old = document.getElementById('__sgs'); if (old) old.remove();
+      window[cb] = (data) => { delete window[cb]; cs = (data[1] || []).slice(0, 8); renderSug(q); };
+      const s = document.createElement('script'); s.id = '__sgs';
+      s.src = 'https://suggestqueries.google.com/complete/search?client=firefox&q=' + encodeURIComponent(q) + '&callback=' + cb;
+      s.onerror = () => { delete window[cb]; };
+      document.head.appendChild(s);
+    }
+
+    function renderSug(typed) {
+      if (!cs.length) { closeSug(); return; }
+      fi = -1; sb.innerHTML = '';
+      const SUG_ITEM_H = 42;
+      const fieldRect = gi.closest('.search-container').getBoundingClientRect();
+      const spaceBelow = window.innerHeight - fieldRect.bottom - 12;
+      let maxN = 1;
+      for (let n = 1; n <= cs.length; n++) {
+        const total = n * SUG_ITEM_H + (n - 1) * 1 + 16;
+        if (total <= spaceBelow) maxN = n; else break;
+      }
+      const visible = cs.slice(0, maxN);
+      visible.forEach((t, i) => {
+        if (i > 0) { const d = document.createElement('div'); d.className = 'sug-divider'; sb.appendChild(d); }
+        const b = document.createElement('button');
+        b.className = 'sug-item'; b.setAttribute('role', 'option');
+        b.innerHTML = '<span class="material-icons-round sug-icon">search</span><span class="sug-text">' +
+          t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') +
+          '</span><span class="material-icons-round sug-arrow">arrow_back</span>';
+        b.addEventListener('mousedown', e => {
+          e.preventDefault(); gi.value = t; closeSug();
+          window.open('https://www.google.com/search?q=' + encodeURIComponent(t), '_blank');
+        });
+        b.addEventListener('mouseenter', () => { gi.value = t; setFoc(i); mil = true; });
+        b.addEventListener('mouseleave', () => { mil = false; });
+        sb.appendChild(b);
+      });
+      sb.classList.add('open');
+    }
+
+    function closeSug() { sb.classList.remove('open'); sb.innerHTML = ''; fi = -1; cs = []; }
+    function setFoc(i) {
+      const its = sb.querySelectorAll('.sug-item');
+      its.forEach(e => e.classList.remove('focused'));
+      if (i >= 0 && i < its.length) { its[i].classList.add('focused'); its[i].scrollIntoView({ block: 'nearest' }); }
+      fi = i;
+    }
+
+    gi.addEventListener('input', () => {
+      clearTimeout(dt);
+      const v = gi.value;
+      if (!v.trim()) { closeSug(); return; }
+      dt = setTimeout(() => fetchSug(v), 200);
     });
 
+    gi.addEventListener('keydown', e => {
+      const its = sb.querySelectorAll('.sug-item'), len = its.length;
+      if (e.key === 'ArrowDown') { e.preventDefault(); const n = (fi + 1) % len; setFoc(n); gi.value = cs[n]; }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); const p = fi <= 0 ? len - 1 : fi - 1; setFoc(p); gi.value = cs[p]; }
+      else if (e.key === 'Enter') { e.preventDefault(); doGoogleSearch(); }
+      else if (e.key === 'Escape') closeSug();
+    });
+
+    gi.addEventListener('focus', () => { if (gi.value.trim() && cs.length) sb.classList.add('open'); });
+    gi.addEventListener('blur', () => { if (!mil) setTimeout(closeSug, 150); });
     document.addEventListener('click', e => {
-      if (!bingInput.contains(e.target) && !sugBox.contains(e.target))
-        sugBox.style.display = 'none';
+      if (!e.target.closest('#googleSuggestions') && !e.target.closest('#googleInput')) closeSug();
     });
 
     /* ========== CALCULATOR ========== */
