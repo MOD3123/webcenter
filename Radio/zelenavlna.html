@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STVR Zelená Vlna</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 100%);
+      color: #e8e8f0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 30px 20px;
+    }
+
+    .app {
+      max-width: 520px;
+      width: 100%;
+      background: linear-gradient(145deg, #1e1e35 0%, #252540 100%);
+      border: 1px solid rgba(100, 100, 255, 0.2);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .app-header {
+      padding: 30px 30px 25px;
+      border-bottom: 1px solid rgba(100, 100, 255, 0.15);
+      text-align: center;
+    }
+
+    .app-header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #ffffff 0%, #a8a8ff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -1px;
+    }
+
+    .player-body {
+      padding: 30px;
+    }
+
+    /* Seek bar */
+    .seek-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .time-label {
+      font-size: 12px;
+      color: #8888bb;
+      min-width: 36px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    #totalTime { text-align: right; }
+
+    .seek-track {
+      flex: 1;
+      height: 6px;
+      background: rgba(0, 0, 0, 0.35);
+      border-radius: 3px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .seek-track:hover { overflow: visible; }
+
+    .seek-filled {
+      height: 100%;
+      background: linear-gradient(90deg, rgba(99, 102, 241, 0.8), rgba(139, 142, 255, 0.9));
+      border-radius: 3px;
+      width: 0%;
+      transition: width 0.1s linear;
+      pointer-events: none;
+      position: relative;
+    }
+
+    .seek-filled::after {
+      content: '';
+      position: absolute;
+      right: -6px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 12px;
+      height: 12px;
+      background: #fff;
+      border-radius: 50%;
+      box-shadow: 0 0 4px rgba(99, 102, 241, 0.8);
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+
+    .seek-track:hover .seek-filled::after { opacity: 1; }
+
+    /* Controls */
+    .player-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .control-btn {
+      background: rgba(99, 102, 241, 0.3);
+      border: 1px solid rgba(99, 102, 241, 0.5);
+      color: #e8e8f0;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 16px;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      user-select: none;
+    }
+
+    .control-btn:hover {
+      background: rgba(99, 102, 241, 0.5);
+      transform: scale(1.05);
+    }
+
+    .control-btn:active {
+      transform: scale(0.95);
+    }
+
+    .control-btn.play-pause {
+      background: rgba(99, 102, 241, 0.6);
+      width: 60px;
+      height: 60px;
+      font-size: 22px;
+    }
+
+    .control-btn.play-pause:hover {
+      background: rgba(99, 102, 241, 0.85);
+    }
+
+    /* Volume */
+    .volume-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .volume-btn {
+      background: transparent;
+      border: none;
+      color: #8888bb;
+      cursor: pointer;
+      font-size: 16px;
+      padding: 5px;
+      transition: color 0.2s;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      flex-shrink: 0;
+    }
+
+    .volume-btn:hover { color: #e8e8f0; }
+
+    .volume-track {
+      flex: 1;
+      height: 4px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 2px;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .volume-filled {
+      height: 100%;
+      background: rgba(99, 102, 241, 0.7);
+      border-radius: 2px;
+      width: 80%;
+      transition: width 0.1s;
+      pointer-events: none;
+    }
+
+    .volume-label {
+      font-size: 12px;
+      color: #8888bb;
+      min-width: 32px;
+      text-align: right;
+    }
+
+    @media (max-width: 480px) {
+      .app-header h1 { font-size: 1.6rem; }
+      .player-body { padding: 24px 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="app-header">
+      <h1>Zelená Vlna STVR</h1>
+    </div>
+
+    <div class="player-body">
+      <div class="player-controls">
+        <button class="control-btn" id="muteBtn" title="Stlmiť">
+          <i class="fas fa-volume-up"></i>
+        </button>
+        <button class="control-btn play-pause" id="playBtn" title="Prehrať / Pozastaviť">
+          <i class="fas fa-play"></i>
+        </button>
+        <button class="control-btn" id="reloadBtn" title="Obnoviť stream">
+          <i class="fas fa-rotate-right"></i>
+        </button>
+      </div>
+
+      <div class="seek-row">
+        <span class="time-label" id="currentTime">0:00</span>
+        <div class="seek-track" id="seekTrack">
+          <div class="seek-filled" id="seekFilled"></div>
+        </div>
+        <span class="time-label" id="totalTime">0:00</span>
+      </div>
+    </div>
+  </div>
+
+  <audio id="player" src="https://zelenavlna.slovanet.sk/zelenavlna/zv.mp3" preload="none"></audio>
+
+  <script>
+    const audio = document.getElementById('player');
+    const playBtn = document.getElementById('playBtn');
+    const muteBtn = document.getElementById('muteBtn');
+    const reloadBtn = document.getElementById('reloadBtn');
+    const seekTrack = document.getElementById('seekTrack');
+    const seekFilled = document.getElementById('seekFilled');
+    const currentTimeEl = document.getElementById('currentTime');
+    const totalTimeEl = document.getElementById('totalTime');
+
+    function formatTime(s) {
+      if (!isFinite(s)) return '0:00';
+      const m = Math.floor(s / 60);
+      const sec = Math.floor(s % 60);
+      return m + ':' + String(sec).padStart(2, '0');
+    }
+
+    function setPlaying(isPlaying) {
+      playBtn.querySelector('i').className = isPlaying ? 'fas fa-pause' : 'fas fa-play';
+    }
+
+    audio.addEventListener('play', () => setPlaying(true));
+    audio.addEventListener('pause', () => setPlaying(false));
+
+    audio.addEventListener('timeupdate', () => {
+      if (!audio.duration) return;
+      const pct = (audio.currentTime / audio.duration) * 100;
+      seekFilled.style.width = pct + '%';
+      currentTimeEl.textContent = formatTime(audio.currentTime);
+    });
+
+    audio.addEventListener('durationchange', () => {
+      totalTimeEl.textContent = formatTime(audio.duration);
+    });
+
+    seekTrack.addEventListener('click', (e) => {
+      if (!audio.duration) return;
+      const rect = seekTrack.getBoundingClientRect();
+      audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
+    });
+
+    playBtn.addEventListener('click', () => {
+      if (audio.paused) audio.play(); else audio.pause();
+    });
+
+    muteBtn.addEventListener('click', () => {
+      audio.muted = !audio.muted;
+      muteBtn.querySelector('i').className = audio.muted ? 'fas fa-volume-mute' : 'fas fa-volume-up';
+    });
+
+    reloadBtn.addEventListener('click', () => {
+      const wasPlaying = !audio.paused;
+      audio.load();
+      if (wasPlaying) audio.play();
+    });
+  </script>
+</body>
+</html>
