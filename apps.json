@@ -10,7 +10,7 @@
       "apk_url": "https://github.com/MOD3123/webcenter/releases/download/Apps/WebCenter.apk",
       "version_name": "2.0",
       "version_code": 2,
-      "package": "sk.center.app"
+      "package": "sk.center.web"
     }
     {
       "id": "sk.tvmobile.app",
@@ -20,7 +20,7 @@
       "apk_url": "https://github.com/MOD3123/webcenter/releases/download/Apps/tvmobile.apk",
       "version_name": "2.0",
       "version_code": 2,
-      "package": "sk.center.app"
+      "package": "sk.tvmobile.app"
     }
     {
       "id": "sk.spravy.app",
@@ -30,7 +30,7 @@
       "apk_url": "https://github.com/MOD3123/webcenter/releases/download/Apps/SpravySK.apk",
       "version_name": "2.0",
       "version_code": 2,
-      "package": "sk.center.app"
+      "package": "sk.spravy.app"
     }
     {
       "id": "sk.center.app",
