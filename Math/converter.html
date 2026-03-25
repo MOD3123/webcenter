@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Konvertor jednotiek</title>
+<style>
+:root {
+  --bg-start: #0a1929;
+  --bg-end: #1a237e;
+  --surface: rgba(30, 41, 59, 0.9);
+  --surface-hover: rgba(45, 56, 79, 0.95);
+  --accent: #3b82f6;
+  --accent-hover: #2563eb;
+  --accent-glow: rgba(59, 130, 246, 0.4);
+  --text: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --border: rgba(255, 255, 255, 0.1);
+  --radius: 20px;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  --shadow-hover: 0 25px 60px rgba(0, 0, 0, 0.6);
+  --input-bg: #000;
+  --input-text: #f1f5f9;
+  --input-border: rgba(255, 255, 255, 0.2);
+}
+
+.theme-light {
+  --bg-start: #e0f2fe;
+  --bg-end: #bfdbfe;
+  --surface: rgba(255, 255, 255, 0.95);
+  --surface-hover: rgba(248, 250, 252, 1);
+  --text: #1e293b;
+  --text-secondary: #64748b;
+  --border: rgba(0, 0, 0, 0.08);
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  --shadow-hover: 0 15px 40px rgba(0, 0, 0, 0.15);
+  --accent-glow: rgba(59, 130, 246, 0.2);
+  --calc-display-bg: #f8f9fa;
+  --calc-display-text: #1e293b;
+  --surface-alt: rgba(248, 250, 252, 0.9);
+  --input-bg: #ffffff;
+  --input-text: #1e293b;
+  --input-border: rgba(0, 0, 0, 0.15);
+}
+
+.theme-purple {
+  --accent: #a855f7;
+  --accent-hover: #9333ea;
+  --accent-glow: rgba(168, 85, 247, 0.4);
+}
+
+.theme-green {
+  --accent: #10b981;
+  --accent-hover: #059669;
+  --accent-glow: rgba(16, 185, 129, 0.4);
+}
+
+.theme-orange {
+  --accent: #f59e0b;
+  --accent-hover: #d97706;
+  --accent-glow: rgba(245, 158, 11, 0.4);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Inter", "Roboto", system-ui, -apple-system, sans-serif;
+  background: linear-gradient(135deg, var(--bg-start), var(--bg-end));
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  transition: var(--transition);
+  position: relative;
+  overflow-x: hidden;
+}
+
+.app {
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  background: black;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  animation: fadeInScale 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes fadeInScale {
+  from { 
+    opacity: 0; 
+    transform: translateY(30px) scale(0.95); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0) scale(1); 
+  }
+}
+
+#menu {
+  display: flex;
+  flex-direction: column;
+  padding: 32px 24px;
+  gap: 8px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex: 1;
+  background: #0a0a0a;
+}
+
+#menu::-webkit-scrollbar { width: 8px; }
+#menu::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.3); border-radius: 10px; }
+#menu::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
+
+.theme-light #menu {
+  background: rgba(248, 250, 252, 0.95);
+}
+
+.menu-header {
+  text-align: center;
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.menu-title {
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.02em;
+}
+
+.menu-category {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 16px 0 8px 8px;
+}
+
+.menu-btn {
+  background: var(--surface-hover);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px 20px;
+  font-size: 1.05rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.theme-light .menu-btn {
+  background: var(--surface-alt);
+  color: var(--text);
+}
+
+.menu-btn:hover {
+  background: var(--accent);
+  color: white;
+  box-shadow: 0 8px 20px var(--accent-glow);
+  border-color: transparent;
+}
+
+.section {
+  display: none !important;
+  padding: 28px 24px;
+  animation: slideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  overflow-y: auto;
+  flex: 1;
+}
+
+.section::-webkit-scrollbar { width: 8px; }
+.section::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.2); border-radius: 10px; }
+.section::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.section.active { display: block !important; }
+
+.back-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.back-btn {
+  color: var(--accent);
+  cursor: pointer;
+  font-weight: 600;
+  text-decoration: none;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+}
+
+.back-btn:hover {
+  background: var(--accent);
+  color: white;
+}
+
+.section-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.calc-display {
+  width: 100%;
+  background: var(--calc-display-bg, #0b1631);
+  color: var(--calc-display-text, #00e5ff);
+  font-size: 2.2rem;
+  font-weight: 600;
+  text-align: right;
+  border: none;
+  padding: 24px;
+  border-radius: var(--radius);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.5);
+  font-family: "Courier New", monospace;
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+}
+
+.theme-light .calc-display {
+  background: #f8f9fa;
+  color: #1e293b;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--border);
+}
+
+.calc-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.calc-grid button {
+  padding: 22px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  color: var(--text);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.theme-light .calc-grid button {
+  background: var(--surface-alt);
+  border-color: var(--border);
+}
+
+.calc-grid button:hover { 
+  box-shadow: 0 4px 12px var(--accent-glow);
+}
+
+.calc-grid .accent { 
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+  color: white;
+  border: none;
+  box-shadow: 0 4px 16px var(--accent-glow);
+}
+
+.calc-grid .accent:hover {
+  box-shadow: 0 6px 20px var(--accent-glow);
+}
+
+.converter {
+  background: var(--surface-hover);
+  border-radius: var(--radius);
+  padding: 24px;
+  border: 1px solid var(--border);
+  display: grid;
+  gap: 16px;
+}
+
+.theme-light .converter {
+  background: var(--surface-alt);
+}
+
+.converter label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: -8px;
+}
+
+.converter select,
+.converter input {
+  width: 100%;
+  background: var(--input-bg);
+  color: var(--input-text);
+  border: 1px solid var(--input-border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-size: 1.05rem;
+  transition: var(--transition);
+  font-weight: 500;
+}
+
+.converter select option,
+.card select option {
+  background: var(--input-bg);
+  color: var(--input-text);
+}
+
+.converter input:focus,
+.converter select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.converter button {
+  width: 100%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 16px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: 0 4px 16px var(--accent-glow);
+  margin-top: 8px;
+}
+
+.converter button:hover { 
+  box-shadow: 0 6px 24px var(--accent-glow);
+}
+
+.result {
+  margin-top: 8px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: var(--accent);
+  min-height: 2em;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  word-break: break-word;
+}
+
+.theme-light .result {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.settings {
+  display: grid;
+  gap: 20px;
+}
+
+.card {
+  background: var(--surface-hover);
+  border-radius: 16px;
+  padding: 24px;
+  border: 1px solid var(--border);
+  transition: var(--transition);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.theme-light .card {
+  background: var(--surface-alt);
+}
+
+.card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 4px 16px var(--accent-glow);
+}
+
+.card label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 1.05rem;
+}
+
+.card input[type="checkbox"],
+.card input[type="radio"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: var(--accent);
+}
+
+.card select {
+  width: 100%;
+  background: var(--input-bg);
+  color: var(--input-text);
+  border: 1px solid var(--input-border);
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.btn {
+  width: 100%;
+  background: var(--surface-hover);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.theme-light .btn {
+  background: var(--surface-alt);
+  border-color: var(--border);
+}
+
+.btn:hover { 
+  background: var(--accent);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 4px 16px var(--accent-glow);
+}
+
+.theme-selector {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.theme-option {
+  padding: 14px;
+  border-radius: 10px;
+  border: 2px solid var(--border);
+  cursor: pointer;
+  text-align: center;
+  font-weight: 600;
+  transition: var(--transition);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.theme-light .theme-option {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.theme-option:hover { 
+  box-shadow: 0 2px 8px var(--accent-glow);
+}
+
+.theme-option.active {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: white;
+}
+
+.small {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+@media (max-width: 480px) {
+  .calc-display { font-size: 1.8rem; }
+}
+
+/* Fix for calculator buttons visibility */
+.calc-grid button {
+  background: var(--surface-hover);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 15px;
+  font-size: 1.25rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.calc-grid button.accent {
+  background: var(--accent);
+  color: white !important; /* Force white text on accent buttons */
+  border: none;
+  font-weight: 700;
+}
+
+/* Light mode specifics to ensure visibility */
+body.theme-light .calc-grid button {
+  background: #f8fafc;
+  color: #1e293b;
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+body.theme-light .calc-grid button.accent {
+  background: var(--accent);
+  color: white !important;
+  border: none;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+}
+
+body.theme-light .calc-grid button:hover {
+  background: #f1f5f9;
+}
+
+body.theme-light .calc-grid button.accent:hover {
+  background: var(--accent-hover);
+}
+
+/* Dark mode title fix */
+body.dark .menu-title,
+body:not(.theme-light) .menu-title {
+  background: none !important;
+  -webkit-text-fill-color: #ffffff !important;
+  color: #ffffff !important;
+  background-clip: border-box !important;
+  -webkit-background-clip: border-box !important;
+}
+</style>
+</head>
+<body>
+<div class="app" role="application" aria-label="Konvertor jednotiek">
+  <div id="menu" aria-label="Hlavné menu">
+    <div class="menu-header">
+      <div class="menu-title">Konvertor jednotiek</div>
+    </div>
+
+    <div class="menu-category">🧮 Nástroje</div>
+    <button class="menu-btn" onclick="openSection('calc')"><span>🧮</span> Kalkulačka</button>
+
+    <button class="menu-btn" onclick="openSection('currency')"><span>💱</span> Mena</button>
+
+    <div class="menu-category">📐 Jednotky</div>
+    <button class="menu-btn" onclick="openConverter('dlzka')"><span>📏</span> Dĺžka</button>
+    <button class="menu-btn" onclick="openConverter('hmotnost')"><span>⚖️</span> Hmotnosť</button>
+    <button class="menu-btn" onclick="openConverter('teplota')"><span>🌡️</span> Teplota</button>
+    <button class="menu-btn" onclick="openConverter('cas')"><span>⏰</span> Čas</button>
+    <button class="menu-btn" onclick="openConverter('rychlost')"><span>🚀</span> Rýchlosť</button>
+    <button class="menu-btn" onclick="openConverter('zrychlenie')"><span>⬆️</span> Zrýchlenie</button>
+    <button class="menu-btn" onclick="openConverter('objem')"><span>🥛</span> Objem</button>
+    <button class="menu-btn" onclick="openConverter('plocha')"><span>🧱</span> Plocha</button>
+    <button class="menu-btn" onclick="openConverter('energia')"><span>⚡</span> Energia</button>
+    <button class="menu-btn" onclick="openConverter('vykon')"><span>💡</span> Výkon</button>
+    <button class="menu-btn" onclick="openConverter('tlak')"><span>🌬️</span> Tlak</button>
+    <button class="menu-btn" onclick="openConverter('sila')"><span>💪</span> Sila</button>
+    <button class="menu-btn" onclick="openConverter('frekvencia')"><span>📻</span> Frekvencia</button>
+    <button class="menu-btn" onclick="openConverter('elektrina')"><span>🔌</span> Elektrický prúd</button>
+    <button class="menu-btn" onclick="openConverter('napeti')"><span>⚡</span> Napätie</button>
+    <button class="menu-btn" onclick="openConverter('data')"><span>💾</span> Dáta</button>
+    <button class="menu-btn" onclick="openConverter('prenos')"><span>📶</span> Prenos dát</button>
+    <button class="menu-btn" onclick="openConverter('kuchyna')"><span>🍳</span> Kuchyna</button>
+    <button class="menu-btn" onclick="openConverter('uhol')"><span>📐</span> Uhol</button>
+    <button class="menu-btn" onclick="openConverter('hustota')"><span>🧊</span> Hustota</button>
+
+    <div class="menu-category">🔬 Fyzika</div>
+    <button class="menu-btn" onclick="openConverter('moment')"><span>🔄</span> Moment sily</button>
+    <button class="menu-btn" onclick="openConverter('hybnost')"><span>➡️</span> Hybnosť</button>
+    <button class="menu-btn" onclick="openConverter('deformacia')"><span>📊</span> Mech. napätie</button>
+    <button class="menu-btn" onclick="openConverter('zavitost')"><span>〰️</span> Lineárna hmot.</button>
+    <button class="menu-btn" onclick="openConverter('viskozita')"><span>〰️</span> Viskozita</button>
+    <button class="menu-btn" onclick="openConverter('povrch')"><span>∿</span> Povrch. napätie</button>
+    <button class="menu-btn" onclick="openConverter('molarna')"><span>🧫</span> Molárna hmot.</button>
+    <button class="menu-btn" onclick="openConverter('hmotnostnyTok')"><span>⚙️</span> Hmot. tok</button>
+
+    <div class="menu-category">⚡ Elektromagnetizmus</div>
+    <button class="menu-btn" onclick="openConverter('odpor')"><span>≈</span> Elektrický odpor</button>
+    <button class="menu-btn" onclick="openConverter('reaktancia')"><span>≈</span> Reaktancia</button>
+    <button class="menu-btn" onclick="openConverter('impedancia')"><span>≈</span> Impedancia</button>
+    <button class="menu-btn" onclick="openConverter('kapacitancia')"><span>⚛️</span> Kapacitancia</button>
+    <button class="menu-btn" onclick="openConverter('induktancia')"><span>⊕</span> Induktancia</button>
+    <button class="menu-btn" onclick="openConverter('vodivost')"><span>⚡</span> El. vodivosť</button>
+    <button class="menu-btn" onclick="openConverter('magnetickePolje')"><span>🧲</span> Mag. pole</button>
+    <button class="menu-btn" onclick="openConverter('magnetickyMoment')"><span>🧲</span> Mag. moment</button>
+    <button class="menu-btn" onclick="openConverter('permitivita')"><span>⚛️</span> Permitivita</button>
+    <button class="menu-btn" onclick="openConverter('permeabilita')"><span>⊙</span> Permeabilita</button>
+
+    <div class="menu-category">🌡️ Termodynamika</div>
+    <button class="menu-btn" onclick="openConverter('tepelnaKapacita')"><span>🔥</span> Tepel. kap.</button>
+    <button class="menu-btn" onclick="openConverter('mernaHotovost')"><span>🔥</span> Merná kap.</span></button>
+    <button class="menu-btn" onclick="openConverter('tepelnaVodivost')"><span>🔥</span> Tep. vodivosť</button>
+    <button class="menu-btn" onclick="openConverter('teplotnyGradient')"><span>🌡️</span> Tep. gradient</button>
+
+    <div class="menu-category">🌊 Prietok</div>
+    <button class="menu-btn" onclick="openConverter('masovyPrietok')"><span>⇢</span> Hmot. prietok</button>
+    <button class="menu-btn" onclick="openConverter('objemovyPrietok')"><span>⇢</span> Obj. prietok</button>
+
+    <div class="menu-category">☢️ Radiačné</div>
+    <button class="menu-btn" onclick="openConverter('radiacia')"><span>☢️</span> Radiácia</button>
+    <button class="menu-btn" onclick="openConverter('doza')"><span>☢️</span> Dávka</button>
+    <button class="menu-btn" onclick="openConverter('svetlo')"><span>💡</span> Svetel. tok</button>
+
+    <div class="menu-category">⚙️ Nastavenia</div>
+    <button class="menu-btn" onclick="openSection('settings')"><span>⚙️</span> Nastavenia</button>
+  </div>
+
+  <div id="calc" class="section" aria-label="Kalkulačka">
+    <div class="back-bar">
+      <a class="back-btn" onclick="backToMenu()">← Späť</a>
+      <h3 class="section-title">Kalkulačka</h3>
+    </div>
+    <input type="text" id="display" class="calc-display" readonly placeholder="0">
+    <div class="calc-grid">
+      <button onclick="addCalc('7')">7</button>
+      <button onclick="addCalc('8')">8</button>
+      <button onclick="addCalc('9')">9</button>
+      <button onclick="addCalc('/')">÷</button>
+
+      <button onclick="addCalc('4')">4</button>
+      <button onclick="addCalc('5')">5</button>
+      <button onclick="addCalc('6')">6</button>
+      <button onclick="addCalc('*')">×</button>
+
+      <button onclick="addCalc('1')">1</button>
+      <button onclick="addCalc('2')">2</button>
+      <button onclick="addCalc('3')">3</button>
+      <button onclick="addCalc('-')">−</button>
+
+      <button onclick="addCalc('0')">0</button>
+      <button onclick="addCalc('.')">.</button>
+      <button class="accent" onclick="calculate()">=</button>
+      <button onclick="addCalc('+')">+</button>
+
+      <button class="accent" onclick="clearDisplay()" style="grid-column: span 2;">AC</button>
+      <button onclick="backspace()" style="grid-column: span 2;">⌫</button>
+    </div>
+  </div>
+
+  <div id="converter" class="section" aria-label="Konvertor">
+    <div class="back-bar">
+      <a class="back-btn" onclick="backToMenu()">← Späť</a>
+      <h3 id="convTitle" class="section-title"></h3>
+    </div>
+    <div class="converter" role="form">
+      <label for="convValue">Hodnota</label>
+      <input type="number" id="convValue" placeholder="Zadajte hodnotu" inputmode="decimal" step="any" oninput="autoConvert()">
+      <span class="small">Automatický prevod pri písaní</span>
+
+      <label for="fromUnit">Z jednotky</label>
+      <select id="fromUnit" onchange="autoConvert()"></select>
+
+      <label for="toUnit">Na jednotku</label>
+      <select id="toUnit" onchange="autoConvert()"></select>
+
+      <button onclick="convertUnits()">🔄 Prepočítať</button>
+      <div class="result" id="convResult" aria-live="polite">Zadajte hodnotu</div>
+    </div>
+  </div>
+
+  <div id="currency" class="section" aria-label="Menový prevodník">
+    <div class="back-bar">
+      <a class="back-btn" onclick="backToMenu()">← Späť</a>
+      <h3 class="section-title">Mena</h3>
+    </div>
+    <div class="converter" role="form">
+      <label for="currencyValue">Suma</label>
+      <input type="number" id="currencyValue" placeholder="Zadajte sumu" inputmode="decimal" step="any" oninput="autoCurrencyConvert()">
+
+      <label for="fromCurrency">Z meny</label>
+      <select id="fromCurrency" onchange="autoCurrencyConvert()">
+        <option value="EUR">EUR – Euro</option>
+        <option value="USD">USD – Americký dolár</option>
+        <option value="GBP">GBP – Britská libra</option>
+        <option value="CZK">CZK – Česká koruna</option>
+        <option value="CHF">CHF – Švajčiarsky frank</option>
+        <option value="PLN">PLN – Poľský zlotý</option>
+        <option value="HUF">HUF – Maďarský forint</option>
+        <option value="JPY">JPY – Japonský jen</option>
+        <option value="CNY">CNY – Čínsky jüan</option>
+        <option value="CAD">CAD – Kanadský dolár</option>
+        <option value="AUD">AUD – Austrálsky dolár</option>
+        <option value="SEK">SEK – Švédska koruna</option>
+        <option value="NOK">NOK – Nórska koruna</option>
+        <option value="DKK">DKK – Dánska koruna</option>
+        <option value="RUB">RUB – Ruský rubeľ</option>
+        <option value="UAH">UAH – Ukrajinská hrivna</option>
+        <option value="RON">RON – Rumunský lei</option>
+        <option value="BGN">BGN – Bulharský lev</option>
+        <option value="HRK">HRK – Chorvátska kuna</option>
+        <option value="TRY">TRY – Turecká líra</option>
+        <option value="BRL">BRL – Brazílsky real</option>
+        <option value="INR">INR – Indická rupia</option>
+        <option value="KRW">KRW – Juhokórejský won</option>
+        <option value="MXN">MXN – Mexické peso</option>
+        <option value="ZAR">ZAR – Juhoafrický rand</option>
+        <option value="NZD">NZD – Novozélandský dolár</option>
+        <option value="SGD">SGD – Singapurský dolár</option>
+        <option value="HKD">HKD – Hongkonský dolár</option>
+      </select>
+
+      <label for="toCurrency">Na menu</label>
+      <select id="toCurrency" onchange="autoCurrencyConvert()">
+        <option value="USD">USD – Americký dolár</option>
+        <option value="EUR">EUR – Euro</option>
+        <option value="GBP">GBP – Britská libra</option>
+        <option value="CZK">CZK – Česká koruna</option>
+        <option value="CHF">CHF – Švajčiarsky frank</option>
+        <option value="PLN">PLN – Poľský zlotý</option>
+        <option value="HUF">HUF – Maďarský forint</option>
+        <option value="JPY">JPY – Japonský jen</option>
+        <option value="CNY">CNY – Čínsky jüan</option>
+        <option value="CAD">CAD – Kanadský dolár</option>
+        <option value="AUD">AUD – Austrálsky dolár</option>
+        <option value="SEK">SEK – Švédska koruna</option>
+        <option value="NOK">NOK – Nórska koruna</option>
+        <option value="DKK">DKK – Dánska koruna</option>
+        <option value="RUB">RUB – Ruský rubeľ</option>
+        <option value="UAH">UAH – Ukrajinská hrivna</option>
+        <option value="RON">RON – Rumunský lei</option>
+        <option value="BGN">BGN – Bulharský lev</option>
+        <option value="HRK">HRK – Chorvátska kuna</option>
+        <option value="TRY">TRY – Turecká líra</option>
+        <option value="BRL">BRL – Brazílsky real</option>
+        <option value="INR">INR – Indická rupia</option>
+        <option value="KRW">KRW – Juhokórejský won</option>
+        <option value="MXN">MXN – Mexické peso</option>
+        <option value="ZAR">ZAR – Juhoafrický rand</option>
+        <option value="NZD">NZD – Novozélandský dolár</option>
+        <option value="SGD">SGD – Singapurský dolár</option>
+        <option value="HKD">HKD – Hongkonský dolár</option>
+      </select>
+
+      <button onclick="convertCurrency()">🔄 Prepočítať</button>
+      <div class="result" id="currencyResult" aria-live="polite">Zadajte sumu</div>
+      <div class="small" id="currencyRateInfo" style="text-align:center;"></div>
+    </div>
+  </div>
+
+  <div id="settings" class="section settings" aria-label="Nastavenia">
+    <div class="back-bar">
+      <a class="back-btn" onclick="backToMenu()">← Späť</a>
+      <h3 class="section-title">Nastavenia</h3>
+    </div>
+
+    <div class="card">
+      <label>
+        <input type="checkbox" id="darkMode" checked onchange="toggleTheme()">
+        Tmavý režim
+      </label>
+      <div class="small">Prepne medzi tmavým a svetlým režimom</div>
+    </div>
+
+    <div class="card">
+      <div style="font-weight: 600; font-size: 1.05rem;">🎨 Farebná téma</div>
+      <div class="theme-selector">
+        <div class="theme-option theme-blue active" onclick="setColorTheme('blue')">Modrá</div>
+        <div class="theme-option theme-purple" onclick="setColorTheme('purple')">Fialová</div>
+        <div class="theme-option theme-green" onclick="setColorTheme('green')">Zelená</div>
+        <div class="theme-option theme-orange" onclick="setColorTheme('orange')">Oranžová</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <label for="precision">🔢 Presnosť: <span id="precisionValue">4</span></label>
+      <input type="range" id="precision" min="2" max="12" value="4" oninput="updatePrecision(this.value)" style="width: 100%;">
+      <div class="small">Počet desatinných miest</div>
+    </div>
+
+    <div class="card">
+      <label for="numberFormat">🌍 Formát čísiel</label>
+      <select id="numberFormat" onchange="updateNumberFormat()">
+        <option value="sk">Slovenský (1 234,56)</option>
+        <option value="en">Anglický (1,234.56)</option>
+      </select>
+      <div class="small">Formát zobrazenia čísiel</div>
+    </div>
+
+    <div class="card">
+      <button class="btn" onclick="clearAllSettings()">🗑️ Vymazať údaje</button>
+      <div class="small">Vymaže všetky nastavenia a históriu</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const converters = {
+  dlzka: { 
+    pm: 1e-12, Å: 1e-10, nm: 1e-9, μm: 1e-6, mm: 0.001, cm: 0.01, dm: 0.1, m: 1, 
+    dam: 10, hm: 100, km: 1000, "naut. mi": 1852, "light year": 9.461e15, AU: 1.496e11, pc: 3.086e16,
+    "mil": 0.0000254, "thou": 0.0000254, "inch": 0.0254, "ft": 0.3048, "yd": 0.9144, 
+    "furlong": 201.168, "chain": 20.1168, "rod": 5.0292, "mi": 1609.344,
+    "league": 4828.03, "fathom": 1.8288, "cubit": 0.4572, "hand": 0.1016, "span": 0.2286
+  },
+  hmotnost: { 
+    pg: 1e-15, ng: 1e-12, μg: 1e-9, mg: 1e-6, cg: 0.00001, dg: 0.0001, g: 0.001, 
+    kg: 1, t: 1000, kt: 1e6, "Mt": 1e9,
+    "gr": 0.00006479891, "dram": 0.001771845, "oz": 0.028349523125, "lb": 0.45359237, 
+    "stone": 6.35029318, "cwt": 50.8023544, "short ton": 907.18474, "long ton": 1016.04691,
+    "short cwt": 45.3592, "long cwt": 50.8023544, "pennyweight": 0.0015551738, 
+    "troy oz": 0.0311035, "troy lb": 0.3732417, "slug": 14.5939, "cental": 45.3592
+  },
+  teplota: { 
+    convert: (v,from,to)=>{ 
+      let c; 
+      if(from === "°C") c = v; 
+      else if(from === "°F") c = (v-32)*5/9; 
+      else if(from === "K") c = v - 273.15; 
+      else if(from === "°R") c = (v - 491.67) * 5/9;
+      else if(from === "°De") c = (100 - v) * 2/3;
+      else if(from === "°N") c = v * 100/33;
+      
+      if(to === "°C") return c; 
+      if(to === "°F") return c*9/5+32; 
+      if(to === "K") return c+273.15; 
+      if(to === "°R") return (c + 273.15) * 9/5;
+      if(to === "°De") return (100 - c*3/2);
+      if(to === "°N") return c*33/100;
+      return v; 
+    }, 
+    units: ["°C","°F","K","°R","°De","°N"] 
+  },
+  cas: { 
+    ps: 1e-12, ns: 1e-9, μs: 1e-6, ms: 0.001, cs: 0.01, ds: 0.1, s: 1, 
+    deca_s: 10, hecto_s: 100, min: 60, h: 3600, day: 86400, week: 604800, 
+    fortnight: 1209600, month: 2628000, year: 31557600, decade: 315576000, 
+    century: 3155760000, millennium: 31557600000
+  },
+  objem: { 
+    "pm³": 1e-36, "nm³": 1e-27, "μm³": 1e-18, "mm³": 1e-9, "cm³": 0.001, 
+    "dm³": 1, "m³": 1000, "km³": 1e12, 
+    "ml": 0.001, "cl": 0.01, "dl": 0.1, "l": 1, "dal": 10, "hl": 100, "kl": 1000,
+    "tsp": 0.00492892159375, "tbsp": 0.01478676478125, "fl oz": 0.0295735295625, 
+    "cup": 0.24, "pint": 0.473176473, "qt": 0.946352946, "gal": 3.785411784, 
+    "fl oz (UK)": 0.0284130625, "pint (UK)": 0.473176473, "qt (UK)": 0.946352946, "gal (UK)": 4.54609,
+    "barrel": 158.987294928, "minim": 0.0000616, "dram fl": 0.00369, "tablespoon": 0.01478676478125,
+    "teaspoon": 0.00492892159375, "drop": 0.0000616
+  },
+  rychlost: { "m/s": 1, "km/h": 0.2777777778, "mph": 0.44704, "ft/s": 0.3048, "knot": 0.5144444444, "Mach": 343, "cm/s": 0.01 },
+  zrychlenie: { "m/s²": 1, "cm/s²": 0.01, "ft/s²": 0.3048, "g": 9.80665, "Gal": 0.01 },
+  plocha: { "mm²": 1e-6, "cm²": 0.0001, "dm²": 0.01, "m²": 1, "a": 100, "ha": 10000, "km²": 1e6, "in²": 0.00064516, "ft²": 0.09290304, "yd²": 0.83612736, "acre": 4046.8564224, "mi²": 2589988.110336 },
+  energia: { J: 1, kJ: 1000, MJ: 1e6, GJ: 1e9, cal: 4.184, kcal: 4184, Wh: 3600, kWh: 3.6e6, MWh: 3.6e9, eV: 1.602176634e-19, BTU: 1055.05585262, "ft·lbf": 1.3558179483314004, erg: 1e-7 },
+  vykon: { W: 1, kW: 1000, MW: 1e6, GW: 1e9, HP: 745.6998715822702, "HP (UK)": 745.69987158227, "BTU/h": 0.29307107017, cal_s: 4.184 },
+  tlak: { Pa: 1, hPa: 100, kPa: 1000, MPa: 1e6, GPa: 1e9, bar: 100000, mbar: 100, atm: 101325, psi: 6894.757293168, torr: 133.322387415, mmHg: 133.322387415, inHg: 3386.388640341 },
+  sila: { N: 1, kN: 1000, MN: 1e6, dyn: 1e-5, lbf: 4.4482216152605, kgf: 9.80665, ozf: 0.27801385095378125 },
+  moment: { "N·m": 1, "N·cm": 0.01, "kN·m": 1000, "kN·cm": 10, "lbf·ft": 1.3558179483314004, "lbf·in": 0.11298482611416891, "kgf·m": 9.80665, "kgf·cm": 0.0980665 },
+  hybnost: { "kg·m/s": 1, "g·m/s": 0.001, "kg·km/h": 0.2777777778, "lb·ft/s": 0.13825495, "lb·mph": 0.44704 },
+  frekvencia: { Hz: 1, kHz: 1000, MHz: 1e6, GHz: 1e9, THz: 1e12, rpm: 1/60, "rad/s": 1/(2*Math.PI), "bpm": 1/60 },
+  elektrina: { A: 1, mA: 0.001, μA: 1e-6, kA: 1000, nA: 1e-9, pA: 1e-12 },
+  napeti: { V: 1, mV: 0.001, kV: 1000, MV: 1e6, μV: 1e-6, nV: 1e-9 },
+  odpor: { Ω: 1, kΩ: 1000, MΩ: 1e6, mΩ: 0.001, GΩ: 1e9 },
+  reaktancia: { Ω: 1, kΩ: 1000, MΩ: 1e6, mΩ: 0.001, GΩ: 1e9 },
+  impedancia: { Ω: 1, kΩ: 1000, MΩ: 1e6, mΩ: 0.001, GΩ: 1e9 },
+  kapacitancia: { F: 1, mF: 0.001, μF: 1e-6, nF: 1e-9, pF: 1e-12, fF: 1e-15 },
+  induktancia: { H: 1, mH: 0.001, μH: 1e-6, nH: 1e-9, pH: 1e-12 },
+  vodivost: { "S/m": 1, "S/cm": 100, "mS/m": 0.001, "mS/cm": 0.1, "μS/cm": 1e-5 },
+  magnetickePolje: { T: 1, mT: 0.001, μT: 1e-6, nT: 1e-9, Gs: 1e-4, mGs: 1e-7, Oe: 79.5774715 },
+  magnetickyMoment: { "A·m²": 1, "J/T": 1, "erg/G": 1e-3, "μ_B": 9.2846e-24, "N·m/T": 1 },
+  permitivita: { "F/m": 1, "pF/m": 1e12, "μF/m": 1e6 },
+  permeabilita: { "H/m": 1, "μH/m": 1e6, "nH/m": 1e9 },
+  data: { B: 1, KB: 1024, MB: 1048576, GB: 1.073741824e+09, TB: 1.099511627776e+12, PB: 1.125899906842624e+15, bit: 0.125, Kb: 128, Mb: 131072, Gb: 134217728, Tb: 1.37438953472e+11 },
+  prenos: { "b/s": 0.125, "Kb/s": 128, "Mb/s": 131072, "Gb/s": 134217728, "B/s": 1, "KB/s": 1024, "MB/s": 1048576, "GB/s": 1.073741824e+09 },
+  kuchyna: { ml: 1, l: 1000, dl: 100, cl: 10, "šálka": 240, "polievková lyžica": 15, "čajová lyžička": 5 },
+  uhol: { "°": 1, rad: 57.2957795131, grad: 0.9, arcmin: 1/60, arcsec: 1/3600, turn: 360, mrad: 0.0572957795131 },
+  hustota: { "kg/m³": 1, "g/cm³": 1000, "kg/l": 1000, "g/ml": 1000, "lb/ft³": 16.0184633739601, "lb/in³": 27679.9047102031, "oz/gal": 7.4891517645772 },
+  deformacia: { Pa: 1, kPa: 1000, MPa: 1e6, GPa: 1e9, PSI: 6894.757, kPSI: 6.894757e6 },
+  zavitost: { "kg/m": 1, "g/m": 0.001, "kg/km": 1000, "lb/ft": 1.48816394602, "lb/yd": 0.496054648673 },
+  viskozita: { "Pa·s": 1, "cP": 0.001, poise: 0.1, "mm²/s": 1e-6, "cSt": 1e-6, "ft²/s": 0.092903, "in²/s": 0.00064516 },
+  povrch: { "N/m": 1, "dyn/cm": 0.001, "erg/cm²": 0.001, "lbf/in": 175.127 },
+  molarna: { "g/mol": 1, "kg/mol": 0.001, "lb/mol": 0.45359237, "oz/mol": 0.028349523125 },
+  hmotnostnyTok: { "kg/s": 1, "kg/min": 60, "kg/h": 3600, "g/s": 0.001, "t/h": 3.6e6, "lb/s": 0.45359237, "lb/min": 27.2155 },
+  masovyPrietok: { "kg/s": 1, "kg/min": 60, "kg/h": 3600, "g/s": 0.001, "t/h": 3.6e6, "lb/s": 0.45359237, "lb/min": 27.2155 },
+  objemovyPrietok: { "m³/s": 1, "m³/min": 60, "m³/h": 3600, "l/s": 0.001, "l/min": 0.06, "l/h": 3.6, "cm³/s": 1e-6, "gal/min": 0.0000630902 },
+  tepelnaKapacita: { "J/K": 1, "J/°C": 1, "kJ/K": 1000, "cal/°C": 4.184, "kcal/°C": 4184, "BTU/°F": 1899.102391 },
+  mernaHotovost: { "J/(kg·K)": 1, "kJ/(kg·K)": 1000, "cal/(g·°C)": 4184, "kcal/(kg·°C)": 4184, "BTU/(lb·°F)": 4186.8 },
+  tepelnaVodivost: { "W/(m·K)": 1, "W/(m·°C)": 1, "BTU/(h·ft·°F)": 1.73073, "cal/(s·cm·°C)": 418400 },
+  teplotnyGradient: { "K/m": 1, "K/cm": 0.01, "°C/m": 1, "°F/m": 0.555556, "°R/m": 1 },
+  radiacia: { Bq: 1, kBq: 1000, MBq: 1e6, GBq: 1e9, TBq: 1e12, Ci: 3.7e10, mCi: 3.7e7, "μCi": 3.7e4, Rd: 2.58e-4, "mRd": 2.58e-7 },
+  doza: { Gy: 1, mGy: 0.001, μGy: 1e-6, rad: 0.01, mrad: 0.00001, Sv: 1, mSv: 0.001, rem: 0.01, mrem: 0.00001 },
+  svetlo: { lux: 1, fc: 10.7639, "cd/m²": 1, "lm/m²": 1, phot: 10000, nox: 0.001, "lm": 1 }
+};
+
+const SETTINGS_KEY = 'konvertor_settings';
+
+function loadSettings() {
+  const defaults = { darkMode: window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches, colorTheme: 'blue', precision: 4, numberFormat: 'sk' };
+  try {
+    const saved = localStorage.getItem(SETTINGS_KEY);
+    return saved ? { ...defaults, ...JSON.parse(saved) } : defaults;
+  } catch { return defaults; }
+}
+
+function saveSettings() {
+  try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch {}
+}
+
+let settings = loadSettings();
+let conversionHistory = [];
+
+function openSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('menu').style.display = 'none';
+  document.getElementById(id).classList.add('active');
+  
+  if(id === 'settings') {
+    document.getElementById('darkMode').checked = settings.darkMode;
+    document.getElementById('precision').value = settings.precision;
+    document.getElementById('precisionValue').textContent = settings.precision;
+    document.getElementById('numberFormat').value = settings.numberFormat;
+    document.querySelectorAll('.theme-option').forEach(opt => opt.classList.remove('active'));
+    document.querySelector(`.theme-${settings.colorTheme}`).classList.add('active');
+  }
+}
+
+function backToMenu() {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('menu').style.display = 'flex';
+}
+
+const display = document.getElementById('display');
+function addCalc(v) { display.value += v; }
+function clearDisplay() { display.value = ''; }
+function backspace() { display.value = display.value.slice(0, -1); }
+
+function calculate() {
+  try {
+    const expr = display.value.replace(/,/g,'.').replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-');
+    const result = Function('"use strict"; return (' + expr + ')')();
+    display.value = formatNumber(result);
+  } catch {
+    display.value = 'Chyba';
+    setTimeout(() => clearDisplay(), 1500);
+  }
+}
+
+let currentConv = '';
+const convTitle = document.getElementById('convTitle');
+const fromSel = document.getElementById('fromUnit');
+const toSel = document.getElementById('toUnit');
+const convValueEl = document.getElementById('convValue');
+const convResult = document.getElementById('convResult');
+
+function openConverter(type) {
+  openSection('converter');
+  currentConv = type;
+  
+  const titles = { 
+    dlzka: "Dĺžka", hmotnost: "Hmotnosť", teplota: "Teplota", cas: "Čas", 
+    rychlost: "Rýchlosť", zrychlenie: "Zrýchlenie", objem: "Objem", plocha: "Plocha", 
+    energia: "Energia", vykon: "Výkon", tlak: "Tlak", sila: "Sila", 
+    frekvencia: "Frekvencia", elektrina: "Elektrický prúd", napeti: "Napätie", 
+    odpor: "Elektrický odpor", data: "Dáta", prenos: "Prenos dát", kuchyna: "Kuchynské miery", 
+    uhol: "Uhol", hustota: "Hustota", moment: "Moment sily", hybnost: "Hybnosť",
+    deformacia: "Mechanické napätie", zavitost: "Lineárna hmotnosť", viskozita: "Viskozita", 
+    povrch: "Povrchové napätie", molarna: "Molárna hmotnosť", hmotnostnyTok: "Hmot. tok",
+    reaktancia: "Reaktancia", impedancia: "Impedancia", kapacitancia: "Kapacitancia", 
+    induktancia: "Induktancia", svetlo: "Svetelný tok", radiacia: "Radiácia", doza: "Absor. dávka",
+    vodivost: "Elektrická vodivosť", magnetickePolje: "Magnetické pole", 
+    magnetickyMoment: "Magnetický moment", permitivita: "Permitivita", 
+    permeabilita: "Permeabilita", tepelnaKapacita: "Tepelná kapacita", 
+    mernaHotovost: "Merná tepelná kapacita", tepelnaVodivost: "Tepelná vodivosť",
+    teplotnyGradient: "Teplotný gradient",
+    masovyPrietok: "Hmotnostný prietok", objemovyPrietok: "Objemový prietok"
+  };
+  
+  convTitle.textContent = titles[type] || type;
+  fromSel.innerHTML = '';
+  toSel.innerHTML = '';
+  const conv = converters[type];
+  if(conv.units) {
+    conv.units.forEach(u => {
+      fromSel.innerHTML += `<option value="${u}">${u}</option>`;
+      toSel.innerHTML += `<option value="${u}">${u}</option>`;
+    });
+  } else {
+    for(const u in conv) {
+      fromSel.innerHTML += `<option value="${u}">${u}</option>`;
+      toSel.innerHTML += `<option value="${u}">${u}</option>`;
+    }
+  }
+  convValueEl.value = '';
+  convResult.textContent = 'Zadajte hodnotu';
+}
+
+function formatNumber(num) {
+  if(num === null || num === undefined || isNaN(num)) return '';
+  const locale = settings.numberFormat === 'sk' ? 'sk-SK' : 'en-US';
+  return new Intl.NumberFormat(locale, { maximumFractionDigits: settings.precision, minimumFractionDigits: 0 }).format(num);
+}
+
+function convertUnits() {
+  const raw = (convValueEl.value || '').toString().trim();
+  if(!raw) { convResult.textContent = 'Zadajte hodnotu'; return; }
+  const value = parseFloat(raw.replace(',','.'));
+  if(Number.isNaN(value)) { convResult.textContent = '❌ Neplatná hodnota'; return; }
+  const from = fromSel.value;
+  const to = toSel.value;
+  let result;
+  if(converters[currentConv].convert) {
+    result = converters[currentConv].convert(value, from, to);
+  } else {
+    const base = value * converters[currentConv][from];
+    result = base / converters[currentConv][to];
+  }
+  const historyEntry = `${formatNumber(value)} ${from} = ${formatNumber(result)} ${to}`;
+  conversionHistory.unshift(historyEntry);
+  if(conversionHistory.length > 20) conversionHistory.pop();
+  convResult.innerHTML = `<div style="font-size: 1.2rem; font-weight: 700;">${historyEntry}</div>`;
+}
+
+function autoConvert() { if(convValueEl.value) convertUnits(); }
+
+function toggleTheme() {
+  settings.darkMode = document.getElementById('darkMode').checked;
+  saveSettings();
+  applyTheme();
+}
+
+function setColorTheme(theme) {
+  settings.colorTheme = theme;
+  saveSettings();
+  document.querySelectorAll('.theme-option').forEach(opt => opt.classList.remove('active'));
+  document.querySelector(`.theme-${theme}`).classList.add('active');
+  applyTheme();
+}
+
+function applyTheme() {
+  const body = document.body;
+  body.classList.remove('theme-light', 'dark', 'theme-purple', 'theme-green', 'theme-orange');
+
+  if(settings.darkMode) {
+    body.classList.add('dark');
+  } else {
+    body.classList.add('theme-light');
+  }
+
+  if(settings.colorTheme !== 'blue') body.classList.add(`theme-${settings.colorTheme}`);
+}
+
+function updatePrecision(value) {
+  settings.precision = parseInt(value);
+  saveSettings();
+  document.getElementById('precisionValue').textContent = value;
+  if(document.getElementById('convValue').value) autoConvert();
+}
+
+function updateNumberFormat() {
+  settings.numberFormat = document.getElementById('numberFormat').value;
+  saveSettings();
+  if(document.getElementById('convValue').value) autoConvert();
+}
+
+function clearAllSettings() {
+  if(confirm('Vrátiť všetky nastavenia na predvolené hodnoty?')) {
+    settings = { darkMode: true, colorTheme: 'blue', precision: 4, numberFormat: 'sk' };
+    saveSettings();
+    applyTheme();
+    document.getElementById('darkMode').checked = true;
+    document.getElementById('precision').value = 4;
+    document.getElementById('precisionValue').textContent = '4';
+    document.getElementById('numberFormat').value = 'sk';
+    conversionHistory = [];
+    alert('✅ Všetky nastavenia boli vrátené na predvolené hodnoty!');
+  }
+}
+
+// ── Currency Converter ──────────────────────────────────────────────
+let currencyRates = null;
+let currencyRatesDate = '';
+let currencyFetchPromise = null;
+
+async function fetchCurrencyRates(base) {
+  const url = `https://api.frankfurter.app/latest?from=${base}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('API error');
+  return await res.json();
+}
+
+async function getCurrencyRates(base) {
+  // cache per base for the session
+  const cacheKey = `currencyRates_${base}`;
+  const cached = sessionStorage.getItem(cacheKey);
+  if (cached) {
+    const parsed = JSON.parse(cached);
+    currencyRatesDate = parsed.date;
+    return parsed.rates;
+  }
+  const data = await fetchCurrencyRates(base);
+  currencyRatesDate = data.date;
+  const rates = { ...data.rates, [base]: 1 };
+  sessionStorage.setItem(cacheKey, JSON.stringify({ rates, date: data.date }));
+  return rates;
+}
+
+async function convertCurrency() {
+  const rawVal = (document.getElementById('currencyValue').value || '').trim();
+  const resultEl = document.getElementById('currencyResult');
+  const rateInfoEl = document.getElementById('currencyRateInfo');
+  if (!rawVal) { resultEl.textContent = 'Zadajte sumu'; rateInfoEl.textContent = ''; return; }
+  const value = parseFloat(rawVal.replace(',', '.'));
+  if (isNaN(value)) { resultEl.textContent = '❌ Neplatná hodnota'; rateInfoEl.textContent = ''; return; }
+
+  const from = document.getElementById('fromCurrency').value;
+  const to = document.getElementById('toCurrency').value;
+
+  resultEl.innerHTML = '<span style="opacity:0.6;">Načítavam kurzy…</span>';
+  rateInfoEl.textContent = '';
+
+  try {
+    const rates = await getCurrencyRates(from);
+    if (!rates[to]) { resultEl.textContent = '❌ Kurz nie je dostupný'; return; }
+    const rate = rates[to];
+    const result = value * rate;
+    const formattedVal = formatNumber(value);
+    const formattedResult = formatNumber(result);
+    resultEl.innerHTML = `<div style="font-size:1.2rem;font-weight:700;">${formattedVal} ${from} = ${formattedResult} ${to}</div>`;
+    rateInfoEl.textContent = `Kurz: 1 ${from} = ${formatNumber(rate)} ${to} · Dátum: ${currencyRatesDate}`;
+  } catch(e) {
+    resultEl.textContent = '❌ Nepodarilo sa načítať kurzy. Skontrolujte pripojenie.';
+    rateInfoEl.textContent = '';
+  }
+}
+
+function autoCurrencyConvert() {
+  if (document.getElementById('currencyValue').value) convertCurrency();
+}
+// ────────────────────────────────────────────────────────────────────
+
+window.addEventListener('DOMContentLoaded', () => { applyTheme(); backToMenu(); });
+
+document.addEventListener('keydown', (e) => {
+  if(document.getElementById('calc').classList.contains('active')) {
+    if(e.key >= '0' && e.key <= '9') addCalc(e.key);
+    else if(['+', '-', '*', '/'].includes(e.key)) addCalc(e.key);
+    else if(e.key === '.' || e.key === ',') addCalc('.');
+    else if(e.key === 'Enter') calculate();
+    else if(e.key === 'Escape') clearDisplay();
+    else if(e.key === 'Backspace') backspace();
+  }
+});
+
+// System Theme Listener
+if (window.matchMedia) {
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+    settings.darkMode = e.matches;
+    const toggle = document.getElementById('darkMode');
+    if(toggle) toggle.checked = settings.darkMode;
+    applyTheme();
+  });
+}
+</script>
+</body>
+</html>
