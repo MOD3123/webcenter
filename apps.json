@@ -8,7 +8,7 @@
       "description": "Správy, počasie a doprava na jednom mieste",
       "icon_url": "https://raw.githubusercontent.com/MOD3123/Ikony_TV/refs/heads/master/aa.png",
       "apk_url": "https://github.com/MOD3123/webcenter/releases/download/Apps/WebCenter.apk",
-      "version_name": "2.0",
+      "version_name": "2.1",
       "version_code": 2,
       "package": "sk.center.web"
     },
