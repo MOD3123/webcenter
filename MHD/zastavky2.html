@@ -4,52 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zastávky</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --md-primary: #0061A4;
-            --md-on-primary: #FFFFFF;
-            --md-primary-container: #D1E4FF;
-            --md-on-primary-container: #001D36;
-            --md-secondary-container: #D7E3F7;
-            --md-on-secondary-container: #101C2B;
-            --md-background: #F8F9FF;
-            --md-on-background: #191C20;
-            --md-on-surface: #191C20;
-            --md-on-surface-variant: #43474E;
-            --md-outline-variant: #C3C7CF;
-            --md-surface-container-low: #F2F3FA;
-            --md-surface-container-high: #E6E8EF;
-            --md-surface-container-highest: #E1E2E9;
-            --md-shape-xl: 28px;
-            --md-shape-full: 9999px;
-        }
-
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --md-primary: #9FCAFF;
-                --md-on-primary: #003258;
-                --md-primary-container: #00497D;
-                --md-on-primary-container: #D1E4FF;
-                --md-secondary-container: #3B4858;
-                --md-on-secondary-container: #D7E3F7;
-                --md-background: #111318;
-                --md-on-background: #E2E2E9;
-                --md-on-surface: #E2E2E9;
-                --md-on-surface-variant: #C3C7CF;
-                --md-outline-variant: #43474E;
-                --md-surface-container-low: #191C20;
-                --md-surface-container-high: #272A2E;
-                --md-surface-container-highest: #323539;
-            }
-        }
-
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Noto Sans', sans-serif;
-            background: var(--md-background);
-            color: var(--md-on-background);
+            font-family: 'Inter', sans-serif;
+            background: #0d1117;
+            color: #e6edf3;
             height: 100vh;
             overflow: hidden;
             display: flex;
@@ -59,19 +21,18 @@
         /* ── Header ── */
         header {
             padding: 1.25rem 2rem;
-            border-bottom: 1px solid var(--md-outline-variant);
+            border-bottom: 1px solid #21262d;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            background: var(--md-surface-container-low);
         }
 
         header h1 {
             font-size: 1.8rem;
             font-weight: 700;
-            color: var(--md-on-surface);
-            letter-spacing: 0;
+            color: #f0f6fc;
+            letter-spacing: -0.02em;
         }
 
         /* ── Layout ── */
@@ -87,37 +48,35 @@
             flex-shrink: 0;
             display: flex;
             flex-direction: column;
-            border-right: 1px solid var(--md-outline-variant);
-            background: var(--md-surface-container-low);
+            border-right: 1px solid #21262d;
+            background: #0d1117;
             overflow: hidden;
         }
 
         .search-container {
             padding: 0.875rem;
-            border-bottom: 1px solid var(--md-outline-variant);
+            border-bottom: 1px solid #21262d;
             flex-shrink: 0;
         }
 
         .search-input {
             width: 100%;
-            padding: 0 20px;
-            height: 52px;
-            background: var(--md-surface-container-highest);
-            border: none;
-            border-radius: var(--md-shape-full);
-            color: var(--md-on-surface);
+            padding: 0.75rem 1rem;
+            background: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 8px;
+            color: #e6edf3;
             font-size: 1rem;
             font-family: inherit;
             text-align: center;
-            outline: 2px solid transparent;
-            transition: outline-color 0.15s, background 0.15s;
+            transition: border-color 0.15s;
+            outline: none;
         }
 
-        .search-input::placeholder { color: var(--md-on-surface-variant); }
+        .search-input::placeholder { color: #7d8590; }
 
         .search-input:focus {
-            outline-color: var(--md-primary);
-            background: var(--md-surface-container-high);
+            border-color: #388bfd;
         }
 
         .stops-list {
@@ -131,10 +90,7 @@
 
         .stops-list::-webkit-scrollbar { width: 4px; }
         .stops-list::-webkit-scrollbar-track { background: transparent; }
-        .stops-list::-webkit-scrollbar-thumb {
-            background: var(--md-outline-variant);
-            border-radius: 4px;
-        }
+        .stops-list::-webkit-scrollbar-thumb { background: #21262d; border-radius: 4px; }
 
         /* ── Stop Item ── */
         .stop-item {
@@ -142,45 +98,31 @@
             align-items: center;
             justify-content: center;
             padding: 1.1rem 1rem;
-            background: transparent;
-            border: 1px solid var(--md-outline-variant);
-            border-radius: var(--md-shape-full);
+            background: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 8px;
             cursor: pointer;
             text-decoration: none;
-            color: var(--md-on-surface);
+            color: #c9d1d9;
             font-size: 1.3rem;
             font-weight: 700;
             font-family: inherit;
-            transition: background 0.12s, color 0.12s;
+            transition: background 0.12s, border-color 0.12s, color 0.12s;
             text-align: center;
             -webkit-tap-highlight-color: transparent;
-            position: relative;
-            overflow: hidden;
         }
 
-        .stop-item::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: inherit;
-            background: var(--md-on-surface);
-            opacity: 0;
-            transition: opacity 0.12s;
-            pointer-events: none;
+        .stop-item:hover {
+            background: rgba(56, 139, 253, 0.07);
+            border-color: #388bfd;
+            color: #f0f6fc;
         }
-
-        .stop-item:hover::before { opacity: 0.08; }
-        .stop-item:active::before { opacity: 0.12; }
 
         .stop-item.active {
-            background: var(--md-secondary-container);
-            color: var(--md-on-secondary-container);
+            background: rgba(56, 139, 253, 0.1);
+            border-color: #388bfd;
+            color: #58a6ff;
             font-weight: 600;
-            border-color: transparent;
-        }
-
-        .stop-item.active::before {
-            background: var(--md-on-secondary-container);
         }
 
         .stop-item.hidden { display: none; }
@@ -191,7 +133,7 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            background: var(--md-background);
+            background: #0d1117;
         }
 
         .table-container {
@@ -204,7 +146,7 @@
             width: 100%;
             height: 100%;
             border: none;
-            border-radius: var(--md-shape-xl);
+            border-radius: 12px;
             overflow: hidden;
         }
 
@@ -213,29 +155,68 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--md-on-surface-variant);
-            font-size: 1.1rem;
+            color: #7d8590;
+            font-size: 2.35rem;
         }
 
         /* ── Mobile ── */
         @media (max-width: 768px) {
             body { overflow: auto; height: auto; min-height: 100vh; }
+
             .main-content { flex-direction: column; }
+
             .sidebar {
                 width: 100%;
                 border-right: none;
-                border-bottom: 1px solid var(--md-outline-variant);
+                border-bottom: 1px solid #21262d;
                 overflow: visible;
                 height: auto;
             }
+
             .stops-list {
                 overflow: visible;
                 height: auto;
                 padding: 0.75rem;
-                gap: 0.5rem;
+                gap: 0.4rem;
             }
-            .stop-item { padding: 0.875rem 1rem; }
+
+            .stop-item {
+                padding: 0.875rem 1rem;
+                border: 1px solid #21262d;
+                background: #161b22;
+            }
+
             .webview-container { display: none; }
+        }
+
+        /* ── Light Mode ── */
+        @media (prefers-color-scheme: light) {
+            body { background: #f6f8fa; color: #1f2328; }
+            header { border-bottom-color: #d0d7de; background: #f6f8fa; }
+            header h1 { color: #1f2328; }
+            .sidebar { background: #f6f8fa; border-right-color: #d0d7de; }
+            .search-container { border-bottom-color: #d0d7de; }
+            .search-input {
+                background: #ffffff;
+                border-color: #d0d7de;
+                color: #1f2328;
+            }
+            .search-input::placeholder { color: #57606a; }
+            .search-input:focus { border-color: #0969da; }
+            .stop-item {
+                background: #ffffff;
+                border-color: #d0d7de;
+                color: #1f2328;
+            }
+            .stop-item:hover { color: #1f2328; background: rgba(9, 105, 218, 0.06); border-color: #0969da; }
+            .stop-item.active {
+                background: rgba(9, 105, 218, 0.08);
+                border-color: #0969da;
+                color: #0969da;
+            }
+            .stops-list::-webkit-scrollbar-thumb { background: #d0d7de; }
+            .webview-container { background: #f6f8fa; }
+            .no-data { color: #57606a; }
         }
     </style>
 </head>
@@ -387,12 +368,15 @@
         });
     });
 
+    // Reload iframe and links when color scheme changes
     window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
+        // Update mobile links
         document.querySelectorAll('.stop-item[href]').forEach(link => {
             const url = new URL(link.href);
             url.searchParams.set('theme', getTheme());
             link.href = url.toString();
         });
+        // Reload active iframe if present
         const iframe = document.querySelector('#tableContainer iframe');
         if (iframe) {
             const url = new URL(iframe.src);
