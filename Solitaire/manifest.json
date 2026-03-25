@@ -1,0 +1,20 @@
+{
+  "name": "Solitaire",
+  "short_name": "Solitaire",
+  "description": "Solitaire v štýle Windowsu 98",
+  "lang": "sk",
+  "dir": "ltr",
+  "start_url": "/webcenter/Solitaire/?source=pwa",
+  "scope": "/webcenter/Solitaire",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#1976d2",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    }
+  ]
+}
