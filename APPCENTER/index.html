@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>App Center</title>
+<link type="image/png" sizes="1080x1080" rel="icon" href="centerapp.png">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Google+Sans+Display:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --md-sys-color-primary: #D0BCFF;
+    --md-sys-color-on-primary: #381E72;
+    --md-sys-color-primary-container: #4F378B;
+    --md-sys-color-on-primary-container: #EADDFF;
+    --md-sys-color-secondary: #CCC2DC;
+    --md-sys-color-secondary-container: #4A4458;
+    --md-sys-color-on-secondary-container: #E8DEF8;
+    --md-sys-color-tertiary: #EFB8C8;
+    --md-sys-color-tertiary-container: #633B48;
+    --md-sys-color-surface: #141218;
+    --md-sys-color-surface-container: #1D1B20;
+    --md-sys-color-surface-container-high: #2B2930;
+    --md-sys-color-surface-container-highest: #36343B;
+    --md-sys-color-on-surface: #E6E0E9;
+    --md-sys-color-on-surface-variant: #CAC4D0;
+    --md-sys-color-outline: #938F99;
+    --md-sys-color-outline-variant: #49454F;
+    --md-shape-corner-extra-large: 28px;
+    --md-shape-corner-large: 16px;
+    --md-shape-corner-medium: 12px;
+    --md-shape-corner-small: 8px;
+    --md-shape-corner-full: 50px;
+    --md-sys-elevation-1: 0 1px 2px rgba(0,0,0,.3), 0 1px 3px 1px rgba(0,0,0,.15);
+    --md-sys-elevation-2: 0 1px 2px rgba(0,0,0,.3), 0 2px 6px 2px rgba(0,0,0,.15);
+    --md-sys-elevation-3: 0 1px 3px rgba(0,0,0,.3), 0 4px 8px 3px rgba(0,0,0,.15);
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: var(--md-sys-color-surface);
+    font-family: 'Google Sans', 'Segoe UI', Roboto, sans-serif;
+    color: var(--md-sys-color-on-surface);
+    min-height: 100vh;
+    padding: 24px 16px 40px;
+    text-align: center;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 32px;
+    animation: fadeSlideDown 0.5s cubic-bezier(0.05, 0.7, 0.1, 1) both;
+  }
+
+  .header-icon {
+    width: 56px;
+    height: 56px;
+    background: var(--md-sys-color-primary-container);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    box-shadow: var(--md-sys-elevation-2);
+  }
+
+  h1 {
+    font-family: 'Google Sans Display', 'Google Sans', sans-serif;
+    font-size: 28px;
+    font-weight: 500;
+    color: var(--md-sys-color-on-surface);
+    letter-spacing: 0;
+  }
+
+  .header-subtitle {
+    font-size: 14px;
+    color: var(--md-sys-color-on-surface-variant);
+    font-weight: 400;
+  }
+
+  /* Two-column layout */
+  .columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    max-width: 720px;
+    margin: 0 auto;
+    align-items: start;
+  }
+
+  @media (max-width: 540px) {
+    .columns {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Card */
+  .card {
+    background: var(--md-sys-color-surface-container);
+    border-radius: var(--md-shape-corner-extra-large);
+    padding: 20px 16px;
+    box-shadow: var(--md-sys-elevation-1);
+    animation: fadeSlideUp 0.5s cubic-bezier(0.05, 0.7, 0.1, 1) both;
+  }
+
+  .card:nth-child(1) { animation-delay: 0.1s; }
+  .card:nth-child(2) { animation-delay: 0.2s; }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--md-sys-color-outline-variant);
+  }
+
+  .card-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .card-icon.windows {
+    background: color-mix(in srgb, #4FC3F7 15%, transparent);
+  }
+
+  .card-icon.android {
+    background: color-mix(in srgb, #A5D6A7 15%, transparent);
+  }
+
+  .card-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--md-sys-color-on-surface);
+    text-align: left;
+  }
+
+  /* App buttons */
+  .app-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .app-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: var(--md-sys-color-surface-container-high);
+    border: none;
+    border-radius: var(--md-shape-corner-large);
+    color: var(--md-sys-color-on-surface);
+    text-decoration: none;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s cubic-bezier(0.2, 0, 0, 1),
+                transform 0.15s cubic-bezier(0.2, 0, 0, 1),
+                box-shadow 0.2s cubic-bezier(0.2, 0, 0, 1);
+    position: relative;
+    overflow: hidden;
+    text-align: left;
+  }
+
+  .app-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--md-sys-color-primary);
+    opacity: 0;
+    transition: opacity 0.2s;
+    border-radius: inherit;
+  }
+
+  .app-btn:hover::before { opacity: 0.08; }
+  .app-btn:active::before { opacity: 0.12; }
+
+  .app-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--md-sys-elevation-2);
+  }
+
+  .app-btn:active {
+    transform: scale(0.98);
+    box-shadow: none;
+  }
+
+  .app-btn-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .app-btn-icon.win {
+    background: color-mix(in srgb, #4FC3F7 18%, transparent);
+  }
+
+  .app-btn-text {
+    flex: 1;
+  }
+
+  .app-btn-name {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--md-sys-color-on-surface);
+  }
+
+  .app-btn-platform {
+    display: block;
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--md-sys-color-on-surface-variant);
+    margin-top: 1px;
+  }
+
+  .app-btn-arrow {
+    font-size: 16px;
+    color: var(--md-sys-color-primary);
+    opacity: 0.7;
+  }
+
+  /* QR section */
+  .qr-section {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--md-sys-color-outline-variant);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .qr-label {
+    font-size: 13px;
+    color: var(--md-sys-color-on-surface-variant);
+    font-weight: 500;
+  }
+
+  .qr-wrapper {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 12px;
+    display: inline-block;
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.15), var(--md-sys-elevation-2);
+  }
+
+  .qr-wrapper img {
+    width: 140px;
+    height: 140px;
+    display: block;
+    border-radius: 8px;
+  }
+
+  /* Animations */
+  @keyframes fadeSlideDown {
+    from { opacity: 0; transform: translateY(-16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="header-icon">⚙️</div>
+    <h1>App Center</h1>
+  </div>
+
+  <div class="columns">
+
+    <!-- Windows column -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon windows">🖥️</div>
+        <span class="card-title">Aplikácie pre Windows</span>
+      </div>
+      <div class="app-list">
+
+        <a href="https://1drv.ms/u/c/ce5f1621eaade3f7/EZqgFaAfXJlCuW4vREaa61UBpPTEjpdgS4ryk1SDnU43Fw?e=0MyT2m" class="app-btn" target="_blank">
+          <div class="app-btn-icon win">📮</div>
+          <span class="app-btn-text">
+            <span class="app-btn-name">PSČ</span>
+            <span class="app-btn-platform">Windows</span>
+          </span>
+          <span class="app-btn-arrow">›</span>
+        </a>
+
+        <a href="https://1drv.ms/u/c/ce5f1621eaade3f7/IQA1FuqRqZJJQKxlvrC6hZXMAWjACdIdFOWet3dLiEKrXbk?e=dlLRRr" class="app-btn" target="_blank">
+          <div class="app-btn-icon win">📄</div>
+          <span class="app-btn-text">
+            <span class="app-btn-name">Aspik</span>
+            <span class="app-btn-platform">Windows</span>
+          </span>
+          <span class="app-btn-arrow">›</span>
+        </a>
+
+      </div>
+    </div>
+
+    <!-- Android column -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon android">📱</div>
+        <span class="card-title">Stiahnite si Android aplikáciu</span>
+      </div>
+
+      <div class="qr-section">
+        <span class="qr-label">Naskenujte QR kód</span>
+        <div class="qr-wrapper">
+          <img src="qr-kod.png" alt="QR kód pre Android aplikáciu">
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>
