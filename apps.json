@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 4,
   "updated": "2026-03-26",
   "apps": [
     {
@@ -18,8 +18,8 @@
       "description": "Televízia a rádio priamo v mobile",
       "icon_url": "https://raw.githubusercontent.com/MOD3123/Ikony_TV/refs/heads/master/ab.png",
       "apk_url": "https://github.com/MOD3123/webcenter/releases/download/Apps/tvmobile.apk",
-      "version_name": "3.0",
-      "version_code": 3,
+      "version_name": "4.0",
+      "version_code": 4,
       "package": "sk.tvmobile.app"
     },
     {
