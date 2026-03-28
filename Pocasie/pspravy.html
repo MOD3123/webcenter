@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>Počasie – Správy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,600;0,700;0,800;0,900;1,700&family=Roboto+Flex:opsz,wdth,wght@8..144,75..125,100..900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --md-primary: #0061A4;
+    --md-on-primary: #FFFFFF;
+    --md-primary-container: #D1E4FF;
+    --md-on-primary-container: #001D36;
+    --md-secondary: #4A6480;
+    --md-on-secondary: #FFFFFF;
+    --md-secondary-container: #D6E3F7;
+    --md-on-secondary-container: #111C2B;
+    --md-surface: #F8FAFE;
+    --md-on-surface: #181C20;
+    --md-surface-variant: #DDE3EA;
+    --md-on-surface-variant: #3A4450;
+    --md-surface-container-lowest: #FFFFFF;
+    --md-surface-container-low: #EFF3F8;
+    --md-surface-container: #E9EEF4;
+    --md-surface-container-high: #E2E8EF;
+    --md-surface-container-highest: #DCE2EA;
+    --md-outline: #6E7A87;
+    --md-outline-variant: #BCC5CF;
+    --md-error: #BA1A1A;
+
+    --elev-1: 0 1px 2px rgba(0,0,0,.06), 0 1px 3px rgba(0,0,0,.1);
+    --elev-2: 0 1px 2px rgba(0,0,0,.05), 0 2px 6px rgba(0,0,0,.12);
+    --elev-3: 0 4px 8px rgba(0,0,0,.08), 0 1px 3px rgba(0,0,0,.1);
+    --elev-4: 0 8px 16px rgba(0,0,0,.1), 0 2px 4px rgba(0,0,0,.08);
+
+    --radius-xs: 8px;
+    --radius-sm: 12px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    --radius-xl: 28px;
+    --radius-full: 50px;
+
+    --cols: 3;
+    --gap: 14px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --md-primary: #9ECAFF;
+      --md-on-primary: #003258;
+      --md-primary-container: #00497D;
+      --md-on-primary-container: #D1E4FF;
+      --md-secondary: #A0BEDB;
+      --md-on-secondary: #1A3349;
+      --md-secondary-container: #2E3E50;
+      --md-on-secondary-container: #D6E3F7;
+      --md-surface: #101418;
+      --md-on-surface: #DCE2EA;
+      --md-surface-variant: #3A4450;
+      --md-on-surface-variant: #BCC5CF;
+      --md-surface-container-lowest: #0B0F12;
+      --md-surface-container-low: #181C20;
+      --md-surface-container: #1C2026;
+      --md-surface-container-high: #262B30;
+      --md-surface-container-highest: #31363B;
+      --md-outline: #8A9299;
+      --md-outline-variant: #3A4450;
+      --md-error: #FFB4AB;
+    }
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--md-surface);
+    color: var(--md-on-surface);
+    font-family: 'Nunito', -apple-system, sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  button, a { -webkit-tap-highlight-color: transparent; outline: none; -webkit-appearance: none; }
+
+  ::-webkit-scrollbar { width: 10px; }
+  ::-webkit-scrollbar-track { background: var(--md-surface-container-low); }
+  ::-webkit-scrollbar-thumb { background: var(--md-outline-variant); border-radius: 5px; border: 2px solid var(--md-surface-container-low); }
+  ::-webkit-scrollbar-thumb:hover { background: var(--md-outline); }
+
+  /* ── TOP APP BAR ── */
+  .top-app-bar {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--md-surface-container);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--md-outline-variant);
+    padding: 12px 16px;
+  }
+
+  .top-bar-inner {
+    max-width: 1400px; margin: 0 auto;
+    display: flex; align-items: center; gap: 12px;
+  }
+
+  .bar-title {
+    font-family: 'Roboto Flex', sans-serif; font-weight: 800;
+    font-size: 1.2rem; letter-spacing: -.02em;
+    flex-shrink: 0; color: var(--md-on-surface);
+  }
+
+  .search-wrap { flex: 1; position: relative; }
+
+  .search-wrap input {
+    width: 100%; padding: 10px 16px 10px 44px;
+    border-radius: var(--radius-full);
+    border: 1.5px solid var(--md-outline-variant);
+    background: var(--md-surface-container-highest);
+    color: var(--md-on-surface);
+    font-family: 'Nunito', sans-serif; font-weight: 600; font-size: .95rem;
+    transition: border-color .2s ease, background .2s ease;
+    box-shadow: var(--elev-1);
+  }
+
+  .search-wrap input:focus {
+    outline: none; border-color: var(--md-primary);
+    background: var(--md-surface-container-low);
+    box-shadow: 0 0 0 3px rgba(0,97,164,.18);
+  }
+
+  .search-wrap input::placeholder { color: var(--md-on-surface-variant); opacity: .7; }
+
+  .search-icon-bar {
+    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    font-size: 1.1rem; color: var(--md-on-surface-variant); pointer-events: none;
+  }
+
+  .view-toggle {
+    display: flex; background: var(--md-surface-container-high);
+    border-radius: var(--radius-full); padding: 3px; gap: 2px;
+    box-shadow: var(--elev-1); flex-shrink: 0;
+  }
+
+  .view-mode-btn {
+    border: none; background: transparent; border-radius: var(--radius-full);
+    padding: 7px 14px; cursor: pointer;
+    font-family: 'Nunito', sans-serif; font-weight: 700; font-size: .82rem;
+    color: var(--md-on-surface-variant);
+    transition: all .2s cubic-bezier(.34,1.56,.64,1); white-space: nowrap;
+  }
+
+  .view-mode-btn.active { background: var(--md-primary); color: var(--md-on-primary); box-shadow: var(--elev-2); }
+
+  /* ── STATS BAR ── */
+  .stats-bar {
+    max-width: 1400px; margin: 14px auto 0; padding: 0 16px;
+    display: flex; justify-content: space-between; align-items: center; gap: 8px;
+  }
+
+  .stats-chip {
+    background: var(--md-surface-container);
+    border: 1px solid var(--md-outline-variant);
+    border-radius: var(--radius-full);
+    padding: 5px 14px; font-size: .8rem; font-weight: 700;
+    color: var(--md-on-surface-variant);
+  }
+
+  /* ── MASONRY FEED ── */
+  #rss-feed {
+    max-width: 1400px;
+    margin: 16px auto 80px;
+    padding: 0 16px;
+    display: flex;
+    gap: var(--gap);
+    align-items: flex-start;
+  }
+
+  .masonry-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap);
+    min-width: 0;
+  }
+
+  /* ── CARDS ── */
+  .item-card {
+    background: var(--md-surface-container-low);
+    border: 1.5px solid var(--md-outline-variant);
+    border-radius: var(--radius-xl);
+    display: flex; flex-direction: column;
+    box-shadow: var(--elev-1);
+    overflow: hidden;
+    will-change: transform;
+    transition: box-shadow .18s ease, border-color .18s ease;
+  }
+
+  .item-card:hover { box-shadow: var(--elev-3); border-color: var(--md-primary); }
+
+  .item-thumb-wrap {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: var(--md-surface-container);
+    flex-shrink: 0;
+  }
+
+  .item-thumb-wrap.no-media { display: none; }
+
+  .item-thumb {
+    width: 100%; height: 100%;
+    object-fit: cover; display: block;
+    opacity: 0;
+    transition: opacity .25s ease;
+  }
+
+  .item-thumb.loaded { opacity: 1; }
+
+  .item-content {
+    padding: 16px 18px 18px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+
+  .item-badges { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+
+  .m3-chip {
+    border-radius: var(--radius-full); padding: 4px 10px;
+    font-size: .72rem; font-weight: 800; letter-spacing: .03em; border: 1px solid;
+  }
+
+  .m3-chip.date { background: var(--md-secondary-container); color: var(--md-on-secondary-container); border-color: transparent; }
+  .m3-chip.source { background: var(--md-primary-container); color: var(--md-on-primary-container); border-color: transparent; }
+
+  .item-content h2 {
+    font-family: 'Roboto Flex', sans-serif; font-size: 1.05rem; font-weight: 750;
+    line-height: 1.35; letter-spacing: -.015em; color: var(--md-on-surface);
+  }
+
+  .item-content h2 a { text-decoration: none; color: inherit; transition: color .15s ease; }
+  .item-content h2 a:hover { color: var(--md-primary); }
+
+  .item-desc { font-size: .875rem; color: var(--md-on-surface-variant); line-height: 1.55; }
+
+  .read-more-btn {
+    display: block; width: 100%; padding: 11px;
+    background: var(--md-primary); color: var(--md-on-primary);
+    border: none; border-radius: var(--radius-md); text-align: center;
+    font-family: 'Nunito', sans-serif; font-weight: 800; font-size: .9rem;
+    text-decoration: none; cursor: pointer;
+    transition: background .2s ease;
+    letter-spacing: .01em; box-shadow: var(--elev-1);
+    margin-top: auto;
+  }
+
+  .read-more-btn:hover { background: var(--md-on-primary-container); }
+
+  /* ── Loading / end message ── */
+  .feed-message {
+    flex: 1;
+    background: var(--md-surface-container-low);
+    border: 1.5px solid var(--md-outline-variant);
+    border-radius: var(--radius-xl);
+    padding: 48px 24px; text-align: center;
+    color: var(--md-on-surface-variant); font-weight: 700; font-size: 1rem;
+    box-shadow: var(--elev-1);
+  }
+
+  .loading-msg { display: flex; justify-content: center; align-items: center; gap: 8px; min-height: 100px; }
+
+  .dot {
+    width: 12px; height: 12px; background: var(--md-primary);
+    border-radius: 50%; animation: m3bounce 1.4s infinite cubic-bezier(.36,.07,.19,.97) both;
+  }
+  .dot:nth-child(1) { animation-delay: -0.32s; }
+  .dot:nth-child(2) { animation-delay: -0.16s; }
+  .dot:nth-child(3) { animation-delay: 0s; }
+
+  @keyframes m3bounce {
+    0%, 80%, 100% { transform: scale(0); opacity: 0.4; }
+    40% { transform: scale(1.2); opacity: 1; }
+  }
+
+  #load-sentinel { height: 1px; margin-bottom: 80px; }
+
+  /* ── Compact view ── */
+  #rss-feed.compact-view { flex-direction: column; }
+  #rss-feed.compact-view .masonry-col { flex-direction: column; }
+  #rss-feed.compact-view .item-card { flex-direction: row; }
+  #rss-feed.compact-view .item-thumb-wrap { width: 140px; aspect-ratio: unset; min-height: 130px; flex-shrink: 0; }
+  #rss-feed.compact-view .item-content { padding: 12px 16px; }
+  #rss-feed.compact-view .item-desc {
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+
+  @media (max-width: 1100px) { :root { --cols: 2; } }
+
+  @media (max-width: 768px) {
+    :root { --cols: 1; }
+    #rss-feed.compact-view .item-card { flex-direction: column; }
+    #rss-feed.compact-view .item-thumb-wrap { width: 100%; aspect-ratio: 16/9; min-height: unset; }
+    .top-bar-inner { flex-wrap: wrap; }
+    .bar-title { display: none; }
+    .search-wrap { order: 3; flex: 1 1 100%; }
+    .view-toggle { margin-left: auto; order: 2; width: calc(100% - 12px); }
+    .view-mode-btn { flex: 1; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="top-app-bar">
+  <div class="top-bar-inner">
+    <span class="bar-title">🌤️ Počasie</span>
+    <div class="search-wrap">
+      <span class="search-icon-bar">🔍</span>
+      <input type="text" id="search-input" placeholder="Hľadať…">
+    </div>
+    <div class="view-toggle">
+      <button class="view-mode-btn active" data-view="grid">⊞ Mriežka</button>
+      <button class="view-mode-btn" data-view="compact">≡ Kompakt</button>
+    </div>
+  </div>
+</div>
+
+<div class="stats-bar">
+  <span class="stats-chip" id="count-info">Načítavam…</span>
+  <span class="stats-chip" id="last-update"></span>
+</div>
+
+<div id="rss-feed">
+  <div class="feed-message loading-msg">
+    <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+  </div>
+</div>
+<div id="load-sentinel"></div>
+
+<script>
+(async function(){
+  const FEEDS = [
+    "https://www.imeteo.sk/rss/news",
+    "https://www.meteopress.sk/feed/"
+  ];
+
+  const URL_TO_NAME = {
+    "https://www.imeteo.sk/rss/news": "iMeteo",
+    "https://www.meteopress.sk/feed/": "MeteoPress"
+  };
+
+  const PROXY    = 'https://spravysk.peniaskomano.workers.dev/?url=';
+  const PAGE_SIZE = 15;
+
+  let allItems = [], filteredItems = [], renderIndex = 0;
+  let searchQuery = '', isCompact = false, renderPending = false;
+
+  const feed        = document.getElementById('rss-feed');
+  const searchInput = document.getElementById('search-input');
+  const countInfo   = document.getElementById('count-info');
+  const lastUpdate  = document.getElementById('last-update');
+  const sentinel    = document.getElementById('load-sentinel');
+
+  /* ── Columns ── */
+  let cols = [];
+  const NUM_COLS = () => window.innerWidth <= 768 ? 1 : window.innerWidth <= 1100 ? 2 : 3;
+
+  function buildColumns() {
+    feed.innerHTML = '';
+    cols = [];
+    const n = isCompact ? 1 : NUM_COLS();
+    for (let i = 0; i < n; i++) {
+      const col = document.createElement('div');
+      col.className = 'masonry-col';
+      feed.appendChild(col);
+      cols.push(col);
+    }
+  }
+
+  /* ── Stats ── */
+  function updateStats() {
+    const shown = Math.min(renderIndex, filteredItems.length);
+    countInfo.textContent  = `${shown} z ${filteredItems.length} článkov`;
+    lastUpdate.textContent = `iMeteo & MeteoPress • ${new Date().toLocaleTimeString('sk-SK')}`;
+  }
+
+  /* ── Filtering ── */
+  function applyFilters() {
+    const q = searchQuery.toLowerCase();
+    filteredItems = q
+      ? allItems.filter(i =>
+          i.title.toLowerCase().includes(q) ||
+          i.desc.toLowerCase().includes(q)  ||
+          i.source.toLowerCase().includes(q)
+        )
+      : [...allItems];
+
+    renderIndex   = 0;
+    renderPending = false;
+    buildColumns();
+    updateStats();
+
+    if (filteredItems.length === 0) {
+      const msg = document.createElement('div');
+      msg.className   = 'feed-message';
+      msg.textContent = allItems.length === 0
+        ? 'Chyba načítania alebo žiadne výsledky.'
+        : 'Žiadne výsledky pre hľadaný výraz.';
+      feed.appendChild(msg);
+      return;
+    }
+    renderBatch();
+  }
+
+  /* ── Render batch ── */
+  function renderBatch() {
+    if (renderPending) return;
+    if (renderIndex >= filteredItems.length) { updateStats(); return; }
+
+    renderPending = true;
+    requestAnimationFrame(() => {
+      const batch = filteredItems.slice(renderIndex, renderIndex + PAGE_SIZE);
+      batch.forEach((item, idx) => {
+        const card   = buildCard(item);
+        const colIdx = (renderIndex + idx) % cols.length;
+        cols[isCompact ? 0 : Math.min(colIdx, cols.length - 1)].appendChild(card);
+      });
+      renderIndex   += batch.length;
+      renderPending  = false;
+      updateStats();
+    });
+  }
+
+  /* ── Build card ── */
+  function buildCard(i) {
+    const card     = document.createElement('div');
+    card.className = 'item-card';
+
+    const badgeDate = `${i.pubDate.toLocaleDateString('sk-SK')} ${i.pubDate.toLocaleTimeString('sk-SK', {hour:'2-digit', minute:'2-digit'})}`;
+
+    let mediaHtml = '';
+    if (i.thumb) {
+      mediaHtml = `<div class="item-thumb-wrap"><img class="item-thumb" data-src="${i.thumb}" alt="" loading="lazy"></div>`;
+    } else {
+      mediaHtml = `<div class="item-thumb-wrap no-media"></div>`;
+    }
+
+    card.innerHTML = `
+      ${mediaHtml}
+      <div class="item-content">
+        <h2><a href="${i.link}" target="_blank" rel="noopener noreferrer">${i.title}</a></h2>
+        <div class="item-badges">
+          <span class="m3-chip date">🕐 ${badgeDate}</span>
+          <span class="m3-chip source">${i.source}</span>
+        </div>
+        <p class="item-desc">${i.desc}${i.desc.length >= 590 ? '…' : ''}</p>
+        <a class="read-more-btn" href="${i.link}" target="_blank" rel="noopener noreferrer">Čítať článok</a>
+      </div>
+    `;
+
+    const img = card.querySelector('img.item-thumb');
+    if (img) imgObserver.observe(img);
+
+    return card;
+  }
+
+  /* ── Lazy image observer ── */
+  const imgObserver = new IntersectionObserver((entries, obs) => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      const img = e.target;
+      img.src    = img.dataset.src;
+      img.onload  = () => img.classList.add('loaded');
+      img.onerror = () => img.closest('.item-thumb-wrap')?.classList.add('no-media');
+      obs.unobserve(img);
+    });
+  }, { rootMargin: '300px' });
+
+  /* ── Infinite scroll sentinel ── */
+  const sentinelObserver = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting) renderBatch();
+  }, { rootMargin: '400px' });
+  sentinelObserver.observe(sentinel);
+
+  /* ── Network timeout ── */
+  function getTimeout() {
+    const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    if (!conn) return 9000;
+    const t = conn.effectiveType || '', dl = conn.downlink || 0;
+    if (t === 'slow-2g' || t === '2g' || dl < 0.5) return 40000;
+    if (t === '4g' && dl >= 5) return 5000;
+    return 9000;
+  }
+
+  /* ── Fetch & parse RSS ── */
+  function cleanDesc(text) {
+    text = text.replace(/The post .+ appeared first on .+\.\s*$/i, '').trim();
+    text = text.replace(/Článok .+ ako prv[ýý] na .+\.\s*$/i, '').trim();
+    return text;
+  }
+
+  async function fetchFeed(url) {
+    const ctrl  = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), getTimeout());
+    try {
+      const res  = await fetch(PROXY + encodeURIComponent(url), { signal: ctrl.signal });
+      clearTimeout(timer);
+      const text = await res.text();
+      const xml  = new DOMParser().parseFromString(text, 'text/xml');
+      if (xml.getElementsByTagName('parsererror').length) return [];
+
+      const source = URL_TO_NAME[url] || xml.querySelector('channel > title')?.textContent?.trim() || url;
+
+      return [...xml.querySelectorAll('item')].map(item => {
+        let pub = new Date(
+          item.querySelector('pubDate')?.textContent ||
+          item.querySelector('updated')?.textContent ||
+          item.querySelector('date')?.textContent || ''
+        );
+        if (isNaN(pub)) pub = new Date(0);
+
+        let thumb = '';
+        const enc = item.querySelector('enclosure');
+        if (enc) {
+          const t = enc.getAttribute('type') || '', u = enc.getAttribute('url') || '';
+          if (t.startsWith('image')) thumb = u;
+        }
+        if (!thumb) { const tg = item.querySelector('thumbnail'); if (tg) thumb = tg.textContent.trim(); }
+        if (!thumb) {
+          const mc = item.querySelector('media\\:content, content');
+          if (mc) {
+            const t = mc.getAttribute('type') || '', u = mc.getAttribute('url') || '';
+            if (t.startsWith('image')) thumb = u;
+          }
+        }
+        if (!thumb) {
+          const dh  = item.querySelector('description')?.textContent || '';
+          const im  = dh.match(/<img[^>]+src="([^">]+)"/);
+          if (im) thumb = im[1];
+        }
+
+        let raw  = (item.querySelector('description')?.textContent || '').replace(/<[^>]*>/g, '').trim();
+        raw = cleanDesc(raw);
+        let desc = raw.slice(0, 1000);
+        if (raw.length > 1000) { const ls = desc.lastIndexOf(' '); if (ls > 0) desc = desc.slice(0, ls); }
+
+        return {
+          title:   item.querySelector('title')?.textContent?.trim() || '',
+          link:    item.querySelector('link')?.textContent?.trim()  || '',
+          desc, pubDate: pub, source, thumb
+        };
+      }).filter(i => i.title && i.link);
+    } catch(e) {
+      clearTimeout(timer);
+      return [];
+    }
+  }
+
+  /* ── Search ── */
+  let searchTimer;
+  searchInput.addEventListener('input', e => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => {
+      searchQuery = e.target.value.trim();
+      applyFilters();
+    }, 300);
+  });
+
+  /* ── View toggle ── */
+  document.querySelectorAll('.view-mode-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.view-mode-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      isCompact = btn.dataset.view === 'compact';
+      feed.classList.toggle('compact-view', isCompact);
+      renderIndex = 0;
+      buildColumns();
+      renderBatch();
+    });
+  });
+
+  /* ── Resize ── */
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      renderIndex = 0;
+      buildColumns();
+      renderBatch();
+    }, 200);
+  });
+
+  /* ── Init ── */
+  async function init() {
+    feed.innerHTML = '<div class="feed-message loading-msg"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
+    lastUpdate.textContent = `iMeteo & MeteoPress • ${new Date().toLocaleTimeString('sk-SK')}`;
+
+    const results = await Promise.allSettled(FEEDS.map(fetchFeed));
+    const seen    = new Set();
+
+    results.forEach(r => {
+      if (r.status === 'fulfilled') {
+        r.value.forEach(item => {
+          if (!seen.has(item.link)) { seen.add(item.link); allItems.push(item); }
+        });
+      }
+    });
+
+    allItems.sort((a, b) => b.pubDate - a.pubDate);
+    applyFilters();
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
