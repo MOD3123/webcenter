@@ -13,16 +13,6 @@
       "package": "sk.center.web"
     },
     {
-      "id": "sk.tvmobile.app",
-      "name": "TVmobile",
-      "description": "Televízia a rádio priamo v mobile",
-      "icon_url": "https://raw.githubusercontent.com/MOD3123/Ikony_TV/refs/heads/master/ab.png",
-      "apk_url": "https://github.com/MOD3123/webcenter/releases/download/Apps/tvmobile.apk",
-      "version_name": "4.0",
-      "version_code": 4,
-      "package": "sk.tvmobile.app"
-    },
-    {
       "id": "sk.spravy.app",
       "name": "Správy SK",
       "description": "Najnovšie správy priamo v mobile",
