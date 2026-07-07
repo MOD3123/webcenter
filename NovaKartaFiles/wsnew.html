@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8" />
+<title>Počasie + Vyhľadávanie + Meniny</title>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600&family=Roboto:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<style>
+  /* ── Dark mode (default) ── */
+  :root {
+    --primary:        #07630f;
+    --primary-hover:  #0b4c10;
+    --on-primary:     #ffffff;
+
+    --surf-field:     #252525;
+    --surf-field-foc: #2c2c2c;
+    --on-surf:        #f0f0f0;
+    --outline:        #888888;
+    --out-var:        rgba(255,255,255,0.13);
+
+    --sug-bg:         #1e1e1e;
+    --sug-hover:      #2d2d2d;
+    --sug-border:     rgba(255,255,255,0.10);
+    --sug-divider:    rgba(255,255,255,0.08);
+    --sug-icon:       #888888;
+    --sug-arrow:      rgba(255,255,255,0.25);
+
+    --toggle-bg:      rgba(0,0,0,0.60);
+    --toggle-hov:     rgba(0,0,0,0.80);
+
+    --clear-hov:      rgba(255,255,255,0.10);
+    --clear-hov-col:  #ffffff;
+
+    --ease: cubic-bezier(0.2, 0, 0, 1);
+    --ease-expressive: cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  /* ── Light mode ── */
+  @media (prefers-color-scheme: light) {
+    :root {
+      --primary:        #07630f;
+      --primary-hover:  #0b4c10;
+      --on-primary:     #ffffff;
+
+      --surf-field:     #efefef;
+      --surf-field-foc: #e6e6e6;
+      --on-surf:        #1a1a1a;
+      --outline:        #777777;
+      --out-var:        rgba(0,0,0,0.12);
+
+      --sug-bg:         #ffffff;
+      --sug-hover:      #f0f0f0;
+      --sug-border:     rgba(0,0,0,0.10);
+      --sug-divider:    rgba(0,0,0,0.07);
+      --sug-icon:       #777777;
+      --sug-arrow:      rgba(0,0,0,0.25);
+
+      --toggle-bg:      rgba(0,0,0,0.18);
+      --toggle-hov:     rgba(0,0,0,0.30);
+
+      --clear-hov:      rgba(0,0,0,0.08);
+      --clear-hov-col:  #1a1a1a;
+    }
+  }
+  .material-icons-round { font-size: 20px; line-height: 1; user-select: none; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Roboto', 'Google Sans', sans-serif;
+    background: transparent;
+    color: var(--on-surf);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    overflow: hidden;
+  }
+
+  /* ── Search layout ── */
+  .search-container { width: 90%; max-width: 500px; position: relative; }
+  .search-wrap { position: relative; width: 100%; display: flex; flex-direction: column; }
+  .search-row  { display: flex; gap: 8px; align-items: stretch; }
+
+  /* ── search-field — M3 Expressive ── */
+  .search-field {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--surf-field);
+    border: 1.5px solid var(--out-var);
+    border-radius: 28px;
+    height: 52px;
+    padding: 0 6px 0 18px;
+    backdrop-filter: blur(8px);
+    transition: border-radius 0.35s var(--ease-expressive), border-color 0.25s var(--ease), background 0.25s var(--ease), box-shadow 0.3s var(--ease-expressive), transform 0.3s var(--ease-expressive);
+  }
+  .search-field:hover {
+    border-radius: 22px;
+    box-shadow: 0 3px 10px rgba(0,0,0,.18);
+  }
+  .search-field:focus-within {
+    background: var(--surf-field-foc);
+    border-color: var(--primary);
+    border-radius: 18px;
+    box-shadow: 0 0 0 3.5px rgba(7,99,15,0.20), 0 4px 14px rgba(0,0,0,.20);
+    transform: scale(1.012);
+  }
+  .search-field .sf-icon {
+    font-size: 20px; line-height: 1;
+    color: var(--outline);
+    flex-shrink: 0;
+    pointer-events: none;
+    transition: color 0.25s var(--ease), transform 0.35s var(--ease-expressive);
+    user-select: none;
+  }
+  .search-field:focus-within .sf-icon { color: #4dbb58; transform: scale(1.12) rotate(-6deg); }
+  .search-field input {
+    flex: 1; min-width: 0;
+    border: none; outline: none;
+    background: transparent;
+    font-family: 'Roboto', sans-serif;
+    font-size: 15px;
+    color: var(--on-surf);
+    padding: 0;
+    caret-color: var(--primary);
+  }
+  .search-field input::placeholder { color: var(--outline); font-size: 14px; }
+
+  /* clear btn */
+  .clear-btn {
+    width: 36px; height: 36px;
+    border-radius: 50%; border: none;
+    background: transparent;
+    color: var(--outline);
+    cursor: pointer;
+    display: none; align-items: center; justify-content: center;
+    flex-shrink: 0; font-size: 14px;
+    transition: background 0.2s var(--ease-expressive), color 0.15s, transform 0.2s var(--ease-expressive);
+    position: relative; overflow: hidden;
+  }
+  .clear-btn:hover { background: var(--clear-hov); color: var(--clear-hov-col); transform: scale(1.1) rotate(90deg); }
+  .search-field input:not(:placeholder-shown) ~ .clear-btn { display: flex; }
+
+  /* submit btn — M3 Expressive: shape morph + spring scale */
+  .search-btn {
+    height: 52px; width: 52px;
+    border: none; border-radius: 50%;
+    background: var(--primary); color: #fff;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.2s var(--ease), box-shadow 0.3s var(--ease-expressive), transform 0.3s var(--ease-expressive), border-radius 0.35s var(--ease-expressive);
+    box-shadow: 0 1px 2px rgba(0,0,0,.3);
+    position: relative; overflow: hidden;
+  }
+  .search-btn:hover {
+    background: var(--primary-hover);
+    box-shadow: 0 4px 14px rgba(7,99,15,0.5);
+    border-radius: 34%;
+    transform: scale(1.06);
+  }
+  .search-btn:active { transform: scale(0.88); border-radius: 50%; }
+  .search-btn .material-icons-round { font-size: 22px; pointer-events: none; transition: transform 0.3s var(--ease-expressive); }
+  .search-btn:hover .material-icons-round { transform: translateX(2px); }
+  .search-btn::after {
+    content: ''; position: absolute; inset: 0;
+    background: #fff; opacity: 0; transition: opacity .15s; border-radius: inherit;
+  }
+  .search-btn:hover::after { opacity: .08; }
+
+  /* ── Suggestions — M3 Expressive dropdown ── */
+  .suggestions {
+    position: absolute;
+    top: calc(100% + 8px); left: 0; right: 0;
+    background: var(--sug-bg);
+    border: 1px solid var(--sug-border);
+    border-radius: 24px;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.26);
+    overflow: hidden; z-index: 999; overflow-y: hidden;
+    display: none; flex-direction: column;
+    transform-origin: top center;
+  }
+  .suggestions.open {
+    display: flex;
+    animation: sug-pop-in .3s var(--ease-expressive) both;
+  }
+  @keyframes sug-pop-in {
+    from { opacity: 0; transform: scale(.96) translateY(-6px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .sug-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 18px;
+    cursor: pointer;
+    font-size: 0.9375rem;
+    color: var(--on-surf);
+    font-family: 'Roboto', sans-serif;
+    transition: background 0.15s var(--ease), padding-left 0.25s var(--ease-expressive);
+    border: none; background: transparent;
+    text-align: left; width: 100%;
+  }
+  .sug-item:hover, .sug-item.focused { background: var(--sug-hover); padding-left: 22px; }
+  .sug-icon  { font-size: 18px; color: var(--sug-icon); flex-shrink: 0; line-height: 1; }
+  .sug-text  { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sug-arrow {
+    font-size: 16px; color: var(--sug-arrow); flex-shrink: 0;
+    transform: rotate(45deg); opacity: 0; transition: opacity 0.2s, transform 0.3s var(--ease-expressive); line-height: 1;
+  }
+  .sug-item:hover .sug-arrow, .sug-item.focused .sug-arrow { opacity: 1; }
+  .sug-divider { height: 1px; background: var(--sug-divider); margin: 0 12px; }
+
+  /* ── Weather ── */
+  .weather-frame {
+    width: 90%; max-width: 600px; height: 199px;
+    border: none; border-radius: 15px; background: transparent;
+    transition: height 0.6s ease; overflow: hidden; margin-bottom: 0;
+  }
+  .weather-frame::-webkit-scrollbar { display: none; }
+  .weather-frame { scrollbar-width: none; }
+  .toggle-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    border: none; background: var(--toggle-bg); color: var(--on-surf);
+    padding: 6px 14px; border-radius: 20px; cursor: pointer;
+    font-size: 14px; font-family: 'Google Sans', sans-serif; font-weight: 500;
+    transition: background .2s; z-index: 3;
+  }
+  .toggle-btn:hover { background: var(--toggle-hov); }
+  .toggle-btn .material-icons-round { font-size: 16px; }
+
+  /* ── Meniny · Obchody – veľký dátum, západ slnka, mená pod sebou ── */
+  .meniny-widget{
+    --men-primary: #1A6EFF;
+    --men-primary-cont: #D9E3FF;
+    --men-on-primary-cont: #001256;
+    --men-surface: #F7F8FF;
+    --men-surface-dim: #ECEEFF;
+    --men-outline: #C3D0F7;
+    --men-on-surface: #191B24;
+    --men-on-surface-var: #43465A;
+    --men-ok-cont: #B7F1C9;
+    --men-on-ok-cont: #002111;
+    --men-closed-cont: #FFDAD6;
+    --men-on-closed-cont: #410002;
+
+    background:var(--men-surface);
+    border:1px solid var(--men-outline);
+    border-radius:16px;
+    box-shadow:0 4px 16px rgba(10,40,90,.08);
+    padding:14px 14px 12px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    flex-shrink:0;
+  }
+  @media (prefers-color-scheme: dark){
+    .meniny-widget{
+      --men-primary: #ADC6FF;
+      --men-primary-cont: #003EBC;
+      --men-on-primary-cont: #D9E3FF;
+      --men-surface: #101420;
+      --men-surface-dim: #181B28;
+      --men-outline: #2C3A56;
+      --men-on-surface: #E2E2EE;
+      --men-on-surface-var: #A9AFCA;
+      --men-ok-cont: #234B30;
+      --men-on-ok-cont: #B7F1C9;
+      --men-closed-cont: #5C1A16;
+      --men-on-closed-cont: #FFDAD6;
+    }
+  }
+
+  /* Hlavička s ikonou */
+  .meniny-head{
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .meniny-head .material-icons-round{
+    font-size:15px;
+    color:var(--men-primary);
+  }
+  .meniny-title{
+    font-size:11.5px;
+    font-weight:700;
+    color:var(--men-on-surface-var);
+    letter-spacing:.4px;
+    text-transform:uppercase;
+  }
+
+  /* Veľký dnešný dátum + (Otvorené + západ slnka) vpravo vedľa seba */
+  .men-today-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .men-today-date-wrap{ display:flex; flex-direction:column; gap:1px; }
+  .men-today-right{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex-shrink:0;
+  }
+  .men-today-weekday{
+    font-size:11px;
+    font-weight:700;
+    color:var(--men-on-surface-var);
+    text-transform:uppercase;
+    letter-spacing:.5px;
+  }
+  .men-today-date-big{
+    font-size:26px;
+    font-weight:800;
+    color:var(--men-on-surface);
+    line-height:1;
+    letter-spacing:-.5px;
+  }
+  .men-sunset{
+    display:flex;
+    align-items:center;
+    gap:5px;
+    padding:6px 11px;
+    border-radius:100px;
+    background:var(--men-surface-dim);
+    flex-shrink:0;
+  }
+  .men-sunset .material-icons-round{ font-size:16px; color:var(--men-primary); }
+  .men-sunset-text{ display:flex; flex-direction:column; line-height:1.15; }
+  .men-sunset-label{ font-size:8.5px; font-weight:700; color:var(--men-on-surface-var); text-transform:uppercase; letter-spacing:.3px; }
+  .men-sunset-time{ font-size:12.5px; font-weight:700; color:var(--men-on-surface); }
+
+  .men-badge{
+    font-size:10px;
+    font-weight:700;
+    padding:4px 11px;
+    border-radius:100px;
+    white-space:nowrap;
+    flex-shrink:0;
+  }
+  .men-badge.men-open{ background:var(--men-ok-cont); color:var(--men-on-ok-cont); }
+  .men-badge.men-closed{ background:var(--men-closed-cont); color:var(--men-on-closed-cont); }
+
+  /* Mená dnes – pod sebou, väčšie */
+  .men-names-list{
+    display:flex;
+    flex-direction:column;
+    gap:5px;
+  }
+  .men-name-row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:6px 10px;
+    border-radius:10px;
+    background:var(--men-primary-cont);
+  }
+  .men-name-row .men-name-tag{
+    font-size:8.5px;
+    font-weight:800;
+    color:var(--men-on-primary-cont);
+    opacity:.7;
+    text-transform:uppercase;
+    letter-spacing:.4px;
+    flex-shrink:0;
+  }
+  .men-name-row .men-name-text{
+    font-size:13px;
+    font-weight:700;
+    color:var(--men-on-primary-cont);
+    flex:1;
+    min-width:0;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    letter-spacing:-.1px;
+  }
+
+
+  /* Zajtra – kompaktný riadok */
+  .men-row{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    padding:6px 9px;
+    border-radius:9px;
+    background:var(--men-surface-dim);
+  }
+  .men-row .men-date{
+    font-size:10.5px;
+    font-weight:700;
+    color:var(--men-on-surface-var);
+    min-width:52px;
+    flex-shrink:0;
+  }
+  .men-row .men-name{
+    display:flex;
+    align-items:center;
+    gap:5px;
+    font-size:11px;
+    font-weight:600;
+    color:var(--men-on-surface);
+    flex:1;
+    min-width:0;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  /* Ripple */
+  .ripple {
+    position: absolute; border-radius: 50%;
+    transform: scale(0);
+    animation: ripple-anim .5s linear;
+    background: rgba(0,0,0,0.12);
+    pointer-events: none;
+  }
+  @media (prefers-color-scheme: dark) {
+    .ripple { background: rgba(255,255,255,0.15); }
+  }
+  @keyframes ripple-anim { to { transform: scale(4); opacity: 0; } }
+</style>
+</head>
+<body>
+
+<!-- Weather -->
+<iframe id="weather" class="weather-frame" src="https://www.imeteo.sk/iframe/pocasie?bg=transparent" scrolling="no"></iframe>
+<button class="toggle-btn" onclick="toggleWeather()">
+  <span class="material-icons-round" id="toggleIcon">expand_more</span>
+  <span id="toggleText">Rozbaliť počasie</span>
+</button>
+
+<!-- Google -->
+<div class="search-container">
+  <div class="search-row">
+    <div class="search-wrap">
+      <div class="search-field">
+        <span class="material-icons-round sf-icon">search</span>
+        <input type="text" id="googleInput" placeholder="Hľadať na internete cez Google" autocomplete="off">
+        <button class="clear-btn" onclick="clearField('googleInput','googleSuggestions')">✕</button>
+      </div>
+      <div class="suggestions" id="googleSuggestions" role="listbox"></div>
+    </div>
+    <button class="search-btn" onclick="doSearch('googleInput','https://www.google.com/search?q=')">
+      <span class="material-icons-round">arrow_forward</span>
+    </button>
+  </div>
+</div>
+
+<!-- Slovník -->
+<div class="search-container">
+  <div class="search-row">
+    <div class="search-wrap">
+      <div class="search-field">
+        <span class="material-icons-round sf-icon">menu_book</span>
+        <input type="text" id="slovnikInput" placeholder="Hľadať v slovníku" autocomplete="off" onkeydown="if(event.key==='Enter') doSearch('slovnikInput','https://slovnik.juls.savba.sk/?w=')">
+        <button class="clear-btn" onclick="clearField('slovnikInput')">✕</button>
+      </div>
+    </div>
+    <button class="search-btn" onclick="doSearch('slovnikInput','https://slovnik.juls.savba.sk/?w=')">
+      <span class="material-icons-round">arrow_forward</span>
+    </button>
+  </div>
+</div>
+
+<!-- Mapy -->
+<div class="search-container">
+  <div class="search-row">
+    <div class="search-wrap">
+      <div class="search-field">
+        <span class="material-icons-round sf-icon">map</span>
+        <input type="text" id="mapyInput" placeholder="Hľadať na mape cez Mapy.com" autocomplete="off" onkeydown="if(event.key==='Enter') doSearch('mapyInput','https://mapy.com/sk/zakladni?q=')">
+        <button class="clear-btn" onclick="clearField('mapyInput')">✕</button>
+      </div>
+    </div>
+    <button class="search-btn" onclick="doSearch('mapyInput','https://mapy.com/sk/zakladni?q=')">
+      <span class="material-icons-round">arrow_forward</span>
+    </button>
+  </div>
+</div>
+
+<!-- Meniny · Obchody -->
+<div class="search-container meniny-widget" id="meniny-widget">
+
+  <div class="men-today-top">
+    <div class="men-today-date-wrap">
+      <span class="men-today-weekday" id="menWeekday">—</span>
+      <span class="men-today-date-big" id="menBigDate">—</span>
+    </div>
+    <div class="men-today-right">
+      <span class="men-badge" id="menTodayBadge">—</span>
+      <div class="men-sunset">
+        <span class="material-icons-round">wb_twilight</span>
+        <span class="men-sunset-text">
+          <span class="men-sunset-label">Západ slnka</span>
+          <span class="men-sunset-time" id="menSunsetTime">—</span>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="men-names-list" id="menNamesList"></div>
+
+
+  <div class="men-row" id="menTomorrow">
+    <span class="men-date" id="menTomorrowDate">Zajtra</span>
+    <span class="men-name"><span id="menTomorrowName">—</span></span>
+    <span class="men-badge" id="menTomorrowBadge">—</span>
+  </div>
+</div>
+
+<script>
+
+/* Weather */
+function toggleWeather(){
+  const iframe=document.getElementById("weather"),icon=document.getElementById("toggleIcon"),text=document.getElementById("toggleText"),btn=document.querySelector(".toggle-btn"),containers=document.querySelectorAll(".search-container"),expanded=iframe.classList.toggle("expanded");
+  if(expanded){document.body.style.overflow="auto";containers.forEach(e=>e.style.display="none");iframe.style.height="100vh";iframe.style.overflow="auto";icon.textContent="expand_less";text.textContent="Zbaliť počasie";btn.style.cssText="position:fixed;top:20px;right:20px;";}
+  else{document.body.style.overflow="hidden";containers.forEach(e=>e.style.display="block");iframe.style.height="199px";iframe.style.overflow="hidden";icon.textContent="expand_more";text.textContent="Rozbaliť počasie";btn.style.cssText="";iframe.src=iframe.src;}
+}
+
+/* Generic search */
+function doSearch(id,base){const q=document.getElementById(id).value.trim();if(!q)return;window.open(base+encodeURIComponent(q),'_blank');}
+function clearField(id,sugId){const el=document.getElementById(id);el.value='';el.focus();if(sugId)closeSug();}
+
+/* Google Suggestions — JSONP */
+let jc=0,dt=null,cs=[],fi=-1,mil=false;
+const gi=document.getElementById('googleInput'),sb=document.getElementById('googleSuggestions');
+
+function fetchSug(q){
+  if(!q.trim()){closeSug();return;}
+  const cb=`__sg${++jc}`;
+  const old=document.getElementById('__sgs');if(old)old.remove();
+  window[cb]=(data)=>{delete window[cb];cs=(data[1]||[]).slice(0,8);renderSug(q);};
+  const s=document.createElement('script');s.id='__sgs';
+  s.src=`https://suggestqueries.google.com/complete/search?client=firefox&q=${encodeURIComponent(q)}&callback=${cb}`;
+  s.onerror=()=>{delete window[cb];};
+  document.head.appendChild(s);
+}
+
+const ssv=`<span class="material-icons-round sug-icon">search</span>`;
+const asv=`<span class="material-icons-round sug-arrow">arrow_back</span>`;
+
+function renderSug(typed){
+  if(!cs.length){closeSug();return;}fi=-1;sb.innerHTML='';
+
+  const SUG_ITEM_H = 42;
+  const SUG_DIV_H  = 1;
+  const fieldRect  = gi.closest('.search-container').getBoundingClientRect();
+  const spaceBelow = window.innerHeight - fieldRect.bottom - 12;
+  let maxN = 1;
+  for(let n=1; n<=cs.length; n++){
+    const total = n*SUG_ITEM_H + (n-1)*SUG_DIV_H + 16;
+    if(total <= spaceBelow) maxN = n; else break;
+  }
+  const visible = cs.slice(0, maxN);
+
+  visible.forEach((t,i)=>{
+    if(i>0){const d=document.createElement('div');d.className='sug-divider';sb.appendChild(d);}
+    const b=document.createElement('button');b.className='sug-item';b.setAttribute('role','option');
+    b.innerHTML=`${ssv}<span class="sug-text">${t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</span>${asv}`;
+    b.addEventListener('mousedown',e=>{e.preventDefault();gi.value=t;closeSug();doSearch('googleInput','https://www.google.com/search?q=');});
+    b.addEventListener('mouseenter',()=>{gi.value=t;setFoc(i);mil=true;});
+    b.addEventListener('mouseleave',()=>{mil=false;});
+    sb.appendChild(b);
+  });
+  sb.classList.add('open');
+}
+
+function closeSug(){sb.classList.remove('open');sb.innerHTML='';fi=-1;cs=[];}
+function setFoc(i){const its=sb.querySelectorAll('.sug-item');its.forEach(e=>e.classList.remove('focused'));if(i>=0&&i<its.length){its[i].classList.add('focused');its[i].scrollIntoView({block:'nearest'});}fi=i;}
+
+gi.addEventListener('input',()=>{clearTimeout(dt);const v=gi.value;if(!v.trim()){closeSug();return;}dt=setTimeout(()=>fetchSug(v),200);});
+gi.addEventListener('keydown',e=>{
+  const its=sb.querySelectorAll('.sug-item'),len=its.length;
+  if(e.key==='ArrowDown'){e.preventDefault();const n=(fi+1)%len;setFoc(n);gi.value=cs[n];}
+  else if(e.key==='ArrowUp'){e.preventDefault();const p=fi<=0?len-1:fi-1;setFoc(p);gi.value=cs[p];}
+  else if(e.key==='Enter')doSearch('googleInput','https://www.google.com/search?q=');
+  else if(e.key==='Escape')closeSug();
+});
+gi.addEventListener('focus',()=>{if(gi.value.trim()&&cs.length)sb.classList.add('open');});
+gi.addEventListener('blur',()=>{if(!mil)setTimeout(closeSug,150);});
+document.addEventListener('click',e=>{if(!e.target.closest('#googleSuggestions')&&!e.target.closest('#googleInput'))closeSug();});
+
+/* ===== Meniny dnes/zajtra + obchody ===== */
+(function(){
+  const meniny = {
+    "01-02":"Alexandra","01-03":"Daniela","01-04":"Drahoslav","01-05":"Andrea","01-06":"Antónia","01-07":"Bohuslava","01-08":"Severín","01-09":"Alexej","01-10":"Dáša",
+    "01-11":"Malvína","01-12":"Ernest","01-13":"Rastislav","01-14":"Radovan","01-15":"Dobroslav","01-16":"Kristína","01-17":"Nataša","01-18":"Bohdana","01-19":"Drahomíra","01-20":"Dalibor",
+    "01-21":"Vincent","01-22":"Zora","01-23":"Miloš","01-24":"Timotej","01-25":"Gejza","01-26":"Tamara","01-27":"Bohuš","01-28":"Alfonz","01-29":"Gašpar","01-30":"Ema","01-31":"Emil",
+    "02-01":"Tatiana","02-02":"Erika","02-03":"Blažej","02-04":"Veronika","02-05":"Agáta","02-06":"Dorota","02-07":"Vanda","02-08":"Zoja","02-09":"Zdenko","02-10":"Gabriela",
+    "02-11":"Dezider","02-12":"Perla","02-13":"Arpád","02-14":"Valentín","02-15":"Pravoslav","02-16":"Ida","02-17":"Miloslava","02-18":"Jaromír","02-19":"Vlasta","02-20":"Lívia",
+    "02-21":"Eleonóra","02-22":"Etela","02-23":"Roman","02-24":"Matej","02-25":"Frederik","02-26":"Viktor","02-27":"Alexander","02-28":"Zlatica","02-29":"Radomír",
+    "03-01":"Albín","03-02":"Anežka","03-03":"Bohumil","03-04":"Kazimír","03-05":"Fridrich","03-06":"Radoslav","03-07":"Tomáš","03-08":"Alan","03-09":"Františka","03-10":"Branislav",
+    "03-11":"Angela","03-12":"Gregor","03-13":"Vlastimil","03-14":"Matilda","03-15":"Svetlana","03-16":"Boleslav","03-17":"Ľubica","03-18":"Eduard","03-19":"Jozef","03-20":"Víťazoslav",
+    "03-21":"Blahoslav","03-22":"Beňadik","03-23":"Adrián","03-24":"Gabriel","03-25":"Marián","03-26":"Emanuel","03-27":"Alena","03-28":"Soňa","03-29":"Miroslav","03-30":"Vieroslava","03-31":"Benjamín",
+    "04-01":"Hugo","04-02":"Zita","04-03":"Richard","04-04":"Izidor","04-05":"Miroslava","04-06":"Irena","04-07":"Zoltán","04-08":"Albert","04-09":"Milena","04-10":"Igor",
+    "04-11":"Július","04-12":"Estera","04-13":"Aleš","04-14":"Justína","04-15":"Fedor","04-16":"Dana","04-17":"Rudolf","04-18":"Valér","04-19":"Jela","04-20":"Marcel",
+    "04-21":"Ervín","04-22":"Slavomír","04-23":"Vojtech","04-24":"Juraj","04-25":"Marek","04-26":"Jaroslava","04-27":"Jaroslav","04-28":"Jarmila","04-29":"Lea","04-30":"Anastázia",
+    "05-02":"Žigmund","05-03":"Galina","05-04":"Florián","05-05":"Lesana","05-06":"Hermína","05-07":"Monika","05-08":"Ivana","05-09":"Roland","05-10":"Viktória",
+    "05-11":"Blažena","05-12":"Pankrác","05-13":"Servác","05-14":"Bonifác","05-15":"Žofia","05-16":"Svetozár","05-17":"Gizela","05-18":"Viola","05-19":"Gertrúda","05-20":"Bernard",
+    "05-21":"Zina","05-22":"Júlia","05-23":"Želmíra","05-24":"Ela","05-25":"Urban","05-26":"Dušan","05-27":"Iveta","05-28":"Viliam","05-29":"Maxim","05-30":"Ferdinand","05-31":"Petrana",
+    "06-01":"Žaneta","06-02":"Xénia","06-03":"Karolína","06-04":"Lenka","06-05":"Laura","06-06":"Norbert","06-07":"Róbert","06-08":"Medard","06-09":"Stanislava","06-10":"Margita",
+    "06-11":"Dobroslava","06-12":"Zlatko","06-13":"Anton","06-14":"Vasil","06-15":"Vít","06-16":"Blanka","06-17":"Adolf","06-18":"Vratislav","06-19":"Alfréd","06-20":"Valéria",
+    "06-21":"Alojz","06-22":"Paulína","06-23":"Sidónia","06-24":"Ján","06-25":"Tadeáš","06-26":"Adriána","06-27":"Ladislav","06-28":"Beáta","06-29":"Peter, Pavol","06-30":"Melánia",
+    "07-01":"Diana","07-02":"Berta","07-03":"Miloslav","07-04":"Prokop","07-05":"Cyril, Metod","07-06":"Patrik","07-07":"Oliver","07-08":"Ivan","07-09":"Lujza","07-10":"Amália",
+    "07-11":"Milota","07-12":"Nina","07-13":"Margita","07-14":"Kamil","07-15":"Henrich","07-16":"Drahomír","07-17":"Bohuslav","07-18":"Kamila","07-19":"Dušana","07-20":"Iľja",
+    "07-21":"Viera","07-22":"Magdaléna","07-23":"Oľga","07-24":"Vladimír","07-25":"Jakub","07-26":"Anna","07-27":"Božena","07-28":"Krištof","07-29":"Marta","07-30":"Libuša","07-31":"Ignác",
+    "08-01":"Božidara","08-02":"Gustáv","08-03":"Jerguš","08-04":"Dominik","08-05":"Hortenzia","08-06":"Jozefína","08-07":"Štefánia","08-08":"Oskar","08-09":"Ľubomíra","08-10":"Vavrinec",
+    "08-11":"Zuzana","08-12":"Darina","08-13":"Ľubomír","08-14":"Mojmír","08-16":"Leonard","08-17":"Milica","08-18":"Elena","08-19":"Lýdia","08-20":"Anabela",
+    "08-21":"Jana","08-22":"Tichomír","08-23":"Filomena","08-24":"Bartolomej","08-25":"Ľudovít","08-26":"Samuel","08-27":"Silvia","08-28":"Augustín","08-29":"Nikola, Beáta","08-30":"Ružena","08-31":"Nora",
+    "09-01":"Danka","09-02":"Linda","09-03":"Belo","09-04":"Rozália","09-05":"Regína","09-06":"Alica","09-07":"Marianna","09-08":"Miriama","09-09":"Martina","09-10":"Oleg",
+    "09-11":"Bystrík","09-12":"Mária","09-13":"Ctibor","09-14":"Ľudomil","09-15":"Jolana","09-16":"Ľudmila","09-17":"Olympia","09-18":"Eugénia","09-19":"Konštantín","09-20":"Ľuboslav",
+    "09-21":"Matúš","09-22":"Móric","09-23":"Zdenka","09-24":"Ľuboš","09-25":"Vladislav","09-26":"Edita","09-27":"Cyprián","09-28":"Václav","09-29":"Michal","09-30":"Jarolím",
+    "10-01":"Arnold","10-02":"Levoslav","10-03":"Stela","10-04":"František","10-05":"Viera","10-06":"Natália","10-07":"Eliška","10-08":"Brigita","10-09":"Dionýz","10-10":"Slavomíra",
+    "10-11":"Valentína","10-12":"Maximilián","10-13":"Koloman","10-14":"Boris","10-15":"Terézia","10-16":"Vladimíra","10-17":"Hedviga","10-18":"Lukáš","10-19":"Kristián","10-20":"Vendelín",
+    "10-21":"Uršuľa","10-22":"Sergej","10-23":"Alojzia","10-24":"Kvetoslava","10-25":"Aurel","10-26":"Demeter","10-27":"Sabína","10-28":"Dobromila","10-29":"Klára","10-30":"Šimon","10-31":"Aurélia",
+    "11-01":"Denis, Denisa","11-02":"Pamiatka zosnulých","11-03":"Hubert","11-04":"Karol","11-05":"Imrich","11-06":"Renáta","11-07":"René","11-08":"Bohumír","11-09":"Teodor","11-10":"Tibor",
+    "11-11":"Martin","11-12":"Svätopluk","11-13":"Stanislav","11-14":"Irma","11-15":"Leopold","11-16":"Agnesa","11-17":"Klaudia","11-18":"Eugen","11-19":"Alžbeta","11-20":"Félix",
+    "11-21":"Elvíra","11-22":"Cecília","11-23":"Klement","11-24":"Emília","11-25":"Katarína","11-26":"Kornel","11-27":"Milan","11-28":"Henrieta","11-29":"Vratko","11-30":"Ondrej",
+    "12-01":"Edmund","12-02":"Bibiána","12-03":"Oldrich","12-04":"Barbora","12-05":"Oto","12-06":"Mikuláš","12-07":"Ambróz","12-08":"Marína","12-09":"Izabela","12-10":"Radúz",
+    "12-11":"Hilda","12-12":"Otília","12-13":"Lucia","12-14":"Branislava","12-15":"Ivica","12-16":"Albína","12-17":"Kornélia","12-18":"Sláva","12-19":"Judita","12-20":"Dagmara",
+    "12-21":"Bohdan","12-22":"Adela","12-23":"Nadežda","12-24":"Adam, Eva","12-26":"Štefan, Mano","12-27":"Filoména","12-28":"Ivana","12-29":"Milada","12-30":"Dávid","12-31":"Silvester"
+  };
+
+  const sviatky = {
+    "01-01": "Nový rok, Deň vzniku SR",
+    "01-06": "Zjavenie Pána (Traja králi)",
+    "05-01": "Sviatok práce",
+    "05-08": "Deň víťazstva nad fašizmom",
+    "07-05": "Cyril a Metod",
+    "08-15": "Nanebovzatie Panny Márie",
+    "09-01": "Deň Ústavy SR",
+    "09-15": "Sedembolestná Panna Mária",
+    "10-28": "Deň vzniku ČSR",
+    "11-01": "Sviatok všetkých svätých",
+    "11-17": "Deň boja za slobodu a demokraciu",
+    "12-24": "Štedrý deň",
+    "12-25": "1. sviatok vianočný",
+    "12-26": "2. sviatok vianočný"
+  };
+
+  const monthShort = ['Jan','Feb','Mar','Apr','Máj','Jún','Júl','Aug','Sep','Okt','Nov','Dec'];
+  const monthGenitive = ['januára','februára','marca','apríla','mája','júna','júla','augusta','septembra','októbra','novembra','decembra'];
+  const weekdayNames = ['Nedeľa','Pondelok','Utorok','Streda','Štvrtok','Piatok','Sobota'];
+
+  /* Poloha pre výpočet západu slnka (Piešťany, SK) */
+  const SUN_LAT = 48.5910, SUN_LON = 17.8256;
+
+  function calcSunsetUTC(date, lat, lon){
+    const N = Math.floor((Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) - Date.UTC(date.getFullYear(),0,0)) / 86400000);
+    const zenith = 90.83;
+    const lngHour = lon / 15;
+    const t = N + ((18 - lngHour) / 24);
+    const M = (0.9856 * t) - 3.289;
+    let L = M + (1.916 * Math.sin(M*Math.PI/180)) + (0.020 * Math.sin(2*M*Math.PI/180)) + 282.634;
+    L = ((L % 360) + 360) % 360;
+    let RA = (180/Math.PI) * Math.atan(0.91764 * Math.tan(L*Math.PI/180));
+    RA = ((RA % 360) + 360) % 360;
+    const Lquadrant = Math.floor(L/90) * 90;
+    const RAquadrant = Math.floor(RA/90) * 90;
+    RA = (RA + (Lquadrant - RAquadrant)) / 15;
+    const sinDec = 0.39782 * Math.sin(L*Math.PI/180);
+    const cosDec = Math.cos(Math.asin(sinDec));
+    const cosH = (Math.cos(zenith*Math.PI/180) - (sinDec * Math.sin(lat*Math.PI/180))) / (cosDec * Math.cos(lat*Math.PI/180));
+    if(cosH > 1 || cosH < -1) return null;
+    let H = (180/Math.PI) * Math.acos(cosH);
+    H = H/15;
+    const T = H + RA - (0.06571*t) - 6.622;
+    let UT = ((T - lngHour) % 24 + 24) % 24;
+    return UT;
+  }
+
+  function getSunsetLabel(date){
+    const ut = calcSunsetUTC(date, SUN_LAT, SUN_LON);
+    if(ut === null) return '—';
+    const ms = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) + ut*3600000;
+    const d = new Date(ms);
+    try{
+      return d.toLocaleTimeString('sk-SK', {hour:'2-digit', minute:'2-digit', timeZone:'Europe/Bratislava'});
+    }catch(e){
+      return d.toLocaleTimeString('sk-SK', {hour:'2-digit', minute:'2-digit'});
+    }
+  }
+
+  function getKey(d,m){ return `${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
+
+  function getEaster(year){
+    const a=year%19, b=Math.floor(year/100), c=year%100;
+    const d=Math.floor(b/4), e=b%4, f=Math.floor((b+8)/25);
+    const g=Math.floor((b-f+1)/3), h=(19*a+b-d-g+15)%30;
+    const i=Math.floor(c/4), k=c%4, l=(32+2*e+2*i-h-k)%7;
+    const m2=Math.floor((a+11*h+22*l)/451);
+    const month=Math.floor((h+l-7*m2+114)/31);
+    const day=((h+l-7*m2+114)%31)+1;
+    return {day, month};
+  }
+
+  const _easterCache = {};
+  function ensureEasterCache(year){
+    if(_easterCache[year]) return;
+    const e = getEaster(year);
+    const easterDate = new Date(year, e.month-1, e.day);
+    const fmt = dt => `${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
+    const addDays = (dt, n) => { const r=new Date(dt); r.setDate(r.getDate()+n); return r; };
+    _easterCache[year] = {
+      [fmt(addDays(easterDate,-2))]: 'Veľký piatok',
+      [fmt(easterDate)]:             'Veľkonočná nedeľa',
+      [fmt(addDays(easterDate, 1))]: 'Veľkonočný pondelok',
+    };
+  }
+
+  function getSviatokName(d, m, y){
+    ensureEasterCache(y);
+    const key = getKey(d,m);
+    return (_easterCache[y][key] || sviatky[key] || '');
+  }
+
+  function isZatvorene(d, m, y){
+    if(m===1  && d===1)  return true;
+    if(m===12 && d===24) return true;
+    if(m===12 && d===25) return true;
+    if(m===12 && d===26) return true;
+    ensureEasterCache(y);
+    const key = getKey(d, m);
+    const moving = _easterCache[y][key] || '';
+    return moving === 'Veľký piatok' || moving === 'Veľkonočná nedeľa';
+  }
+
+  function getPersonNames(d, m){
+    return meniny[getKey(d,m)] || '';
+  }
+
+  function displayText(d, m, y){
+    const names = getPersonNames(d, m);
+    const sv = getSviatokName(d, m, y);
+    return names || sv || 'Žiadne meniny';
+  }
+
+  function renderMeniny(){
+    const now = new Date();
+    const td = now.getDate(), tm = now.getMonth()+1, ty = now.getFullYear();
+    const tmr = new Date(ty, tm-1, td); tmr.setDate(tmr.getDate()+1);
+    const nd = tmr.getDate(), nm = tmr.getMonth()+1, ny = tmr.getFullYear();
+
+    const isStedryDen = tm===12 && td===24;
+    const zatv = isZatvorene(td, tm, ty);
+    const storeOpen = !zatv && !isStedryDen;
+    const storeLabel = isStedryDen ? 'Obchody do 12:00' : (zatv ? 'Obchody zatvorené' : 'Obchody otvorené');
+    const storeClass = storeOpen ? 'men-open' : 'men-closed';
+
+    /* Veľký dátum + deň v týždni */
+    document.getElementById('menWeekday').textContent = weekdayNames[now.getDay()];
+    document.getElementById('menBigDate').textContent = `${td}. ${monthGenitive[tm-1]}`;
+
+    /* Západ slnka */
+    document.getElementById('menSunsetTime').textContent = getSunsetLabel(now);
+
+    /* Obchody dnes */
+    const badge = document.getElementById('menTodayBadge');
+    badge.textContent = storeLabel;
+    badge.className = 'men-badge ' + storeClass;
+
+    /* Mená dnes – každé na vlastnom riadku */
+    const namesToday = getPersonNames(td, tm);
+    const svToday = getSviatokName(td, tm, ty);
+    const namesList = document.getElementById('menNamesList');
+    namesList.innerHTML = '';
+    const parts = namesToday ? namesToday.split(',').map(n=>n.trim()).filter(Boolean) : [];
+    if(parts.length){
+      parts.forEach(name=>{
+        const row = document.createElement('div');
+        row.className = 'men-name-row';
+        row.innerHTML = `<span class="men-name-tag">Meniny</span><span class="men-name-text">${name}</span>`;
+        namesList.appendChild(row);
+      });
+    } else {
+      const row = document.createElement('div');
+      row.className = 'men-name-row';
+      row.innerHTML = `<span class="men-name-tag">${svToday ? 'Sviatok' : 'Meniny'}</span><span class="men-name-text">${svToday || 'Žiadne meniny'}</span>`;
+      namesList.appendChild(row);
+    }
+
+    /* Zajtra – kompaktne, vrátane otvorenosti obchodov */
+    const isStedryDenTmr = nm===12 && nd===24;
+    const zatvTmr = isZatvorene(nd, nm, ny);
+    const storeOpenTmr = !zatvTmr && !isStedryDenTmr;
+    const storeLabelTmr = isStedryDenTmr ? 'Obchody do 12:00' : (zatvTmr ? 'Obchody zatvorené' : 'Obchody otvorené');
+    const storeClassTmr = storeOpenTmr ? 'men-open' : 'men-closed';
+
+    document.getElementById('menTomorrowDate').textContent = `Zajtra ${String(nd).padStart(2,'0')}.${monthShort[nm-1]}`;
+    document.getElementById('menTomorrowName').textContent = displayText(nd, nm, ny);
+    const badgeTmr = document.getElementById('menTomorrowBadge');
+    badgeTmr.textContent = storeLabelTmr;
+    badgeTmr.className = 'men-badge ' + storeClassTmr;
+  }
+
+  renderMeniny();
+})();
+
+/* Ripple */
+document.querySelectorAll("button").forEach(b=>{b.addEventListener("click",function(e){const r=document.createElement("span");r.className="ripple";const rc=this.getBoundingClientRect(),sz=Math.max(rc.width,rc.height);r.style.cssText=`width:${sz}px;height:${sz}px;left:${e.clientX-rc.left-sz/2}px;top:${e.clientY-rc.top-sz/2}px`;this.appendChild(r);setTimeout(()=>r.remove(),600);});});
+</script>
+</body>
+</html>
