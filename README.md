@@ -1,3 +1,3 @@
 # Webcenter
 ## Webové funkcie aplikácie WebCenter a Správy SK
-## CDN pre web Nová karta
+# Centrálny repozitár pre open-source webovú aplikáciu Nová karta
