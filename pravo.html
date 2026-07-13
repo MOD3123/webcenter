@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Právo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Roboto:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* ---- Material 3 Expressive token system, "Právo" civic theme (light) ---- */
+    --md-primary:#4B3AA0;
+    --md-on-primary:#FFFFFF;
+    --md-primary-container:#E4DEFF;
+    --md-on-primary-container:#170865;
+
+    --md-secondary:#A6303F;
+    --md-secondary-container:#FFDAD9;
+    --md-on-secondary-container:#410007;
+
+    --md-tertiary:#2E6F5E;
+    --md-tertiary-container:#B6F0DC;
+    --md-on-tertiary-container:#00201A;
+
+    --md-surface:#FFF8F5;
+    --md-surface-container:#F3ECFF;
+    --md-surface-container-high:#EBE2FB;
+    --md-surface-container-low:#F9F1EE;
+
+    --md-outline:#7C7589;
+    --md-outline-variant:#D8CFE4;
+    --md-on-surface:#1C1B1F;
+    --md-on-surface-variant:#49454E;
+
+    --md-topbar-bg: rgba(255,248,245,.85);
+
+    --shape-xl:28px;
+    --shape-lg:20px;
+    --shape-full:999px;
+
+    --ease-expressive: cubic-bezier(.34,1.56,.64,1);
+  }
+
+  /* Dark mode is fully automatic: it follows the OS/browser color-scheme preference. */
+  @media (prefers-color-scheme: dark){
+    :root{
+      /* ---- Material 3 Expressive token system, "Právo" civic theme (dark) ---- */
+      --md-primary:#C9BAFF;
+      --md-on-primary:#341E86;
+      --md-primary-container:#4B3AA0;
+      --md-on-primary-container:#E4DEFF;
+
+      --md-secondary:#FFB3AF;
+      --md-secondary-container:#7E1A28;
+      --md-on-secondary-container:#FFDAD9;
+
+      --md-tertiary:#8CD5BE;
+      --md-tertiary-container:#155445;
+      --md-on-tertiary-container:#B6F0DC;
+
+      --md-surface:#131218;
+      --md-surface-container:#211F29;
+      --md-surface-container-high:#2B2933;
+      --md-surface-container-low:#1B1A21;
+
+      --md-outline:#948F9B;
+      --md-outline-variant:#3E3B47;
+      --md-on-surface:#E7E1E9;
+      --md-on-surface-variant:#CAC4D0;
+
+      --md-topbar-bg: rgba(19,18,24,.85);
+    }
+  }
+
+  *{box-sizing:border-box;}
+  html{scrollbar-width:none;-ms-overflow-style:none;}
+  body::-webkit-scrollbar{display:none;}
+
+  body{
+    margin:0;
+    background:var(--md-surface);
+    color:var(--md-on-surface);
+    font-family:'Roboto',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    transition:background .3s ease, color .3s ease;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important;}
+  }
+
+  /* ---------- Top app bar ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:20;
+    display:flex; align-items:center; justify-content:center; gap:.75rem;
+    padding:1rem 1.25rem;
+    background:var(--md-topbar-bg);
+    backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--md-outline-variant);
+  }
+  .topbar .mark{
+    width:40px;height:40px;border-radius:var(--shape-lg);
+    background:var(--md-primary-container);
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+  }
+  .topbar .mark svg{width:22px;height:22px;}
+  .topbar h1{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700; font-size:1.35rem; margin:0;
+    letter-spacing:-.02em;
+    color:var(--md-on-primary-container);
+  }
+  .topbar .sub{
+    font-size:.78rem; color:var(--md-on-surface-variant); margin-top:1px;
+  }
+
+  /* ---------- Page intro (plain, non-banner) ---------- */
+  .intro{
+    max-width:1100px; margin:0 auto; padding:1.5rem 1.25rem .25rem;
+  }
+  .intro h2{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:clamp(1.3rem, 3vw, 1.7rem);
+    line-height:1.15; font-weight:700; letter-spacing:-.02em;
+    margin:0 0 .4rem; color:var(--md-on-surface);
+  }
+  .intro p{
+    margin:0; max-width:60ch;
+    font-size:.92rem; color:var(--md-on-surface-variant); line-height:1.5;
+  }
+
+
+
+  /* ---------- Light blue button (ASPI) ---------- */
+  .btn-lightblue{
+    background:#D9ECFF; color:#0B4E8F;
+    box-shadow:none;
+  }
+  .btn-lightblue:hover{
+    background:#C6E3FF;
+    box-shadow:0 4px 12px rgba(11,78,143,.18);
+  }
+  @media (prefers-color-scheme: dark){
+    .btn-lightblue{ background:#1E3A57; color:#BFE0FF; }
+    .btn-lightblue:hover{ background:#264866; }
+  }
+
+  /* ---------- Predpis search box ---------- */
+  .search-wrap{
+    display:flex; justify-content:center;
+    padding:1.1rem 1.25rem 0;
+  }
+  .search-box{
+    display:flex; align-items:center; gap:.6rem;
+    width:100%; max-width:520px;
+    background:var(--md-surface-container-low);
+    border:1.5px solid var(--md-outline-variant);
+    border-radius:var(--shape-full);
+    padding:.55rem .55rem .55rem 1.1rem;
+    transition:border-color .2s ease, box-shadow .2s ease;
+  }
+  .search-box:focus-within{
+    border-color:var(--md-primary);
+    box-shadow:0 0 0 3px var(--md-primary-container);
+  }
+  .search-box svg{ width:19px; height:19px; flex-shrink:0; color:var(--md-on-surface-variant); }
+  .search-box input{
+    flex:1; border:none; outline:none; background:transparent;
+    font-family:'Roboto',sans-serif; font-size:.95rem;
+    color:var(--md-on-surface);
+  }
+  .search-box input::placeholder{ color:var(--md-on-surface-variant); }
+  .search-box button{
+    appearance:none; border:none; cursor:pointer;
+    background:var(--md-primary); color:var(--md-on-primary);
+    border-radius:var(--shape-full);
+    padding:.55rem 1.15rem;
+    font-family:'Roboto',sans-serif; font-weight:600; font-size:.88rem;
+    flex-shrink:0;
+    transition:filter .2s ease;
+  }
+  .search-box button:hover{ filter:brightness(1.1); }
+  .search-box button:active{ transform:scale(.96); }
+
+  /* ---------- Action buttons (M3 filled / tonal, pill) ---------- */
+  .actions{
+    display:flex; flex-wrap:wrap; gap:.75rem;
+    justify-content:center;
+    padding:1.4rem 1.25rem .4rem;
+  }
+  .btn{
+    appearance:none; border:none; cursor:pointer;
+    display:inline-flex; align-items:center; gap:.55rem;
+    padding:.85rem 1.4rem;
+    border-radius:var(--shape-full);
+    font-family:'Roboto',sans-serif; font-weight:600; font-size:.95rem;
+    transition:transform .25s var(--ease-expressive), box-shadow .25s ease, background .2s ease;
+    text-decoration:none;
+  }
+  .btn svg{width:19px;height:19px; flex-shrink:0;}
+  .btn:active{transform:scale(.96);}
+  .btn-filled{
+    background:var(--md-primary); color:var(--md-on-primary);
+    box-shadow:0 3px 10px rgba(75,58,160,.28);
+  }
+  .btn-filled:hover{ box-shadow:0 6px 16px rgba(75,58,160,.36); }
+  .btn-tonal{
+    background:var(--md-tertiary-container); color:var(--md-on-tertiary-container);
+  }
+  .btn-tonal:hover{ filter:brightness(0.95); }
+  @media (prefers-color-scheme: dark){
+    .btn-tonal:hover{ filter:brightness(1.15); }
+  }
+  .btn-outlined{
+    background:transparent;
+    color:var(--md-primary);
+    border:1.5px solid var(--md-outline-variant);
+  }
+  .btn-outlined:hover{
+    background:var(--md-surface-container-high);
+    border-color:var(--md-outline);
+  }
+
+  /* ---------- Filter chips ---------- */
+  .chips{
+    display:flex; gap:.6rem; flex-wrap:wrap;
+    justify-content:center;
+    padding:.9rem 1.25rem 0;
+  }
+  .chip{
+    appearance:none; cursor:pointer;
+    border:1px solid var(--md-outline-variant);
+    background:var(--md-surface-container-low);
+    color:var(--md-on-surface-variant);
+    padding:.5rem 1rem; border-radius:var(--shape-full);
+    font-size:.85rem; font-weight:500;
+    display:flex; align-items:center; gap:.4rem;
+    transition:background .2s ease, color .2s ease, border-color .2s ease, transform .2s var(--ease-expressive);
+  }
+  .chip[data-active="true"]{
+    background:var(--md-primary-container);
+    color:var(--md-on-primary-container);
+    border-color:transparent;
+    transform:translateY(-1px);
+  }
+  .chip .dot{width:8px;height:8px;border-radius:50%;}
+  .chip[data-type="Predpis"] .dot{background:var(--md-secondary);}
+  .chip[data-type="Aktualita"] .dot{background:var(--md-tertiary);}
+  .chip[data-type="Legislativa"] .dot{background:var(--md-primary);}
+  .chip[data-type="Všetko"] .dot{background:var(--md-primary);}
+
+  /* ---------- Feed ---------- */
+  #rss-feed{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));
+    gap:1rem;
+    max-width:1100px; margin:1.4rem auto 3rem;
+    padding:0 1.25rem;
+  }
+  .item-card{
+    background:var(--md-surface-container-low);
+    border:1px solid var(--md-outline-variant);
+    border-radius:var(--shape-lg);
+    padding:1.1rem 1.2rem 1.15rem;
+    display:flex; flex-direction:column; gap:.6rem;
+    opacity:0; transform:translateY(10px);
+    animation:cardIn .45s var(--ease-expressive) forwards;
+    transition:box-shadow .25s ease, transform .25s var(--ease-expressive), border-color .2s ease;
+  }
+  .item-card:hover{
+    box-shadow:0 8px 20px rgba(28,27,31,.08);
+    transform:translateY(-3px);
+    border-color:transparent;
+  }
+  @keyframes cardIn{ to{opacity:1; transform:translateY(0);} }
+
+  .badge{
+    align-self:flex-start;
+    font-size:.7rem; font-weight:600; letter-spacing:.03em;
+    padding:.28rem .65rem; border-radius:var(--shape-full);
+  }
+  .badge.Predpis{ background:var(--md-secondary-container); color:var(--md-on-secondary-container); }
+  .badge.Aktualita{ background:var(--md-tertiary-container); color:var(--md-on-tertiary-container); }
+  .badge.Legislativa{ background:var(--md-primary-container); color:var(--md-on-primary-container); }
+
+
+  .item-card h3{
+    margin:0; font-size:1.02rem; line-height:1.35;
+    font-family:'Roboto',sans-serif; font-weight:600;
+  }
+  .item-card h3 a{ color:var(--md-on-surface); text-decoration:none; }
+  .item-card h3 a:hover{ color:var(--md-primary); }
+
+  .item-card .meta{
+    font-size:.78rem; color:var(--md-on-surface-variant);
+  }
+
+  .detail-link{
+    margin-top:.2rem;
+    display:inline-flex; align-items:center; gap:.3rem;
+    font-size:.85rem; font-weight:600; color:var(--md-primary);
+    text-decoration:none;
+  }
+  .detail-link svg{width:15px;height:15px;}
+  .detail-link:hover{ text-decoration:underline; }
+
+  .loader, .end-msg{
+    grid-column:1/-1;
+    text-align:center; color:var(--md-on-surface-variant);
+    padding:2.2rem 0;
+    display:flex; flex-direction:column; align-items:center; gap:.8rem;
+    font-size:.9rem;
+  }
+  .spinner{
+    width:34px; height:34px; border-radius:50%;
+    border:3px solid var(--md-outline-variant);
+    border-top-color:var(--md-primary);
+    animation:spin .8s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  footer.credit{
+    text-align:center; font-size:.75rem; color:var(--md-on-surface-variant);
+    padding:0 1.25rem 2.5rem;
+  }
+</style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div>
+      <h1>Právo</h1>
+    </div>
+  </header>
+
+  <div class="search-wrap">
+    <form class="search-box" id="predpisSearch">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/><path d="M21 21L16.5 16.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      <input type="text" id="predpisSearchInput" placeholder="Hľadať predpisy (napr. zákonník práce)" autocomplete="off">
+      <button type="submit">Hľadať</button>
+    </form>
+  </div>
+
+  <div class="actions">
+    <a class="btn btn-filled" href="https://sites.google.com/view/aspiksk/domov" target="_blank" rel="noopener noreferrer">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M14 2H7C5.9 2 5 2.9 5 4V20C5 21.1 5.9 22 7 22H17C18.1 22 19 21.1 19 20V7L14 2Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M14 2V7H19" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M8.5 12H15.5M8.5 15.5H15.5M8.5 8.5H11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      Otvoriť Aspik
+    </a>
+    <a class="btn btn-lightblue" href="https://www.aspi.sk/" target="_blank" rel="noopener noreferrer">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M4 19.5C4 18.12 5.12 17 6.5 17H20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M6.5 2H20V22H6.5C5.12 22 4 20.88 4 19.5V4.5C4 3.12 5.12 2 6.5 2Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+      Otvoriť ASPI
+    </a>
+    <a class="btn btn-tonal" href="https://www.slov-lex.sk/" target="_blank" rel="noopener noreferrer">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/><path d="M21 21L16.5 16.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      Otvoriť Slov-Lex
+    </a>
+    <a class="btn btn-outlined" href="https://www.orsr.sk/" target="_blank" rel="noopener noreferrer">
+      <svg viewBox="0 0 24 24" fill="none"><rect x="4" y="7" width="16" height="13" rx="1.5" stroke="currentColor" stroke-width="1.8"/><path d="M9 7V5.5C9 4.12 10.12 3 11.5 3H12.5C13.88 3 15 4.12 15 5.5V7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      Otvoriť ORSR
+    </a>
+    <a class="btn btn-outlined" href="https://www.zrsr.sk/" target="_blank" rel="noopener noreferrer">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M3 21H21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M5 21V9L12 4L19 9V21" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 21V14H15V21" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+      Otvoriť ZRSR
+    </a>
+  </div>
+
+  <div class="chips" id="chips">
+    <button class="chip" data-type="Všetko" data-active="true"><span class="dot"></span>Všetko</button>
+    <button class="chip" data-type="Predpis" data-active="false"><span class="dot"></span>Predpisy</button>
+    <button class="chip" data-type="Legislativa" data-active="false"><span class="dot"></span>Legislatíva</button>
+    <button class="chip" data-type="Aktualita" data-active="false"><span class="dot"></span>Aktuality</button>
+  </div>
+
+  <div id="rss-feed">
+    <div class="loader"><div class="spinner"></div>Načítavam dáta zo Slov-Lex…</div>
+  </div>
+
+  <footer class="credit">Zdroj dát: vyhladavanie.slov-lex.sk a api-gateway.slov-lex.sk (RSS)</footer>
+
+  <script>
+    const proxy = 'https://spravysk.peniaskomano.workers.dev/?url=';
+    const feeds = [
+      { url: 'https://vyhladavanie.slov-lex.sk/rss/predpisZbierky', type: 'Predpis' },
+      { url: 'https://api-gateway.slov-lex.sk/external/evidencna-aplikacia/aktuality/rss', type: 'Aktualita' },
+      { url: 'https://vyhladavanie.slov-lex.sk/rss/legislativnyMaterial', type: 'Legislativa' }
+    ];
+
+    const pageSize = 12;
+    let items = [];
+    let index = 0;
+    let loading = false;
+    let activeFilter = 'Všetko';
+
+    function sanitizeUrl(url){
+      try{
+        const parsed = new URL(url, window.location.href);
+        if (parsed.protocol === "http:" || parsed.protocol === "https:") return parsed.href;
+      }catch(e){}
+      return "#";
+    }
+
+    async function fetchFeed(feed){
+      try{
+        const res = await fetch(proxy + encodeURIComponent(feed.url));
+        const xml = await res.text();
+        const doc = new DOMParser().parseFromString(xml, "text/xml");
+        return [...doc.querySelectorAll("item")].map(item => {
+          const title = item.querySelector("title")?.textContent?.trim() || "Bez názvu";
+          const link = item.querySelector("link")?.textContent?.trim() || "#";
+          const pubDateText = item.querySelector("pubDate")?.textContent;
+          const pubDate = pubDateText ? new Date(pubDateText) : null;
+          return { title, link, pubDate, type: feed.type };
+        });
+      }catch(e){
+        console.error(`Chyba pri načítaní ${feed.type}:`, e);
+        return [];
+      }
+    }
+
+    function currentItems(){
+      return activeFilter === 'Všetko' ? items : items.filter(i => i.type === activeFilter);
+    }
+
+    async function loadAllFeeds(){
+      const allItems = (await Promise.all(feeds.map(fetchFeed))).flat();
+      items = allItems.slice().sort((a,b) => {
+        if (a.pubDate && b.pubDate) return b.pubDate - a.pubDate;
+        if (a.pubDate) return -1;
+        if (b.pubDate) return 1;
+        return 0;
+      });
+      resetAndRender();
+    }
+
+    function formatDate(d){
+      if(!d) return '';
+      return d.toLocaleDateString('sk-SK', { day:'numeric', month:'long', year:'numeric' });
+    }
+
+    function createCard(item){
+      const card = document.createElement("div");
+      card.className = "item-card";
+
+      const badge = document.createElement("span");
+      badge.className = `badge ${item.type}`;
+      const badgeLabels = { Predpis: 'Predpis', Legislativa: 'Legislatíva', Aktualita: 'Aktualita' };
+      badge.textContent = badgeLabels[item.type] || item.type;
+      card.appendChild(badge);
+
+      const h3 = document.createElement("h3");
+      const safeHref = sanitizeUrl(item.link);
+      const linkEl = document.createElement("a");
+      linkEl.href = safeHref;
+      if (safeHref !== "#"){ linkEl.target = "_blank"; linkEl.rel = "noopener noreferrer"; }
+      linkEl.textContent = item.title;
+      h3.appendChild(linkEl);
+      card.appendChild(h3);
+
+      if (item.pubDate){
+        const meta = document.createElement("div");
+        meta.className = "meta";
+        meta.textContent = formatDate(item.pubDate);
+        card.appendChild(meta);
+      }
+
+      const detail = document.createElement("a");
+      detail.className = "detail-link";
+      detail.href = safeHref;
+      if (safeHref !== "#"){ detail.target = "_blank"; detail.rel = "noopener noreferrer"; }
+      detail.innerHTML = '';
+      const arrow = document.createElementNS("http://www.w3.org/2000/svg","svg");
+      arrow.setAttribute("viewBox","0 0 24 24");
+      arrow.setAttribute("fill","none");
+      arrow.innerHTML = '<path d="M7 17L17 7M17 7H8M17 7V16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>';
+      const label = document.createTextNode("Zobraziť detail");
+      detail.appendChild(label);
+      detail.appendChild(arrow);
+      card.appendChild(detail);
+
+      return card;
+    }
+
+    function resetAndRender(){
+      index = 0;
+      loading = false;
+      const container = document.getElementById("rss-feed");
+      container.innerHTML = "";
+      renderNext();
+    }
+
+    function renderNext(){
+      if (loading) return;
+      loading = true;
+
+      const container = document.getElementById("rss-feed");
+      const list = currentItems();
+      const slice = list.slice(index, index + pageSize);
+
+      slice.forEach((item, i) => {
+        const card = createCard(item);
+        card.style.animationDelay = `${i * 0.03}s`;
+        container.appendChild(card);
+      });
+
+      index += slice.length;
+      loading = false;
+
+      const oldEnd = document.getElementById("end");
+      if (oldEnd) oldEnd.remove();
+
+      if (index >= list.length){
+        const end = document.createElement("div");
+        end.className = "end-msg";
+        end.id = "end";
+        end.textContent = list.length === 0 ? "Žiadne záznamy v tejto kategórii." : "Žiadne ďalšie záznamy.";
+        container.appendChild(end);
+      }
+    }
+
+    function onScroll(){
+      if (window.innerHeight + window.scrollY + 150 >= document.body.scrollHeight){
+        renderNext();
+      }
+    }
+
+    document.getElementById('chips').addEventListener('click', (e) => {
+      const chip = e.target.closest('.chip');
+      if (!chip) return;
+      activeFilter = chip.dataset.type;
+      [...document.querySelectorAll('.chip')].forEach(c => c.dataset.active = (c === chip));
+      resetAndRender();
+    });
+
+    document.getElementById('predpisSearch').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const input = document.getElementById('predpisSearchInput');
+      const term = input.value.trim();
+      if (!term) return;
+      const url = 'https://www.slov-lex.sk/ezbierky/vyhladavanie-pravnych-predpisov?hladanyVyraz=' + encodeURIComponent(term);
+      window.open(url, '_blank', 'noopener,noreferrer');
+    });
+
+    window.addEventListener("scroll", onScroll);
+    loadAllFeeds();
+  </script>
+</body>
+</html>

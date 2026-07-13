@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no" />
+<title>Správy SK</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,600;0,700;0,800;0,900;1,700&family=Roboto+Flex:opsz,wdth,wght@8..144,75..125,100..900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --md-primary: #07630f;
+    --md-on-primary: #FFFFFF;
+    --md-primary-container: #C8F5D8;
+    --md-on-primary-container: #002110;
+    --md-secondary: #4A6455;
+    --md-on-secondary: #FFFFFF;
+    --md-secondary-container: #D2EDDC;
+    --md-on-secondary-container: #0A1F13;
+    --md-surface: transparent;
+    --md-on-surface: #181C19;
+    --md-surface-variant: #DCE8DF;
+    --md-on-surface-variant: #3A4A3E;
+    --md-surface-container-lowest: #FFFFFF;
+    --md-surface-container-low: #F0F7F2;
+    --md-surface-container: #E8F3EB;
+    --md-surface-container-high: #E0EDE4;
+    --md-surface-container-highest: #D8E8DC;
+    --md-outline: #6A7A6E;
+    --md-outline-variant: #B8CCbF;
+    --md-error: #BA1A1A;
+
+    --elev-1: 0 1px 2px rgba(0,0,0,.06), 0 1px 3px rgba(0,0,0,.1);
+    --elev-2: 0 1px 2px rgba(0,0,0,.05), 0 2px 6px rgba(0,0,0,.12);
+    --elev-3: 0 4px 8px rgba(0,0,0,.08), 0 1px 3px rgba(0,0,0,.1);
+    --elev-4: 0 8px 16px rgba(0,0,0,.1), 0 2px 4px rgba(0,0,0,.08);
+
+    --radius-xs: 8px;
+    --radius-sm: 12px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    --radius-xl: 28px;
+    --radius-full: 50px;
+
+    --cols: 3;
+    --gap: 14px;
+
+    /* Škálovanie veľkosti textu správ – ovládané z Nastavení v index.html
+       (posielané cez postMessage, viď listener nižšie). 1 = 100 %. */
+    --news-font-scale: 1;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --md-primary: #7DDBA0;      --md-on-primary: #003919;
+      --md-primary-container: #005228;
+      --md-on-primary-container: #C8F5D8;
+      --md-secondary: #96B3A0;
+      --md-on-secondary: #1A3324;
+      --md-secondary-container: #2A3E30;
+      --md-on-secondary-container: #D2EDDC;
+      --md-surface: transparent;
+      --md-on-surface: #DCE8DF;
+      --md-surface-variant: #3A4A3E;
+      --md-on-surface-variant: #B8CCBF;
+      --md-surface-container-lowest: #090F0B;
+      --md-surface-container-low: #161E18;
+      --md-surface-container: #1A231C;
+      --md-surface-container-high: #232D25;
+      --md-surface-container-highest: #2D382F;
+      --md-outline: #829688;
+      --md-outline-variant: #3A4A3E;
+      --md-error: #FFB4AB;
+    }
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; scrollbar-width: none; -ms-overflow-style: none; }
+  *::-webkit-scrollbar { display: none; }
+  html { scroll-behavior: smooth; }
+
+  html {
+    zoom: 1;
+    text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+    -moz-text-size-adjust: 100%;
+    width: 100%;
+    min-height: 100%;
+  }
+
+  body {
+    background: transparent;
+    color: var(--md-on-surface);
+    font-family: 'Nunito', -apple-system, sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    width: 100%;
+    min-height: 100%;
+    overflow-x: hidden;
+  }
+
+  button, a { -webkit-tap-highlight-color: transparent; outline: none; -webkit-appearance: none; }
+
+  @keyframes cardIn {
+    from { opacity: 0; transform: translate3d(0, 18px, 0); }
+    to   { opacity: 1; transform: translate3d(0, 0, 0); }
+  }
+
+  /* ── CARDS ── */
+  #rss-feed {
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: var(--gap);
+    align-items: flex-start;
+  }
+
+  .masonry-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap);
+    min-width: 0;
+  }
+
+  .item-card {
+    background: var(--md-surface-container-low);
+    border: 1.5px solid var(--md-outline-variant);
+    border-radius: var(--radius-xl);
+    display: flex; flex-direction: column;
+    box-shadow: var(--elev-1);
+    overflow: hidden;
+    will-change: opacity;
+    animation: cardIn .45s cubic-bezier(.25,.8,.25,1) both;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transition: box-shadow .18s ease, border-color .18s ease;
+  }
+
+  .item-thumb-wrap {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: var(--md-surface-container);
+    flex-shrink: 0;
+  }
+
+  .item-thumb-wrap.no-media { display: none; }
+
+  .item-thumb {
+    width: 100%; height: 100%;
+    object-fit: cover; display: block;
+    opacity: 0;
+    transition: opacity .25s ease;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: translateZ(0);
+  }
+
+  .item-thumb.loaded { opacity: 1; }
+  video.item-thumb { opacity: 1; }
+
+  .item-content {
+    padding: 16px 18px 18px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+
+  .item-badges { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+
+  .m3-chip {
+    border-radius: var(--radius-full); padding: 4px 10px;
+    font-size: calc(.72rem * var(--news-font-scale)); font-weight: 800; letter-spacing: .03em; border: 1px solid;
+  }
+
+  .m3-chip.date { background: var(--md-secondary-container); color: var(--md-on-secondary-container); border-color: transparent; }
+  .m3-chip.source { background: var(--md-primary-container); color: var(--md-on-primary-container); border-color: transparent; }
+
+  .item-content h2 {
+    font-family: 'Roboto Flex', sans-serif; font-size: calc(1.05rem * var(--news-font-scale)); font-weight: 750;
+    line-height: 1.35; letter-spacing: -.015em; color: var(--md-on-surface);
+  }
+
+  .item-content h2 a { text-decoration: none; color: inherit; transition: color .15s ease; }
+  .item-content h2 a:hover { color: var(--md-primary); }
+
+  .item-desc { font-size: calc(.875rem * var(--news-font-scale)); color: var(--md-on-surface-variant); line-height: 1.55; }
+
+  .read-more-btn {
+    display: block; width: 100%; padding: 11px;
+    background: var(--md-primary-strong, var(--md-primary)); color: var(--md-on-primary, #FFFFFF);
+    border: none; border-radius: var(--radius-md); text-align: center;
+    font-family: 'Nunito', sans-serif; font-weight: 800; font-size: calc(.9rem * var(--news-font-scale));
+    text-decoration: none; cursor: pointer;
+    transition: background .2s ease;
+    letter-spacing: .01em; box-shadow: var(--elev-1);
+    margin-top: auto;
+  }
+
+  .read-more-btn:hover { background: var(--md-primary-strong-hover, var(--md-primary-hover, var(--md-primary))); }
+
+  .feed-message {
+    flex: 1;
+    border-radius: var(--radius-xl);
+    padding: 48px 24px; text-align: center;
+    color: var(--md-on-surface-variant); font-weight: 700; font-size: 1rem;
+  }
+
+  .loading-msg { display: flex; justify-content: center; align-items: center; gap: 8px; min-height: 100px; }
+
+  .dot {
+    width: 12px; height: 12px; background: var(--md-primary);
+    border-radius: 50%; animation: m3bounce 1.4s infinite cubic-bezier(.36,.07,.19,.97) both;
+  }
+  .dot:nth-child(1) { animation-delay: -0.32s; }
+  .dot:nth-child(2) { animation-delay: -0.16s; }
+
+  @keyframes m3bounce {
+    0%, 80%, 100% { transform: scale(0); opacity: 0.4; }
+    40% { transform: scale(1.2); opacity: 1; }
+  }
+
+  #load-sentinel { height: 1px; margin-bottom: 20px; }
+
+  @media (max-width: 1100px) { :root { --cols: 2; } }
+  @media (max-width: 768px) { :root { --cols: 1; } }
+</style>
+
+<script>
+  /* Prijme farby a veľkosť textu z rodičovskej stránky (index.html) a aplikuje
+     ich ako CSS premenné, aby sa tento embed prispôsobil aktuálnej téme
+     a nastaveniu veľkosti textu správ. Hneď po spustení si o ne aj sám
+     povie – pre prípad, že by sa tento iframe načítal až po tom, čo rodič
+     odoslal prvú správu. */
+  window.addEventListener('message', function(e){
+    const d = e.data;
+    if(!d) return;
+    if(d.type === 'theme-sync' && d.vars){
+      const root = document.documentElement;
+      Object.entries(d.vars).forEach(([k,v]) => { if(v) root.style.setProperty(k, v); });
+    } else if(d.type === 'font-scale-sync' && d.scale){
+      document.documentElement.style.setProperty('--news-font-scale', d.scale);
+    }
+  });
+  try{ if(window.parent && window.parent !== window) window.parent.postMessage({ type:'news-frame-ready' }, '*'); }catch(e){}
+</script>
+</head>
+<body>
+
+<div id="rss-feed">
+  <div class="feed-message loading-msg">
+    <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+  </div>
+</div>
+<div id="load-sentinel"></div>
+
+<script>
+(async function(){
+  // Detekcia Google Sites iFrame a oprava škálovania
+  (function fixGoogleSitesScaling() {
+    try {
+      const isEmbedded = window.self !== window.top;
+      if (!isEmbedded) return;
+      const actualWidth = window.innerWidth || document.documentElement.clientWidth;
+      if (actualWidth > 0 && actualWidth < 600) {
+        document.documentElement.style.setProperty('--cols', '1');
+      }
+    } catch(e) {}
+  })();
+
+  const FEEDS_ALL = [
+    "https://spravy.pravda.sk/rss/xml","https://domov.sme.sk/rss",
+    "https://touchit.sk/feed","https://www.teraz.sk/rss/vsetky-spravy.rss","https://www.startitup.sk/feed/",
+    "https://www.ta3.com/rss/5/spravy","https://www.info.sk/rss/","https://www.novinky.cz/rss",
+    "https://www.imeteo.sk/rss/news","https://spravy.pravda.sk/regiony/rss/xml/","https://sita.sk/feed/",
+    "https://www.ceskenoviny.cz/sluzby/rss/zpravy.php","https://refresher.sk/rss",
+    "https://sportweb.pravda.sk/rss/xml/","https://www.aktuality.sk/rss/","https://zive.aktuality.sk/rss/najnovsie/",
+    "https://www.zive.cz/rss","https://www.reflex.cz/rss","https://androidportal.sk/feed/","https://spravy.stvr.sk/feed/","https://www.blesk.cz/rss",
+    "https://ereport.sk/feed","https://www.postoj.sk/rss",
+    "https://www.seznamzpravy.cz/rss","https://www.satelitnatv.sk/feed","https://ct24.ceskatelevize.cz/rss",
+    "https://www.istream.sk/feed","https://imhd.sk/ba/rss/dokumenty","https://www.bratislavskyvecernik.sk/feed","https://marker.sk/rss"
+  ];
+
+  const URL_TO_NAME = {
+    "https://spravy.pravda.sk/rss/xml": "Pravda.sk",
+    "https://domov.sme.sk/rss": "SME.sk",
+    "https://touchit.sk/feed": "TouchIT",
+    "https://www.teraz.sk/rss/vsetky-spravy.rss": "Teraz.sk",
+    "https://www.startitup.sk/feed/": "Startitup",
+    "https://www.ta3.com/rss/5/spravy": "TA3",
+    "https://www.info.sk/rss/": "Info.sk",
+    "https://www.novinky.cz/rss": "Novinky.cz",
+    "https://www.imeteo.sk/rss/news": "iMeteo",
+    "https://spravy.pravda.sk/regiony/rss/xml/": "Pravda Regióny",
+    "https://sita.sk/feed/": "SITA",
+    "https://www.ceskenoviny.cz/sluzby/rss/zpravy.php": "České Noviny",
+    "https://refresher.sk/rss": "Refresher",
+    "https://sportweb.pravda.sk/rss/xml/": "Športweb",
+    "https://www.aktuality.sk/rss/": "Aktuality.sk",
+    "https://zive.aktuality.sk/rss/najnovsie/": "Živé.sk",
+    "https://www.zive.cz/rss": "Zive.cz",
+    "https://www.reflex.cz/rss": "Reflex",
+    "https://androidportal.sk/feed/": "AndroidPortal",
+    "https://spravy.stvr.sk/feed/": "RTVS",
+    "https://www.blesk.cz/rss": "Blesk.cz",
+    "https://ereport.sk/feed": "eReport",
+    "https://www.postoj.sk/rss": "Postoj",
+    "https://www.seznamzpravy.cz/rss": "Seznam Zprávy",
+    "https://www.satelitnatv.sk/feed": "Satelitná TV",
+    "https://ct24.ceskatelevize.cz/rss": "ČT 24",
+    "https://www.istream.sk/feed": "iStream.sk",
+    "https://imhd.sk/ba/rss/dokumenty": "iMHD.sk BA",
+    "https://www.bratislavskyvecernik.sk/feed": "Bratislavský večerník",
+    "https://marker.sk/rss": "Marker.sk"
+  };
+
+  const PAGE_SIZE = 15;
+  let allItems = [], renderIndex = 0;
+  let renderPending = false;
+
+  const feed = document.getElementById("rss-feed");
+  const sentinel = document.getElementById("load-sentinel");
+
+  let cols = [];
+  const NUM_COLS = () => window.innerWidth <= 768 ? 1 : window.innerWidth <= 1100 ? 2 : 3;
+
+  function buildColumns() {
+    feed.innerHTML = '';
+    cols = [];
+    const n = NUM_COLS();
+    for (let i = 0; i < n; i++) {
+      const col = document.createElement('div');
+      col.className = 'masonry-col';
+      feed.appendChild(col);
+      cols.push(col);
+    }
+  }
+
+  function cleanDesc(text) {
+    text = text.replace(/The post .+ appeared first on .+\.\s*$/i, '').trim();
+    text = text.replace(/Článok .+ ako prv[ýý] na .+\.\s*$/i, '').trim();
+    return text;
+  }
+
+  function getNetworkTimeout() {
+    const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    if (!conn) return 9000;
+    const type = conn.effectiveType || '', dl = conn.downlink || 0;
+    if (type === 'slow-2g' || type === '2g' || dl < 0.5) return 40000;
+    if (type === '4g' && dl >= 5) return 5000;
+    return 9000;
+  }
+
+  async function fetchXMLFeed(url) {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), getNetworkTimeout());
+    try {
+      const res  = await fetch('https://spravysk.peniaskomano.workers.dev/?url=' + encodeURIComponent(url), { signal: ctrl.signal });
+      clearTimeout(timer);
+      const text = await res.text();
+      const xml  = new DOMParser().parseFromString(text, 'text/xml');
+      const source = URL_TO_NAME[url] || xml.querySelector('channel > title')?.textContent || url;
+
+      return [...xml.querySelectorAll('item')].map(item => {
+        let pub = new Date(
+          item.querySelector('pubDate')?.textContent ||
+          item.querySelector('updated')?.textContent ||
+          item.querySelector('[dc\\:date]')?.textContent ||
+          item.querySelector('date')?.textContent || ''
+        );
+        if (isNaN(pub)) pub = new Date(0);
+
+        let thumb = '', video = '';
+
+        const enc = item.querySelector('enclosure');
+        if (enc) {
+          const t = enc.getAttribute('type') || '', u = enc.getAttribute('url') || '';
+          if (t.startsWith('image')) thumb = u;
+          else if (t.startsWith('video')) video = u;
+        }
+        if (!thumb) { const tg = item.querySelector('thumbnail'); if (tg) thumb = tg.textContent.trim(); }
+        if (!thumb) { const si = item.querySelector('image url, szn\\:image szn\\:url'); if (si) thumb = si.textContent.trim(); }
+        if (!thumb && !video) {
+          const mc = item.querySelector('media\\:content, content');
+          if (mc) {
+            const t = mc.getAttribute('type') || '', u = mc.getAttribute('url') || '';
+            if (t.startsWith('image')) thumb = u;
+            else if (t.startsWith('video')) video = u;
+          }
+        }
+        if (!thumb) {
+          const dh = item.querySelector('description')?.textContent || '';
+          const im = dh.match(/<img[^>]+src="([^">]+)"/);
+          if (im) thumb = im[1];
+          if (!video) {
+            const vm = dh.match(/<video[^>]+src="([^">]+)"/);
+            if (vm) video = vm[1];
+            else {
+              const ifm = dh.match(/<iframe[^>]+src="([^">]+)"/);
+              if (ifm && (ifm[1].includes('youtube') || ifm[1].includes('vimeo'))) video = ifm[1];
+            }
+          }
+        }
+
+        let raw = (item.querySelector('description')?.textContent || '').replace(/<[^>]*>/g, '').trim();
+        raw = cleanDesc(raw);
+        let desc = raw.slice(0, 1000);
+        if (raw.length > 1000) { const ls = desc.lastIndexOf(' '); if (ls > 0) desc = desc.slice(0, ls); }
+
+        return {
+          title: item.querySelector('title')?.textContent || '',
+          link:  item.querySelector('link')?.textContent  || '',
+          desc, pubDate: pub, source, thumb, video
+        };
+      }).filter(i => i.title && i.link);
+    } catch(e) {
+      clearTimeout(timer);
+      return [];
+    }
+  }
+
+  const imgObserver = new IntersectionObserver((entries, obs) => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      const img = e.target;
+      img.src = img.dataset.src;
+      img.onload  = () => img.classList.add('loaded');
+      img.onerror = () => { img.closest('.item-thumb-wrap')?.classList.add('no-media'); };
+      obs.unobserve(img);
+    });
+  }, { rootMargin: '300px' });
+
+  const vidObserver = new IntersectionObserver((entries, obs) => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      const v = e.target;
+      v.src = v.dataset.src; v.load();
+      obs.unobserve(v);
+    });
+  }, { rootMargin: '200px' });
+
+  const sentinelObserver = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting) renderBatch();
+  }, { rootMargin: '400px' });
+  sentinelObserver.observe(sentinel);
+
+  function renderBatch() {
+    if (renderPending || renderIndex >= allItems.length) return;
+    renderPending = true;
+    requestAnimationFrame(() => {
+      const batch = allItems.slice(renderIndex, renderIndex + PAGE_SIZE);
+      batch.forEach((item, batchIdx) => {
+        const globalIdx = renderIndex + batchIdx;
+        const card = buildCard(item, globalIdx);
+        const colIdx = globalIdx % cols.length;
+        cols[Math.min(colIdx, cols.length - 1)].appendChild(card);
+      });
+      renderIndex += batch.length;
+      renderPending = false;
+    });
+  }
+
+  function buildCard(i, globalIdx) {
+    const card = document.createElement('div');
+    card.className = 'item-card';
+    card.style.animationDelay = Math.min(globalIdx % PAGE_SIZE * 40, 400) + 'ms';
+    const badgeDate = `${i.pubDate.toLocaleDateString('sk-SK')} ${i.pubDate.toLocaleTimeString('sk-SK', {hour:'2-digit', minute:'2-digit'})}`;
+
+    let mediaHtml = '';
+    if (i.video) {
+      mediaHtml = `<div class="item-thumb-wrap"><video class="item-thumb" data-src="${i.video}" controls preload="metadata"></video></div>`;
+    } else if (i.thumb) {
+      mediaHtml = `<div class="item-thumb-wrap"><img class="item-thumb" data-src="${i.thumb}" alt="" loading="lazy"></div>`;
+    } else {
+      mediaHtml = `<div class="item-thumb-wrap no-media"></div>`;
+    }
+
+    card.innerHTML = `
+      ${mediaHtml}
+      <div class="item-content">
+        <h2><a href="${i.link}" target="_blank" rel="noopener noreferrer">${i.title}</a></h2>
+        <div class="item-badges">
+          <span class="m3-chip date">${badgeDate}</span>
+          <span class="m3-chip source">${i.source}</span>
+        </div>
+        <p class="item-desc">${i.desc}${i.desc.length >= 590 ? '…' : ''}</p>
+        <a class="read-more-btn" href="${i.link}" target="_blank" rel="noopener noreferrer">Čítať článok</a>
+      </div>
+    `;
+
+    const img = card.querySelector('img.item-thumb');
+    if (img) imgObserver.observe(img);
+    const vid = card.querySelector('video.item-thumb');
+    if (vid) vidObserver.observe(vid);
+
+    return card;
+  }
+
+  feed.innerHTML = '<div class="feed-message loading-msg"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
+
+  const results = await Promise.all(FEEDS_ALL.map(fetchXMLFeed));
+  allItems = results.flat().sort((a, b) => b.pubDate - a.pubDate);
+
+  if (allItems.length === 0) {
+    feed.innerHTML = '<div class="feed-message">Chyba načítania alebo žiadne výsledky.</div>';
+    return;
+  }
+
+  buildColumns();
+  renderBatch();
+
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      renderIndex = 0;
+      buildColumns();
+      renderBatch();
+    }, 200);
+  });
+})();
+</script>
+</body>
+</html>
