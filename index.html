@@ -5,10 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nová karta</title>
 <link rel="icon" type="image/png" sizes="1080x1080" href="logo.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,600;0,700;0,800;0,900;1,700&display=swap" rel="stylesheet">
+<!-- Google Fonts sa načítavajú dynamicky v JS až po súhlase (viď consent-gate na začiatku <body>) -->
+
 <script>
   /* Skoré nastavenie režimu zobrazenia (Podľa zariadenia / Svetlý / Tmavý)
      A ZÁROVEŇ skoré nastavenie vlastnej farebnej témy (primary/accent),
@@ -105,7 +103,7 @@
   })();
 </script>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,400;8..144,500;8..144,600;8..144,700;8..144,900&family=Roboto:wght@400;500&display=swap');
+  /* Roboto Flex sa načítava dynamicky v JS až po súhlase */
 
   :root{
     --primary:        #0288D1;
@@ -2785,6 +2783,85 @@ button:not(.nav-item) { position: relative; overflow: hidden; }
 </head>
 <body>
 
+<div id="consent-gate" style="all:initial;position:fixed;inset:0;z-index:99999;background:#fff;color:#000;overflow:auto;display:block;padding:32px;font:16px/1.5 sans-serif;box-sizing:border-box;">
+  <h2 style="font:bold 22px/1.3 sans-serif;margin:0 0 12px;">Táto stránka sa pripája na internet</h2>
+  <p style="font:16px/1.5 sans-serif;margin:0 0 16px;max-width:520px;">
+    Pri používaní táto stránka sťahuje písma a ikonky z Google, predpoveď počasia z Open-Meteo
+    a (ak zapnete mapový režim) aj z iMeteo.sk. Kým nepotvrdíte súhlas, nič z toho sa nenačíta.
+  </p>
+  <button type="button" onclick="window.__consentAgree()" style="font:16px sans-serif;margin:0 8px 0 0;padding:6px 14px;">Súhlasím</button>
+  <button type="button" onclick="window.__consentClose()" style="font:16px sans-serif;padding:6px 14px;">Zavrieť stránku</button>
+</div>
+
+<script>
+(function(){
+  var KEY = 'consent-v1';
+  window.__consentQueue = [];
+  window.__consentGiven = false;
+
+  /* Iné časti skriptu volajú toto namiesto priameho fetch/pripojenia –
+     spustí sa hneď, ak súhlas už bol daný, inak počká na kliknutie na "Súhlasím". */
+  window.whenConsented = function(cb){
+    if(window.__consentGiven){ cb(); }
+    else{ window.__consentQueue.push(cb); }
+  };
+
+  function removeGate(){
+    var gate = document.getElementById('consent-gate');
+    if(gate) gate.remove();
+  }
+
+  window.__consentAgree = function(){
+    try{ localStorage.setItem(KEY, '1'); }catch(e){}
+    window.__consentGiven = true;
+    removeGate();
+    var q = window.__consentQueue; window.__consentQueue = [];
+    q.forEach(function(cb){ try{ cb(); }catch(e){} });
+  };
+
+  window.__consentClose = function(){
+    window.close();
+    setTimeout(function(){
+      document.open();
+      document.write('Túto kartu teraz môžete zavrieť.');
+      document.close();
+    }, 250);
+  };
+
+  try{
+    if(localStorage.getItem(KEY) === '1'){
+      window.__consentGiven = true;
+      removeGate();
+    }
+  }catch(e){}
+
+  /* --- Po súhlase: Google fonty a favicony rýchlych odkazov --- */
+  window.whenConsented(function(){
+    [
+      {rel:'preconnect', href:'https://fonts.googleapis.com'},
+      {rel:'preconnect', href:'https://fonts.gstatic.com', crossOrigin:''},
+      {rel:'stylesheet', href:'https://fonts.googleapis.com/icon?family=Material+Icons+Round'},
+      {rel:'stylesheet', href:'https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,600;0,700;0,800;0,900;1,700&display=swap'},
+      {rel:'stylesheet', href:'https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,400;8..144,500;8..144,600;8..144,700;8..144,900&family=Roboto:wght@400;500&display=swap'}
+    ].forEach(function(d){
+      var l = document.createElement('link');
+      l.rel = d.rel; l.href = d.href;
+      if(d.crossOrigin !== undefined) l.crossOrigin = d.crossOrigin;
+      document.head.appendChild(l);
+    });
+
+    document.querySelectorAll('img[data-favicon-src]').forEach(function(img){
+      img.src = img.getAttribute('data-favicon-src');
+    });
+
+    /* Domovská stránka má vždy viditeľný iframe so správami - ten sa aktivuje
+       hneď po súhlase (ostatné iframy nástrojov sa aktivujú až pri kliknutí naň). */
+    var newsFrame = document.querySelector('iframe[data-src="news_embed.html"]');
+    if(newsFrame) newsFrame.src = newsFrame.getAttribute('data-src');
+  });
+})();
+</script>
+
   <div class="wallpaper-layer" id="wallpaper-layer"></div>
   <div class="wallpaper-scrim"></div>
 
@@ -2884,7 +2961,7 @@ button:not(.nav-item) { position: relative; overflow: hidden; }
   </div>
 
   <nav class="rail">
-    <div class="rail-brand" id="rail-brand"><img src="logo.png" alt="Logo" class="loaded"></div>
+    <div class="rail-brand" id="rail-brand"><img data-favicon-src="logo.png" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%23888' opacity='.35'/%3E%3C/svg%3E" alt="Logo" class="loaded"></div>
 
     <button class="rail-toggle-btn" id="rail-toggle-btn" aria-label="Rozbaliť/zbaliť panel" onclick="toggleRail()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
@@ -3212,7 +3289,7 @@ button:not(.nav-item) { position: relative; overflow: hidden; }
             </div>
 
             <div class="featured-news-card featured-news-frame">
-              <iframe src="news_embed.html" title="Najnovšie správy" loading="lazy"></iframe>
+              <iframe data-src="news_embed.html" title="Najnovšie správy" loading="lazy"></iframe>
             </div>
 
             <div class="waste-widget" id="waste-widget">
@@ -3319,15 +3396,15 @@ button:not(.nav-item) { position: relative; overflow: hidden; }
           <div class="dash-col" id="quicklinks-col">
             <section class="quicklinks">
               <div class="quicklinks-grid pill-style" id="quicklinks-grid">
-                <div class="ql-row"><a class="ql-tile pill" href="https://www.shmu.sk" target="_blank" rel="noopener"><span class="ql-emoji"><img src="https://t1.gstatic.com/faviconV2?url=https%3A%2F%2Fwww.shmu.sk&client=SOCIAL&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL" alt="" loading="lazy"></span><span class="ql-label">SHMÚ.sk</span></a><a class="ql-tile pill" href="https://gemini.google.com/app?hl=sk" target="_blank" rel="noopener"><span class="ql-emoji"><img src="https://t1.gstatic.com/faviconV2?url=https://gemini.google.com/app?hl=sk&client=SOCIAL&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL" alt="" loading="lazy"></span><span class="ql-label">Gemini</span></a></div>
-                <div class="ql-row"><a class="ql-tile pill" href="https://www.imeteo.sk/burky" target="_blank" rel="noopener"><span class="ql-emoji"><img src="https://t1.gstatic.com/faviconV2?url=https%3A%2F%2Fwww.imeteo.sk%2Fburky&client=SOCIAL&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL" alt="" loading="lazy"></span><span class="ql-label">Búrky</span></a><a class="ql-tile pill" href="https://www.claude.ai" target="_blank" rel="noopener"><span class="ql-emoji"><img src="https://t1.gstatic.com/faviconV2?url=https%3A%2F%2Fwww.claude.ai&client=SOCIAL&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL" alt="" loading="lazy"></span><span class="ql-label">Claude AI</span></a></div>
-                <div class="ql-row"><a class="ql-tile pill" href="https://cica.vugk.sk/" target="_blank" rel="noopener"><span class="ql-emoji"><img src="https://t1.gstatic.com/faviconV2?url=https%3A%2F%2Fcica.vugk.sk%2F&client=SOCIAL&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL" alt="" loading="lazy"></span><span class="ql-label">CICA</span></a><a class="ql-tile pill" href="https://chatgpt.com/" target="_blank" rel="noopener"><span class="ql-emoji"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/ChatGPT_logo.svg/1280px-ChatGPT_logo.svg.png" alt="" loading="lazy"></span><span class="ql-label">ChatGPT</span></a></div>
-                <div class="ql-row"><a class="ql-tile pill" href="https://talkonlinepanel.com/sk" target="_blank" rel="noopener"><span class="ql-emoji"><img src="https://t1.gstatic.com/faviconV2?url=https%3A%2F%2Ftalkonlinepanel.com%2Fsk&client=SOCIAL&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL" alt="" loading="lazy"></span><span class="ql-label">Talk online panel</span></a><a class="ql-tile pill" href="https://ivyskumy.sk/" target="_blank" rel="noopener"><span class="ql-emoji"><img src="https://t1.gstatic.com/faviconV2?url=https%3A%2F%2Fivyskumy.sk%2F&client=SOCIAL&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL" alt="" loading="lazy"></span><span class="ql-label">Ivýskumy.sk</span></a></div>
-                <div class="ql-row"><a class="ql-tile pill" href="https://www.oneplay.cz/" target="_blank" rel="noopener"><span class="ql-emoji"><img src="https://t1.gstatic.com/faviconV2?url=https://www.oneplay.cz&client=SOCIAL&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL" alt="" loading="lazy"></span><span class="ql-label">Oneplay</span></a><a class="ql-tile pill" href="https://www.onlineklub.com/" target="_blank" rel="noopener"><span class="ql-emoji"><img src="https://t1.gstatic.com/faviconV2?url=https%3A%2F%2Fwww.onlineklub.com%2F&client=SOCIAL&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL" alt="" loading="lazy"></span><span class="ql-label">Onlineklub</span></a></div>
-                <div class="ql-row"><a class="ql-tile pill" href="https://www.imeteo.sk/iradar" target="_blank" rel="noopener"><span class="ql-emoji"><img src="https://t1.gstatic.com/faviconV2?url=https%3A%2F%2Fwww.imeteo.sk%2Firadar&client=SOCIAL&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL" alt="" loading="lazy"></span><span class="ql-label">Radar</span></a><a class="ql-tile pill" href="https://translate.google.sk/?sl=auto&tl=sk&op=translate" target="_blank" rel="noopener"><span class="ql-emoji"><img src="https://t1.gstatic.com/faviconV2?url=https%3A%2F%2Ftranslate.google.sk%2F%3Fsl%3Dauto%26tl%3Dsk%26op%3Dtranslate&client=SOCIAL&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL" alt="" loading="lazy"></span><span class="ql-label">Prekladač</span></a></div>
-                <div class="ql-row"><a class="ql-tile pill" href="https://www.google.sk" target="_blank" rel="noopener"><span class="ql-emoji"><img src="https://t1.gstatic.com/faviconV2?url=https%3A%2F%2Fwww.google.sk&client=SOCIAL&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL" alt="" loading="lazy"></span><span class="ql-label">Google</span></a><a class="ql-tile pill" href="https://mapy.com/sk/turisticka?x=19.4402339&y=48.8084443&z=8" target="_blank" rel="noopener"><span class="ql-emoji"><img src="https://t1.gstatic.com/faviconV2?url=https%3A%2F%2Fmapy.com%2Fsk%2Fturisticka%3Fx%3D19.4402339%26y%3D48.8084443%26z%3D8&client=SOCIAL&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL" alt="" loading="lazy"></span><span class="ql-label">Mapy.cz</span></a></div>
-                <div class="ql-row"><a class="ql-tile pill" href="https://zoznam.sk" target="_blank" rel="noopener"><span class="ql-emoji"><img src="https://t1.gstatic.com/faviconV2?url=https%3A%2F%2Fzoznam.sk&client=SOCIAL&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL" alt="" loading="lazy"></span><span class="ql-label">Zoznam.sk</span></a><a class="ql-tile pill" href="https://www.youtube.com/" target="_blank" rel="noopener"><span class="ql-emoji"><img src="https://t1.gstatic.com/faviconV2?url=https%3A%2F%2Fwww.youtube.com%2F&client=SOCIAL&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL" alt="" loading="lazy"></span><span class="ql-label">YouTube</span></a></div>
-                <div class="ql-row"><a class="ql-tile pill" href="https://www.seznam.cz/" target="_blank" rel="noopener"><span class="ql-emoji"><img src="https://t1.gstatic.com/faviconV2?url=https%3A%2F%2Fwww.seznam.cz%2F&client=SOCIAL&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL" alt="" loading="lazy"></span><span class="ql-label">Seznam.cz</span></a><a class="ql-tile pill" href="https://imhd.sk" target="_blank" rel="noopener"><span class="ql-emoji"><img src="https://t1.gstatic.com/faviconV2?url=https%3A%2F%2Fimhd.sk&client=SOCIAL&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL" alt="" loading="lazy"></span><span class="ql-label">Imhd.sk</span></a></div>
+                <div class="ql-row"><a class="ql-tile pill" href="https://www.shmu.sk" target="_blank" rel="noopener"><span class="ql-emoji"><img data-favicon-src="https://t1.gstatic.com/faviconV2?url=https%3A%2F%2Fwww.shmu.sk&client=SOCIAL&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%23888' opacity='.35'/%3E%3C/svg%3E" alt="" loading="lazy"></span><span class="ql-label">SHMÚ.sk</span></a><a class="ql-tile pill" href="https://gemini.google.com/app?hl=sk" target="_blank" rel="noopener"><span class="ql-emoji"><img data-favicon-src="https://t1.gstatic.com/faviconV2?url=https://gemini.google.com/app?hl=sk&client=SOCIAL&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%23888' opacity='.35'/%3E%3C/svg%3E" alt="" loading="lazy"></span><span class="ql-label">Gemini</span></a></div>
+                <div class="ql-row"><a class="ql-tile pill" href="https://www.imeteo.sk/burky" target="_blank" rel="noopener"><span class="ql-emoji"><img data-favicon-src="https://t1.gstatic.com/faviconV2?url=https%3A%2F%2Fwww.imeteo.sk%2Fburky&client=SOCIAL&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%23888' opacity='.35'/%3E%3C/svg%3E" alt="" loading="lazy"></span><span class="ql-label">Búrky</span></a><a class="ql-tile pill" href="https://www.claude.ai" target="_blank" rel="noopener"><span class="ql-emoji"><img data-favicon-src="https://t1.gstatic.com/faviconV2?url=https%3A%2F%2Fwww.claude.ai&client=SOCIAL&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%23888' opacity='.35'/%3E%3C/svg%3E" alt="" loading="lazy"></span><span class="ql-label">Claude AI</span></a></div>
+                <div class="ql-row"><a class="ql-tile pill" href="https://cica.vugk.sk/" target="_blank" rel="noopener"><span class="ql-emoji"><img data-favicon-src="https://t1.gstatic.com/faviconV2?url=https%3A%2F%2Fcica.vugk.sk%2F&client=SOCIAL&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%23888' opacity='.35'/%3E%3C/svg%3E" alt="" loading="lazy"></span><span class="ql-label">CICA</span></a><a class="ql-tile pill" href="https://chatgpt.com/" target="_blank" rel="noopener"><span class="ql-emoji"><img data-favicon-src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/ChatGPT_logo.svg/1280px-ChatGPT_logo.svg.png" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%23888' opacity='.35'/%3E%3C/svg%3E" alt="" loading="lazy"></span><span class="ql-label">ChatGPT</span></a></div>
+                <div class="ql-row"><a class="ql-tile pill" href="https://talkonlinepanel.com/sk" target="_blank" rel="noopener"><span class="ql-emoji"><img data-favicon-src="https://t1.gstatic.com/faviconV2?url=https%3A%2F%2Ftalkonlinepanel.com%2Fsk&client=SOCIAL&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%23888' opacity='.35'/%3E%3C/svg%3E" alt="" loading="lazy"></span><span class="ql-label">Talk online panel</span></a><a class="ql-tile pill" href="https://ivyskumy.sk/" target="_blank" rel="noopener"><span class="ql-emoji"><img data-favicon-src="https://t1.gstatic.com/faviconV2?url=https%3A%2F%2Fivyskumy.sk%2F&client=SOCIAL&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%23888' opacity='.35'/%3E%3C/svg%3E" alt="" loading="lazy"></span><span class="ql-label">Ivýskumy.sk</span></a></div>
+                <div class="ql-row"><a class="ql-tile pill" href="https://www.oneplay.cz/" target="_blank" rel="noopener"><span class="ql-emoji"><img data-favicon-src="https://t1.gstatic.com/faviconV2?url=https://www.oneplay.cz&client=SOCIAL&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%23888' opacity='.35'/%3E%3C/svg%3E" alt="" loading="lazy"></span><span class="ql-label">Oneplay</span></a><a class="ql-tile pill" href="https://www.onlineklub.com/" target="_blank" rel="noopener"><span class="ql-emoji"><img data-favicon-src="https://t1.gstatic.com/faviconV2?url=https%3A%2F%2Fwww.onlineklub.com%2F&client=SOCIAL&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%23888' opacity='.35'/%3E%3C/svg%3E" alt="" loading="lazy"></span><span class="ql-label">Onlineklub</span></a></div>
+                <div class="ql-row"><a class="ql-tile pill" href="https://www.imeteo.sk/iradar" target="_blank" rel="noopener"><span class="ql-emoji"><img data-favicon-src="https://t1.gstatic.com/faviconV2?url=https%3A%2F%2Fwww.imeteo.sk%2Firadar&client=SOCIAL&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%23888' opacity='.35'/%3E%3C/svg%3E" alt="" loading="lazy"></span><span class="ql-label">Radar</span></a><a class="ql-tile pill" href="https://translate.google.sk/?sl=auto&tl=sk&op=translate" target="_blank" rel="noopener"><span class="ql-emoji"><img data-favicon-src="https://t1.gstatic.com/faviconV2?url=https%3A%2F%2Ftranslate.google.sk%2F%3Fsl%3Dauto%26tl%3Dsk%26op%3Dtranslate&client=SOCIAL&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%23888' opacity='.35'/%3E%3C/svg%3E" alt="" loading="lazy"></span><span class="ql-label">Prekladač</span></a></div>
+                <div class="ql-row"><a class="ql-tile pill" href="https://www.google.sk" target="_blank" rel="noopener"><span class="ql-emoji"><img data-favicon-src="https://t1.gstatic.com/faviconV2?url=https%3A%2F%2Fwww.google.sk&client=SOCIAL&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%23888' opacity='.35'/%3E%3C/svg%3E" alt="" loading="lazy"></span><span class="ql-label">Google</span></a><a class="ql-tile pill" href="https://mapy.com/sk/turisticka?x=19.4402339&y=48.8084443&z=8" target="_blank" rel="noopener"><span class="ql-emoji"><img data-favicon-src="https://t1.gstatic.com/faviconV2?url=https%3A%2F%2Fmapy.com%2Fsk%2Fturisticka%3Fx%3D19.4402339%26y%3D48.8084443%26z%3D8&client=SOCIAL&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%23888' opacity='.35'/%3E%3C/svg%3E" alt="" loading="lazy"></span><span class="ql-label">Mapy.cz</span></a></div>
+                <div class="ql-row"><a class="ql-tile pill" href="https://zoznam.sk" target="_blank" rel="noopener"><span class="ql-emoji"><img data-favicon-src="https://t1.gstatic.com/faviconV2?url=https%3A%2F%2Fzoznam.sk&client=SOCIAL&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%23888' opacity='.35'/%3E%3C/svg%3E" alt="" loading="lazy"></span><span class="ql-label">Zoznam.sk</span></a><a class="ql-tile pill" href="https://www.youtube.com/" target="_blank" rel="noopener"><span class="ql-emoji"><img data-favicon-src="https://t1.gstatic.com/faviconV2?url=https%3A%2F%2Fwww.youtube.com%2F&client=SOCIAL&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%23888' opacity='.35'/%3E%3C/svg%3E" alt="" loading="lazy"></span><span class="ql-label">YouTube</span></a></div>
+                <div class="ql-row"><a class="ql-tile pill" href="https://www.seznam.cz/" target="_blank" rel="noopener"><span class="ql-emoji"><img data-favicon-src="https://t1.gstatic.com/faviconV2?url=https%3A%2F%2Fwww.seznam.cz%2F&client=SOCIAL&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%23888' opacity='.35'/%3E%3C/svg%3E" alt="" loading="lazy"></span><span class="ql-label">Seznam.cz</span></a><a class="ql-tile pill" href="https://imhd.sk" target="_blank" rel="noopener"><span class="ql-emoji"><img data-favicon-src="https://t1.gstatic.com/faviconV2?url=https%3A%2F%2Fimhd.sk&client=SOCIAL&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%23888' opacity='.35'/%3E%3C/svg%3E" alt="" loading="lazy"></span><span class="ql-label">Imhd.sk</span></a></div>
               </div>
             </section>
           </div>
@@ -4227,8 +4304,12 @@ button:not(.nav-item) { position: relative; overflow: hidden; }
   }
 
   function initTheme(){
-    buildPresetGrid();
-    buildColorPresetGrid();
+    if(typeof whenConsented === 'function'){
+      whenConsented(function(){ buildPresetGrid(); buildColorPresetGrid(); });
+    } else {
+      buildPresetGrid();
+      buildColorPresetGrid();
+    }
     let saved = null;
     try{ saved = JSON.parse(localStorage.getItem(STORAGE_KEY)); }catch(e){}
     if(saved && saved.primary && saved.accent){
@@ -4321,7 +4402,7 @@ button:not(.nav-item) { position: relative; overflow: hidden; }
     }
   }
 
-  (function initWallpaper(){
+  function initWallpaper(){
     let saved = null;
     try{ saved = JSON.parse(localStorage.getItem(WALLPAPER_KEY)); }catch(e){}
     if(saved && saved.url){
@@ -4331,7 +4412,8 @@ button:not(.nav-item) { position: relative; overflow: hidden; }
     } else {
       setWallpaper(DEFAULT_WALLPAPER, .9, false);
     }
-  })();
+  }
+  if(typeof whenConsented === 'function'){ whenConsented(initWallpaper); } else { initWallpaper(); }
 
   /* ============ VEĽKOSŤ TEXTU SPRÁV (dlaždica Najnovšie správy) ============
      Rovnaký princíp ako synchronizácia témy do iframe (viď vyššie) –
@@ -4513,6 +4595,10 @@ function applyWeatherMode(mode, save){
   const textPanel = document.getElementById('weather-text-panel');
   const card = document.getElementById('weather-widget-card');
   if(!iframe || !textPanel) return;
+  if(!window.__consentGiven){
+    textPanel.innerHTML = '<div class="wtp-empty">Najprv potvrďte súhlas hore na stránke.</div>';
+    return;
+  }
   if(mode === 'text'){
     iframe.removeAttribute('src');
     iframe.style.display = 'none';
@@ -4532,6 +4618,10 @@ function applyWeatherMode(mode, save){
 async function loadWeatherTexts(){
   const panel = document.getElementById('weather-text-panel');
   if(!panel) return;
+  if(!window.__consentGiven){
+    panel.innerHTML = '<div class="wtp-empty">Najprv potvrďte súhlas hore na stránke.</div>';
+    return;
+  }
   const cities = getWeatherCities();
   if(!cities.length){ panel.innerHTML = '<div class="wtp-empty">Pridajte mesto v Nastaveniach.</div>'; return; }
   panel.innerHTML = cities.map(c => `
@@ -4632,6 +4722,10 @@ function selectWeatherCityResult(index, prefix){
 
 async function addWeatherCity(prefix){
   prefix = prefix || 'weather-city';
+  if(!window.__consentGiven){
+    alert('Najprv potvrďte súhlas hore na stránke.');
+    return;
+  }
   const input = document.getElementById(prefix+'-input');
   if(!input) return;
   if(getWeatherCities().length >= MAX_WEATHER_CITIES){
@@ -4687,7 +4781,7 @@ function resetWeatherCities(prefix){
 
 function initWeatherWidget(){
   renderWeatherCityList();
-  applyWeatherMode(getWeatherMode(), false);
+  whenConsented(function(){ applyWeatherMode(getWeatherMode(), false); });
 }
 initWeatherWidget();
 
@@ -4784,6 +4878,7 @@ const gi=document.getElementById('googleInput'),sb=document.getElementById('goog
 
 function fetchSug(q){
   if(!q.trim()){closeSug();return;}
+  if(!window.__consentGiven){closeSug();return;}
   const cb=`__sg${++jc}`;
   const old=document.getElementById('__sgs');if(old)old.remove();
   window[cb]=(data)=>{delete window[cb];cs=(data[1]||[]).slice(0,8);renderSug(q);};
@@ -5295,10 +5390,18 @@ document.querySelectorAll("button:not(.nav-item)").forEach(b=>{b.addEventListene
     finishOnboarding();
   };
 
-  /* Spustenie wizardu */
-  buildOnbMotifGrid();
+  /* Spustenie wizardu – zostavenie mriežky motívov aj samotné zobrazenie
+     počkajú na súhlas, aby sa tapety nesťahovali predčasne */
   goToStep(1);
-  requestAnimationFrame(()=> overlay.classList.add('active'));
+  if(typeof whenConsented === 'function'){
+    whenConsented(function(){
+      buildOnbMotifGrid();
+      requestAnimationFrame(()=> overlay.classList.add('active'));
+    });
+  } else {
+    buildOnbMotifGrid();
+    requestAnimationFrame(()=> overlay.classList.add('active'));
+  }
 })();
 </script>
 
