@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="sk">
 <head>
@@ -90,7 +91,19 @@
       '#2f6b3d': 'mach-theme',
       '#4a7c3f': 'lesna-cesta-theme',
       '#5b8c3e': 'jesenny-park-theme',
-      '#3e6e7a': 'potok-theme'
+      '#3e6e7a': 'potok-theme',
+      '#4f8f3e': 'vrbovka-theme',
+      '#c08a4e': 'jelen-theme',
+      '#b03a2e': 'javor-theme',
+      '#d5311a': 'mak-theme',
+      '#d98a1e': 'zlatylas-theme',
+      '#e48e04': 'zlatekopce-theme',
+      '#3f7a2e': 'paprad-theme',
+      '#6b9e42': 'margaretky-theme',
+      '#33507d': 'ladove-jazero-theme',
+      '#c2698c': 'sakury-theme',
+      '#8c3f76': 'vresovisko-theme',
+      '#2e5c34': 'cicovske-mrtve-rameno-theme'
     };
 
     try{
@@ -744,6 +757,342 @@
     --outline:        #8FB6BE;
   }
 
+  /* ---- motív Vŕbovka: hmlistá horská dolina, lúčna zeleň a kvitnúca ružovofialová vŕbovka ---- */
+  :root.vrbovka-theme{
+    --surface:        #F1F7EB;
+    --surface-high:   #E5EFDC;
+    --surface-dim:    #D7E7C9;
+    --outline:        #B9D3A2;
+  }
+  @media (prefers-color-scheme: dark){
+    :root.vrbovka-theme{
+      --surface:        #0D150E;
+      --surface-high:   #172319;
+      --surface-dim:    #111C13;
+      --outline:        #2C4130;
+    }
+  }
+  html[data-theme="dark"].vrbovka-theme{
+    --surface:        #0D150E;
+    --surface-high:   #172319;
+    --surface-dim:    #111C13;
+    --outline:        #2C4130;
+  }
+  html[data-theme="light"].vrbovka-theme{
+    --surface:        #F1F7EB;
+    --surface-high:   #E5EFDC;
+    --surface-dim:    #D7E7C9;
+    --outline:        #B9D3A2;
+  }
+
+  /* ---- motív Jeleň: hmlistý les za svitania, teplé jantárové svetlo a chladné tiene ---- */
+  :root.jelen-theme{
+    --surface:        #F5F0E8;
+    --surface-high:   #ECE4D6;
+    --surface-dim:    #E0D5C2;
+    --outline:        #C9BBA0;
+  }
+  @media (prefers-color-scheme: dark){
+    :root.jelen-theme{
+      --surface:        #0F0C09;
+      --surface-high:   #1B1611;
+      --surface-dim:    #14100C;
+      --outline:        #362C22;
+    }
+  }
+  html[data-theme="dark"].jelen-theme{
+    --surface:        #0F0C09;
+    --surface-high:   #1B1611;
+    --surface-dim:    #14100C;
+    --outline:        #362C22;
+  }
+  html[data-theme="light"].jelen-theme{
+    --surface:        #F5F0E8;
+    --surface-high:   #ECE4D6;
+    --surface-dim:    #E0D5C2;
+    --outline:        #C9BBA0;
+  }
+
+  /* ---- motív Javor: japonská záhrada, ohnivé javorové lístie a jazierko pod jesennou oblohou ---- */
+  :root.javor-theme{
+    --surface:        #FBF1EA;
+    --surface-high:   #F5E4D8;
+    --surface-dim:    #EED4C2;
+    --outline:        #D9B49B;
+  }
+  @media (prefers-color-scheme: dark){
+    :root.javor-theme{
+      --surface:        #140B09;
+      --surface-high:   #211210;
+      --surface-dim:    #190D0B;
+      --outline:        #3D211B;
+    }
+  }
+  html[data-theme="dark"].javor-theme{
+    --surface:        #140B09;
+    --surface-high:   #211210;
+    --surface-dim:    #190D0B;
+    --outline:        #3D211B;
+  }
+  html[data-theme="light"].javor-theme{
+    --surface:        #FBF1EA;
+    --surface-high:   #F5E4D8;
+    --surface-dim:    #EED4C2;
+    --outline:        #D9B49B;
+  }
+
+  /* ---- motív Vlčí mak: lúka pod letnou oblohou, sýto červené kvety maku medzi trávou ---- */
+  :root.mak-theme{
+    --surface:        #F4FAF0;
+    --surface-high:   #E8F4E0;
+    --surface-dim:    #DAEDC9;
+    --outline:        #B8DDA0;
+  }
+  @media (prefers-color-scheme: dark){
+    :root.mak-theme{
+      --surface:        #0B0F08;
+      --surface-high:   #141B0F;
+      --surface-dim:    #0F140A;
+      --outline:        #2C3A1F;
+    }
+  }
+  html[data-theme="dark"].mak-theme{
+    --surface:        #0B0F08;
+    --surface-high:   #141B0F;
+    --surface-dim:    #0F140A;
+    --outline:        #2C3A1F;
+  }
+  html[data-theme="light"].mak-theme{
+    --surface:        #F4FAF0;
+    --surface-high:   #E8F4E0;
+    --surface-dim:    #DAEDC9;
+    --outline:        #B8DDA0;
+  }
+
+  /* ---- motív Zlatý les: slnkom presvietený bukový les v jesennom zlate a ohnivej červeni ---- */
+  :root.zlatylas-theme{
+    --surface:        #FBF3E4;
+    --surface-high:   #F7E8CC;
+    --surface-dim:    #F0DAB0;
+    --outline:        #E0BD7C;
+  }
+  @media (prefers-color-scheme: dark){
+    :root.zlatylas-theme{
+      --surface:        #140D06;
+      --surface-high:   #241708;
+      --surface-dim:    #1B1105;
+      --outline:        #4A2F12;
+    }
+  }
+  html[data-theme="dark"].zlatylas-theme{
+    --surface:        #140D06;
+    --surface-high:   #241708;
+    --surface-dim:    #1B1105;
+    --outline:        #4A2F12;
+  }
+  html[data-theme="light"].zlatylas-theme{
+    --surface:        #FBF3E4;
+    --surface-high:   #F7E8CC;
+    --surface-dim:    #F0DAB0;
+    --outline:        #E0BD7C;
+  }
+
+  /* ---- motív Zlaté kopce: kopce plné kalifornských makov pod jasnou modrou oblohou ---- */
+  :root.zlatekopce-theme{
+    --surface:        #FFF6E8;
+    --surface-high:   #FCEBC9;
+    --surface-dim:    #F7DDA0;
+    --outline:        #E8C066;
+  }
+  @media (prefers-color-scheme: dark){
+    :root.zlatekopce-theme{
+      --surface:        #160F06;
+      --surface-high:   #271A09;
+      --surface-dim:    #1D1305;
+      --outline:        #4F3812;
+    }
+  }
+  html[data-theme="dark"].zlatekopce-theme{
+    --surface:        #160F06;
+    --surface-high:   #271A09;
+    --surface-dim:    #1D1305;
+    --outline:        #4F3812;
+  }
+  html[data-theme="light"].zlatekopce-theme{
+    --surface:        #FFF6E8;
+    --surface-high:   #FCEBC9;
+    --surface-dim:    #F7DDA0;
+    --outline:        #E8C066;
+  }
+
+  /* ---- motív Papraď: mladé zvinuté výhonky papradia medzi žltými kvietkami na lesnej lúke ---- */
+  :root.paprad-theme{
+    --surface:        #F4F8E9;
+    --surface-high:   #E7F0D2;
+    --surface-dim:    #D8E7B6;
+    --outline:        #A9C97A;
+  }
+  @media (prefers-color-scheme: dark){
+    :root.paprad-theme{
+      --surface:        #0A140A;
+      --surface-high:   #142414;
+      --surface-dim:    #0D1B0D;
+      --outline:        #2E4A22;
+    }
+  }
+  html[data-theme="dark"].paprad-theme{
+    --surface:        #0A140A;
+    --surface-high:   #142414;
+    --surface-dim:    #0D1B0D;
+    --outline:        #2E4A22;
+  }
+  html[data-theme="light"].paprad-theme{
+    --surface:        #F4F8E9;
+    --surface-high:   #E7F0D2;
+    --surface-dim:    #D8E7B6;
+    --outline:        #A9C97A;
+  }
+
+  /* ---- motív Margarétky: lúka plná bielych margarétok so slnečno-žltými stredmi ---- */
+  :root.margaretky-theme{
+    --surface:        #F7FBF0;
+    --surface-high:   #EDF5DE;
+    --surface-dim:    #E0EEC8;
+    --outline:        #B9D98F;
+  }
+  @media (prefers-color-scheme: dark){
+    :root.margaretky-theme{
+      --surface:        #0B140A;
+      --surface-high:   #16240F;
+      --surface-dim:    #0F1B0B;
+      --outline:        #33501F;
+    }
+  }
+  html[data-theme="dark"].margaretky-theme{
+    --surface:        #0B140A;
+    --surface-high:   #16240F;
+    --surface-dim:    #0F1B0B;
+    --outline:        #33501F;
+  }
+  html[data-theme="light"].margaretky-theme{
+    --surface:        #F7FBF0;
+    --surface-high:   #EDF5DE;
+    --surface-dim:    #E0EEC8;
+    --outline:        #B9D98F;
+  }
+
+  /* ---- motív Ľadové jazero: zamrznuté horské jazero s bublinkami ľadu pod súmrakovou oblohou ---- */
+  :root.ladove-jazero-theme{
+    --surface:        #EEF4F8;
+    --surface-high:   #DCEAF2;
+    --surface-dim:    #C7DEEA;
+    --outline:        #9CC0DA;
+  }
+  @media (prefers-color-scheme: dark){
+    :root.ladove-jazero-theme{
+      --surface:        #0A1220;
+      --surface-high:   #131F32;
+      --surface-dim:    #0D1626;
+      --outline:        #2A3F5C;
+    }
+  }
+  html[data-theme="dark"].ladove-jazero-theme{
+    --surface:        #0A1220;
+    --surface-high:   #131F32;
+    --surface-dim:    #0D1626;
+    --outline:        #2A3F5C;
+  }
+  html[data-theme="light"].ladove-jazero-theme{
+    --surface:        #EEF4F8;
+    --surface-high:   #DCEAF2;
+    --surface-dim:    #C7DEEA;
+    --outline:        #9CC0DA;
+  }
+
+  /* ---- motív Sakury: alej kvitnúcich čerešní nad ulicou v teplom podvečernom svetle ---- */
+  :root.sakury-theme{
+    --surface:        #FBF0F3;
+    --surface-high:   #F7E1E8;
+    --surface-dim:    #F0CEDA;
+    --outline:        #DDA0B8;
+  }
+  @media (prefers-color-scheme: dark){
+    :root.sakury-theme{
+      --surface:        #160A10;
+      --surface-high:   #241019;
+      --surface-dim:    #1B0D14;
+      --outline:        #4A2035;
+    }
+  }
+  html[data-theme="dark"].sakury-theme{
+    --surface:        #160A10;
+    --surface-high:   #241019;
+    --surface-dim:    #1B0D14;
+    --outline:        #4A2035;
+  }
+  html[data-theme="light"].sakury-theme{
+    --surface:        #FBF0F3;
+    --surface-high:   #F7E1E8;
+    --surface-dim:    #F0CEDA;
+    --outline:        #DDA0B8;
+  }
+
+  /* ---- motív Vresovisko: kvitnúci vres na svahu nad riekou v podvečernom súmraku ---- */
+  :root.vresovisko-theme{
+    --surface:        #FBF1F7;
+    --surface-high:   #F5E2F0;
+    --surface-dim:    #EED0E7;
+    --outline:        #D9A9C9;
+  }
+  @media (prefers-color-scheme: dark){
+    :root.vresovisko-theme{
+      --surface:        #150C16;
+      --surface-high:   #221226;
+      --surface-dim:    #1B0E1D;
+      --outline:        #4A2A48;
+    }
+  }
+  html[data-theme="dark"].vresovisko-theme{
+    --surface:        #150C16;
+    --surface-high:   #221226;
+    --surface-dim:    #1B0E1D;
+    --outline:        #4A2A48;
+  }
+  html[data-theme="light"].vresovisko-theme{
+    --surface:        #FBF1F7;
+    --surface-high:   #F5E2F0;
+    --surface-dim:    #EED0E7;
+    --outline:        #D9A9C9;
+  }
+
+  /* ---- motív Číčovské mŕtve rameno: slnkom prežiarený les nad mŕtvym ramenom rieky ---- */
+  :root.cicovske-mrtve-rameno-theme{
+    --surface:        #F3F8EE;
+    --surface-high:   #E5EFDA;
+    --surface-dim:    #D3E4C3;
+    --outline:        #A9C793;
+  }
+  @media (prefers-color-scheme: dark){
+    :root.cicovske-mrtve-rameno-theme{
+      --surface:        #0B140A;
+      --surface-high:   #142014;
+      --surface-dim:    #0E1A0D;
+      --outline:        #2E4A2A;
+    }
+  }
+  html[data-theme="dark"].cicovske-mrtve-rameno-theme{
+    --surface:        #0B140A;
+    --surface-high:   #142014;
+    --surface-dim:    #0E1A0D;
+    --outline:        #2E4A2A;
+  }
+  html[data-theme="light"].cicovske-mrtve-rameno-theme{
+    --surface:        #F3F8EE;
+    --surface-high:   #E5EFDA;
+    --surface-dim:    #D3E4C3;
+    --outline:        #A9C793;
+  }
+
   *{box-sizing:border-box;}
   html,body{height:100%;}
   body{
@@ -1071,11 +1420,11 @@
      keyframe that could be mid-cycle (and look "off") whenever you click. */
   .nav-item.active .nav-indicator{
     width:calc(52px * var(--rail-scale, 1));
-    background:var(--primary-cont);
+    background:var(--site-primary-solid);
     border-radius:18px;
   }
   .nav-item.active .icon{
-    stroke:var(--on-primary-cont);
+    stroke:#fff;
     transform:scale(1.08);
   }
   .nav-item.active .nav-label{
@@ -1084,7 +1433,7 @@
   }
 
   .nav-item:hover .nav-indicator{ background:var(--surface-dim); }
-  .nav-item.active:hover .nav-indicator{ background:var(--primary-cont); }
+  .nav-item.active:hover .nav-indicator{ background:var(--site-primary-solid); }
 
   /* ============ MAIN AREA ============ */
   .main{
@@ -3969,6 +4318,18 @@ button:not(.nav-item) { position: relative; overflow: hidden; }
     { id:'lesna-cesta', name:'Lesná cesta', primary:'#4A7C3F', accent:'#C9A227', wallpaper:'lesnacesta.jpg' },
     { id:'jesenny-park', name:'Jesenný park', primary:'#5B8C3E', accent:'#8B3A42', wallpaper:'jesennypark.jpg' },
     { id:'potok', name:'Potok', primary:'#3E6E7A', accent:'#6B4A2E', wallpaper:'potok.jpg' },
+    { id:'vrbovka', name:'Vŕbovka', primary:'#4F8F3E', accent:'#C23F9E', wallpaper:'vrbovka.jpg' },
+    { id:'jelen', name:'Jeleň', primary:'#C08A4E', accent:'#4E5267', wallpaper:'jelen.jpg' },
+    { id:'javor', name:'Javor', primary:'#B03A2E', accent:'#4A76B8', wallpaper:'javor.jpg' },
+    { id:'mak', name:'Vlčí mak', primary:'#D5311A', accent:'#457224', wallpaper:'mak.jpg' },
+    { id:'zlatylas', name:'Zlatý les', primary:'#D98A1E', accent:'#AF2914', wallpaper:'zlatylas.jpg' },
+    { id:'zlatekopce', name:'Zlaté kopce', primary:'#E48E04', accent:'#8B5A14', wallpaper:'zlatekopce.jpg' },
+    { id:'paprad', name:'Papraď', primary:'#3F7A2E', accent:'#D9A521', wallpaper:'paprad.jpg' },
+    { id:'margaretky', name:'Margarétky', primary:'#6B9E42', accent:'#F0C419', wallpaper:'margaretky.jpg' },
+    { id:'ladove-jazero', name:'Ľadové jazero', primary:'#33507D', accent:'#E08A6B', wallpaper:'ladovejazero.jpg' },
+    { id:'sakury', name:'Sakury', primary:'#C2698C', accent:'#D98C4A', wallpaper:'sakury.jpg' },
+    { id:'vresovisko', name:'Vresovisko', primary:'#8C3F76', accent:'#E8622A', wallpaper:'vresovisko.jpg' },
+    { id:'cicovske-mrtve-rameno', name:'Číčovské mŕtve rameno', primary:'#2E5C34', accent:'#E0C24C', wallpaper:'cicovskemrtverameno.jpg' },
   ];
 
   /* Mapovanie "špeciálnych" tém (majú vlastné CSS triedy s prefarbenými povrchmi
@@ -3993,6 +4354,18 @@ button:not(.nav-item) { position: relative; overflow: hidden; }
     '#4a7c3f': { cls:'lesna-cesta-theme', wallpaper:'lesnacesta.jpg' },
     '#5b8c3e': { cls:'jesenny-park-theme', wallpaper:'jesennypark.jpg' },
     '#3e6e7a': { cls:'potok-theme', wallpaper:'potok.jpg' },
+    '#4f8f3e': { cls:'vrbovka-theme', wallpaper:'vrbovka.jpg' },
+    '#c08a4e': { cls:'jelen-theme', wallpaper:'jelen.jpg' },
+    '#b03a2e': { cls:'javor-theme', wallpaper:'javor.jpg' },
+    '#d5311a': { cls:'mak-theme', wallpaper:'mak.jpg' },
+    '#d98a1e': { cls:'zlatylas-theme', wallpaper:'zlatylas.jpg' },
+    '#e48e04': { cls:'zlatekopce-theme', wallpaper:'zlatekopce.jpg' },
+    '#3f7a2e': { cls:'paprad-theme', wallpaper:'paprad.jpg' },
+    '#6b9e42': { cls:'margaretky-theme', wallpaper:'margaretky.jpg' },
+    '#33507d': { cls:'ladove-jazero-theme', wallpaper:'ladovejazero.jpg' },
+    '#c2698c': { cls:'sakury-theme', wallpaper:'sakury.jpg' },
+    '#8c3f76': { cls:'vresovisko-theme', wallpaper:'vresovisko.jpg' },
+    '#2e5c34': { cls:'cicovske-mrtve-rameno-theme', wallpaper:'cicovskemrtverameno.jpg' },
   };
 
   function hexToRgb(hex){
@@ -4140,6 +4513,18 @@ button:not(.nav-item) { position: relative; overflow: hidden; }
     document.documentElement.classList.toggle('lesna-cesta-theme', !!special && special.cls === 'lesna-cesta-theme');
     document.documentElement.classList.toggle('jesenny-park-theme', !!special && special.cls === 'jesenny-park-theme');
     document.documentElement.classList.toggle('potok-theme', !!special && special.cls === 'potok-theme');
+    document.documentElement.classList.toggle('vrbovka-theme', !!special && special.cls === 'vrbovka-theme');
+    document.documentElement.classList.toggle('jelen-theme', !!special && special.cls === 'jelen-theme');
+    document.documentElement.classList.toggle('javor-theme', !!special && special.cls === 'javor-theme');
+    document.documentElement.classList.toggle('mak-theme', !!special && special.cls === 'mak-theme');
+    document.documentElement.classList.toggle('zlatylas-theme', !!special && special.cls === 'zlatylas-theme');
+    document.documentElement.classList.toggle('zlatekopce-theme', !!special && special.cls === 'zlatekopce-theme');
+    document.documentElement.classList.toggle('paprad-theme', !!special && special.cls === 'paprad-theme');
+    document.documentElement.classList.toggle('margaretky-theme', !!special && special.cls === 'margaretky-theme');
+    document.documentElement.classList.toggle('ladove-jazero-theme', !!special && special.cls === 'ladove-jazero-theme');
+    document.documentElement.classList.toggle('sakury-theme', !!special && special.cls === 'sakury-theme');
+    document.documentElement.classList.toggle('vresovisko-theme', !!special && special.cls === 'vresovisko-theme');
+    document.documentElement.classList.toggle('cicovske-mrtve-rameno-theme', !!special && special.cls === 'cicovske-mrtve-rameno-theme');
     updateWallpaperScrim();
     syncNewsFrameTheme();
     if(save){
