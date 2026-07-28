@@ -7,7 +7,26 @@
 <link rel="icon" type="image/png" sizes="1080x1080" href="logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round&display=block" rel="stylesheet">
+<style>
+  /* Poistka: kým nie je font Material Icons Round načítaný, radšej skryť
+     text (názvy ikon) než ho na krátko zobraziť. Visibility nemení rozmery,
+     takže sa nebije s ostatnými pravidlami veľkosti ikon v súbore. */
+  html:not(.fonts-loaded) .material-icons-round{ visibility:hidden !important; }
+</style>
+<script>
+  if (document.fonts && document.fonts.load) {
+    document.fonts.load('24px "Material Icons Round"').then(function(){
+      document.documentElement.classList.add('fonts-loaded');
+    }).catch(function(){
+      document.documentElement.classList.add('fonts-loaded');
+    });
+    // poistka keby "load" nikdy nerozhodne
+    setTimeout(function(){ document.documentElement.classList.add('fonts-loaded'); }, 2000);
+  } else {
+    document.documentElement.classList.add('fonts-loaded');
+  }
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,600;0,700;0,800;0,900;1,700&display=swap" rel="stylesheet">
 <script>
   /* Skoré nastavenie režimu zobrazenia (Podľa zariadenia / Svetlý / Tmavý)
